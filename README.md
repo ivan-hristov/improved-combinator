@@ -1,2 +1,1 @@
-# pcc
-Programmable Circuit Combinator 
+# Factorio - Advanced Combinator
