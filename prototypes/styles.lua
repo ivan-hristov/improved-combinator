@@ -16,13 +16,13 @@ add_styles({
         font_color = {r=1, g=1, b=1},
 
         top_padding  = 0,
-        right_padding = 2,
+        right_padding = 0,
         bottom_padding = 0,
-        left_padding = 2,
+        left_padding = 0,
 
         title_top_padding = 0,
         title_left_padding = 0,
-        title_bottom_padding = 4,
+        title_bottom_padding = 0,
         title_right_padding = 0,
 
         graphical_set =
@@ -58,11 +58,40 @@ add_styles({
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
 
+        top_padding  = 30,
+        right_padding = 10,
+        bottom_padding = 10,
+        left_padding = 10,
+
         minimal_width = 700,
         maximal_width = 700,
         minimal_height = 650,
         maximal_height = 650,
         width = 700,
         height = 650
-    }
+    },
+    [constants.style.options_frame] =
+    {
+        type = "frame_style",
+        parent = constants.style.default_frame_fill,
+        vertical_align = "top",
+        horizontal_align = "left",
+
+        top_padding  = 10,
+        right_padding = 10,
+        bottom_padding = 10,
+        left_padding = 10,
+
+        width = 300,
+        height = 610,
+        maximal_height = 610,
+    },
+    [constants.style.condition_button] =
+    {
+      type = "button_style",
+      parent = "button_with_shadow",
+      horizontal_align = "left",
+      height = 36,
+      width = 288
+    },
 })

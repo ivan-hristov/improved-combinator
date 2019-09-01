@@ -1,21 +1,15 @@
 local constants = require("constants")
-
+local logger = require("scripts.logger")
 local init = false
-local debugMode = true
+
 
 --Print a message
-local function debugLog(message)
-    if debugMode then
-        local player = game.players[1]
-        if (player ~= nil) then
-            player.print(message)
-        end
-	end
-end
+
 
 --local function onInit()
 --    if not init then
 --        global.gui = global.gui or {}
+--		  global.structures = global.structures or {}
 --        init = true
 --    end
 --end
@@ -30,6 +24,18 @@ local function addGuiFrameV(container, parent, key, style, caption)
 	return container
 end
 
+local function addGuiButton(container, parent, action, key, style, caption, tooltip)
+	container = container or {}
+	if key ~= nil then action = action..key end
+	if not container or not container.valid then
+		container = parent.add({type = "button", name = action})
+	end
+	if style ~= nil then container.style = style end
+	if caption ~= nil then container.caption = caption end
+	if tooltip ~= nil then container.tooltip = tooltip end
+	return container
+end
+
 local function drawGui(player, player_index)
 
     if not global.gui then
@@ -40,34 +46,43 @@ local function drawGui(player, player_index)
     local gui = global.gui[player_index]
     
     gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.main_panel, constants.style.default_frame_fill)
+    gui.options = addGuiFrameV(gui.options, gui.main, constants.container.options_panel, constants.style.options_frame)
     
+    gui.button = addGuiButton(gui.button, gui.options, constants.actions.press_button, "", constants.style.add_condition_button, "first-button", "this-is-the-first-button")
+
     player.opened = gui.main
 end
 
 local function onGuiOpen(event)
-    debugLog("function.onGuiOpen")
+    logger.print("function.onGuiOpen")
     
     if event.entity and event.entity.name then
-        debugLog("Entity: "..event.entity.name)
+        logger.print("Entity: "..event.entity.name)
     end
 
     if event.player_index and game.players[event.player_index] then
         local player = game.players[event.player_index]    
         
         if player.selected then
-            debugLog("Selected: "..player.selected.name)
+            logger.print("Selected: "..player.selected.name)
         end
     end
 
 	local player = game.players[event.player_index]
-	if player.selected and player.selected.name == constants.name then
+	if player.selected and player.selected.name == constants.entity.name then
 		drawGui(player, event.player_index)
 		global.gui.open = true
 	end
+
+	--- DEBUG ---
+	if event.entity then
+
+	end
+	--- DEBUG ---
 end
 
 local function onGuiClose(event)
-    debugLog("function.onGuiClose")
+    logger.print("function.onGuiClose")
 
 	local player = game.players[event.player_index]
 	if global.gui ~= nil and event.gui_type == defines.gui_type.custom then
@@ -81,6 +96,9 @@ local function onGuiClose(event)
 		end
 	end
 end  
+
+
+
 
 --script.on_init(onInit)
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
