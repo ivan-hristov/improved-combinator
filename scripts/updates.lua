@@ -44,9 +44,9 @@ local function writeOutputSignals()
 end
 
 local function onTick(event)
-    readInputSignals()
-    processSignals()
-    writeOutputSignals()
+    --readInputSignals()
+    --processSignals()
+    --writeOutputSignals()
 end
 
 

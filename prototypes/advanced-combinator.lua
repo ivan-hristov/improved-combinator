@@ -16,122 +16,70 @@ local function item()
 end
 
 local function entity()
-    entity = table.deepcopy(data.raw["arithmetic-combinator"]["arithmetic-combinator"])
-    entity.name = constants.entity.name
-    entity.item_slot_count = 27
-    entity.minable.result = constants.entity.name
-    entity.fast_replaceable_group = "arithmetic-combinator"
-    entity.sprites = make_4way_animation_from_spritesheet({
-        layers =
-        {
-            {
-            filename = constants.entity.graphics.image,
-            width = 74,
-            height = 64,
-            frame_count = 1,
-            shift = util.by_pixel(1, 8),
-            hr_version =
-            {
-                scale = 0.5,
-                filename = constants.entity.graphics.hr_image,
-                width = 144,
-                height = 124,
-                frame_count = 1,
-                shift = util.by_pixel(0.5, 7.5)
-            }
-            },
-            {
-            filename = constants.entity.graphics.image_shadow,
-            width = 76,
-            height = 78,
-            frame_count = 1,
-            shift = util.by_pixel(14, 24),
-            draw_as_shadow = true,
-            hr_version =
-            {
-                scale = 0.5,
-                filename = constants.entity.graphics.hr_image_shadow,
-                width = 148,
-                height = 156,
-                frame_count = 1,
-                shift = util.by_pixel(13.5, 24.5),
-                draw_as_shadow = true
-            }
-            }
-        }
-    })
-    entity.activity_led_sprites =
+    container =
     {
-        north =
+        type = "container",
+        name = constants.entity.name,
+        icon = constants.entity.graphics.icon,
+        icon_size = 32,
+        scale_info_icons = true,
+        scale_entity_info_icon = true,
+        flags = {"placeable-neutral", "placeable-player", "player-creation"},
+        minable = {hardness = 0.2, mining_time = 1, result = constants.entity.name},
+        max_health = 250,
+        corpse = "1x2-remnants",
+        dying_explosion = "medium-explosion",
+		open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
+		close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
+		vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
+		resistances = {{type = "fire", percent = 90}},
+        collision_box = {{-0.8, -0.35}, {0.8, 0.35}},
+        selection_box = {{-1.0, -0.5}, {1.0, 0.5}},
+    	inventory_size = 0,
+		circuit_wire_max_distance = 0,
+		circuit_wire_connection_point = nil,
+        picture =
         {
-            filename = constants.entity.graphics.activity_leds.north,
-            width = 8,
-            height = 8,
-            frame_count = 1,
-            shift = util.by_pixel(8, -12),
-            hr_version =
+            layers =
             {
-                scale = 0.5,
-                filename = constants.entity.graphics.activity_leds.hr_north,
-                width = 16,
-                height = 14,
-                frame_count = 1,
-                shift = util.by_pixel(8.5, -12.5)
+                {
+                    filename = constants.entity.graphics.image,
+                    priority = "extra-high",
+                    width = 102,
+                    height = 51,
+                    shift = util.by_pixel(0, 0),
+                    hr_version =
+                    {
+                        filename = constants.entity.graphics.hr_image,
+                        priority = "extra-high",
+                        width = 204,
+                        height = 102,
+                        shift = util.by_pixel(0, 0),
+                        scale = 0.5
+                    }
+                },
+                {
+                    filename = constants.entity.graphics.image_shadow,
+                    priority = "extra-high",
+                    width = 100,
+                    height = 33,
+                    shift = util.by_pixel(8.9, 4.5),
+                    draw_as_shadow = true,
+                    hr_version =
+                    {
+                        filename = constants.entity.graphics.hr_image_shadow,
+                        priority = "extra-high",
+                        width = 200,
+                        height = 66,
+                        shift = util.by_pixel(8.7, 4.35),
+                        draw_as_shadow = true,
+                        scale = 0.5
+                    }
+                }
             }
         },
-        east =
-        {
-            filename = constants.entity.graphics.activity_leds.east,
-            width = 8,
-            height = 8,
-            frame_count = 1,
-            shift = util.by_pixel(17, -1),
-            hr_version =
-            {
-                scale = 0.5,
-                filename = constants.entity.graphics.activity_leds.hr_east,
-                width = 14,
-                height = 14,
-                frame_count = 1,
-                shift = util.by_pixel(16.5, -1)
-            }
-        },
-        south =
-        {
-            filename = constants.entity.graphics.activity_leds.south,
-            width = 8,
-            height = 8,
-            frame_count = 1,
-            shift = util.by_pixel(-8, 7),
-            hr_version =
-            {
-                scale = 0.5,
-                filename = constants.entity.graphics.activity_leds.hr_south,
-                width = 16,
-                height = 16,
-                frame_count = 1,
-                shift = util.by_pixel(-8, 7.5)
-            }
-        },
-        west =
-        {
-            filename = constants.entity.graphics.activity_leds.west,
-            width = 8,
-            height = 8,
-            frame_count = 1,
-            shift = util.by_pixel(-16, -12),
-            hr_version =
-            {
-                scale = 0.5,
-                filename = constants.entity.graphics.activity_leds.hr_west,
-                width = 14,
-                height = 14,
-                frame_count = 1,
-                shift = util.by_pixel(-16, -12.5)
-            }
-        }
     }
-    return entity
+    return container
 end
 
 local function recipe()
@@ -141,7 +89,7 @@ local function recipe()
         icon = constants.entity.graphics.icon,
         icon_size = 32,
         enabled = true,
-        ingredients = {{"constant-combinator", 1}, {"electronic-circuit", 1}},
+        ingredients = {{"constant-combinator", 2}, {"electronic-circuit", 5}},
         result = constants.entity.name
     }
     return recipe
