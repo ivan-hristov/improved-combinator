@@ -40,8 +40,6 @@ end
 
 local function onBuiltEntity(event)
     local entity = event.created_entity
-    logger.print("onBuildEntity "..entity.name.." number "..entity.unit_number)
-
     if entity.name == constants.entity.name then
         global.entity = entity
         global.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
@@ -52,7 +50,6 @@ end
 local function onEntityDied(event)   
     local entity = event.entity
     if entity.name == constants.entity.name then
-        logger.print("onEntityDied "..entity.name.." number "..entity.unit_number)
         if global.entity_input then
             global.entity_input.destroy()
             global.entity_input = nil

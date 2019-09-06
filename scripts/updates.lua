@@ -18,8 +18,7 @@ local function readInputSignals()
             for _, nework_signal in pairs(red_network.signals) do
                 if nework_signal and nework_signal.signal and nework_signal.count then
                     index = index + 1
-                    table.insert(input_signals, {index = index, signal = nework_signal.signal, count = nework_signal.count})
-                    --logger.print("Reading red signals "..nework_signal.signal.name.." count "..nework_signal.count)
+                    input_signals[index] = {index = index, signal = nework_signal.signal, count = nework_signal.count}
                 end
             end
         end
@@ -28,8 +27,7 @@ local function readInputSignals()
             for _, nework_signal in pairs(green_network.signals) do
                 if nework_signal and nework_signal.signal and nework_signal.count then
                     index = index + 1
-                    table.insert(input_signals, {index = index, signal = nework_signal.signal, count = nework_signal.count})
-                    --logger.print("Reading green signals "..nework_signal.signal.name.." count "..nework_signal.count)
+                    input_signals[index] = {index = index, signal = nework_signal.signal, count = nework_signal.count}
                 end
             end
         end

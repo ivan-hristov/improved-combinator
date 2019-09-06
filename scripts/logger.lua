@@ -1,8 +1,8 @@
 
 local debugMode = true
-local logger = {}
+logger = {}
 
-logger.print = function(message)
+function logger.print(message)
     if debugMode then
         local player = game.players[1]
         if (player ~= nil) then
