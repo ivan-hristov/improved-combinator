@@ -3,16 +3,12 @@ local logger = require("scripts.logger")
 local init = false
 
 
---Print a message
-
-
---local function onInit()
---    if not init then
---        global.gui = global.gui or {}
---		  global.structures = global.structures or {}
---        init = true
---    end
---end
+local function onInit()
+    if not init then
+        global.gui = global.gui or {}
+        init = true
+    end
+end
 
 local function addGuiFrameV(container, parent, key, style, caption)
 	container = container or {}
@@ -37,11 +33,6 @@ local function addGuiButton(container, parent, action, key, style, caption, tool
 end
 
 local function drawGui(player, player_index)
-
-    if not global.gui then
-        global.gui = global.gui or {}
-    end
-
 	global.gui[player_index] = global.gui[player_index] or {}
     local gui = global.gui[player_index]
     
@@ -53,9 +44,20 @@ local function drawGui(player, player_index)
     player.opened = gui.main
 end
 
+local function drawEmptyGui(player, player_index)
+	global.gui[player_index] = global.gui[player_index] or {}
+	local gui = global.gui[player_index]
+	
+	gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.hidden_panel, constants.style.hidden_frame)
+
+	player.opened = gui.main
+end
+
 local function onGuiOpen(event)
     logger.print("function.onGuiOpen")
-    
+	
+	onInit()
+
     if event.entity and event.entity.name then
         logger.print("Entity: "..event.entity.name)
     end
@@ -72,13 +74,12 @@ local function onGuiOpen(event)
 	if player.selected and player.selected.name == constants.entity.name then
 		drawGui(player, event.player_index)
 		global.gui.open = true
+	elseif player.selected then
+		if player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
+			--drawEmptyGui(player, event.player_index)
+			-- TODO Ensure it gets closed
+		end
 	end
-
-	--- DEBUG ---
-	if event.entity then
-
-	end
-	--- DEBUG ---
 end
 
 local function onGuiClose(event)

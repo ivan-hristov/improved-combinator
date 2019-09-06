@@ -1,22 +1,64 @@
 local constants = require("constants")
 
-local function item()
-    item =
+local blank_image =
+{
+    filename = constants.blank_image,
+    priority = "extra-high",
+    width = 1,
+    height = 1,
+    frame_count = 1,
+    shift = {0, 0}
+}
+
+local function mainItem()
+    local item =
     {
         type = "item",
         name = constants.entity.name,
         icon = constants.entity.graphics.icon,
-        icon_size = 32,
-        subgroup = "circuit-network",
         place_result = constants.entity.name,
+        icon_size = 32,
+        subgroup = "circuit-network",        
         order = "c[combinators]-z["..constants.entity.name.."]",
         stack_size = 50
     }
     return item
 end
 
-local function entity()
-    container =
+local function inputItem()
+    local combinator_input =
+    {
+        type = "item",
+        name = constants.entity.input.name,
+        icon = constants.entity.input.icon,
+        place_result = constants.entity.input.name,
+        icon_size = 1,
+        flags = {"hidden"},
+        subgroup = "circuit-network",
+        order = "c[combinators]-z["..constants.entity.input.name.."]",
+        stack_size = 50,
+    }
+    return combinator_input
+end
+
+local function inputOutput()
+    local combinator_output =
+    {
+        type = "item",
+        name =constants.entity.output.name,
+        icon = constants.entity.output.icon,
+        place_result = constants.entity.output.name,
+        icon_size = 1,
+        flags = {"hidden"},
+        subgroup = "circuit-network",
+        order = "c[combinators]-z["..constants.entity.output.name.."]",
+        stack_size = 50,
+    }
+    return combinator_output
+end
+
+local function mainEntity()
+    local container =
     {
         type = "container",
         name = constants.entity.name,
@@ -34,7 +76,7 @@ local function entity()
 		vehicle_impact_sound = { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
 		resistances = {{type = "fire", percent = 90}},
         collision_box = {{-0.8, -0.35}, {0.8, 0.35}},
-        selection_box = {{-1.0, -0.5}, {1.0, 0.5}},
+        selection_box = {{-0.75, -0.5}, {0.95, 0.5}},
     	inventory_size = 0,
 		circuit_wire_max_distance = 0,
 		circuit_wire_connection_point = nil,
@@ -82,8 +124,155 @@ local function entity()
     return container
 end
 
+local function inputEntity()
+    local combinator_input_connection_points =
+    {
+        red = {0.05, 0.08},
+        green = {0.05, -0.33}
+    }
+    local combinator_input =
+    {
+        type = "constant-combinator",
+        name = constants.entity.input.name,
+        icon = constants.blank_image,
+        icon_size = 1,
+        fast_replaceable_group = constants.entity.input.name,
+        flags = {"placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
+        mineable = nil,
+        order = "y",
+        max_health = 10000,
+        healing_per_tick = 10000,
+        corpse = "small-remnants",
+        collision_mask = {"not-colliding-with-itself"},
+        collision_box = {{-0.0, -0.0}, {0.0, 0.0}},
+        selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+        item_slot_count = 0,
+        sprites =
+        {
+            north = blank_image,
+            east = blank_image,
+            south = blank_image,
+            west = blank_image
+        },
+        activity_led_sprites =
+        {
+            north = blank_image,
+            east = blank_image,
+            south = blank_image,
+            west = blank_image
+        },
+        activity_led_light =
+        {
+            intensity = 1,
+            size = 1
+        },
+        activity_led_light_offsets =
+        {
+            {0, 0},
+            {0, 0},
+            {0, 0},
+            {0, 0}
+        },
+        circuit_wire_connection_points =
+        {
+            {
+                wire = combinator_input_connection_points,
+                shadow = combinator_input_connection_points
+            },
+            {
+                wire = combinator_input_connection_points,
+                shadow = combinator_input_connection_points
+            },
+            {
+                wire = combinator_input_connection_points,
+                shadow = combinator_input_connection_points
+            },
+            {
+                wire = combinator_input_connection_points,
+                shadow = combinator_input_connection_points
+            }
+        },
+        circuit_wire_max_distance = constants.entity.input.circuit_wire_max_distance
+    }
+    return combinator_input
+end
+
+local function outputEntity()
+    local combinator_output_connection_points =
+    {
+        red = {0.05, -0.45},
+        green = {0.05, 0}
+    }
+    local combinator_output =
+    {
+        type = "constant-combinator",
+        name = constants.entity.output.name,
+        icon = constants.blank_image,
+        icon_size = 1,
+        fast_replaceable_group = constants.entity.output.name,
+        flags = {"placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
+        mineable = nil,
+        order = "y",
+        max_health = 10000,
+        healing_per_tick = 10000,
+        corpse = "small-remnants",
+        collision_mask = {"not-colliding-with-itself"},
+        collision_box = {{-0.0, -0.0}, {0.0, 0.0}},
+        selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+        item_slot_count = 50,
+        sprites =
+        {
+            north = blank_image,
+            east = blank_image,
+            south = blank_image,
+            west = blank_image
+        },
+        activity_led_sprites =
+        {
+            north = blank_image,
+            east = blank_image,
+            south = blank_image,
+            west = blank_image
+        },
+        activity_led_light =
+        {
+            intensity = 1,
+            size = 1
+        },
+        activity_led_light_offsets =
+        {
+            {0, 0},
+            {0, 0},
+            {0, 0},
+            {0, 0}
+        },
+        circuit_wire_connection_points =
+        {
+            {
+                wire = combinator_output_connection_points,
+                shadow = combinator_output_connection_points
+            },
+            {
+                wire = combinator_output_connection_points,
+                shadow = combinator_output_connection_points
+            },
+            {
+                wire = combinator_output_connection_points,
+                shadow = combinator_output_connection_points
+            },
+            {
+                wire = combinator_output_connection_points,
+                shadow = combinator_output_connection_points
+            }
+        },
+        circuit_wire_max_distance = constants.entity.output.circuit_wire_max_distance
+    }
+    return combinator_output
+end
+
 local function recipe()
-    recipe = {
+    local recipe =
+    {
         type = "recipe",
         name = constants.entity.name,
         icon = constants.entity.graphics.icon,
@@ -95,4 +284,4 @@ local function recipe()
     return recipe
 end
 
-data:extend({item(), entity(), recipe()})
+data:extend({mainItem(), inputItem(), inputOutput(), mainEntity(), inputEntity(), outputEntity(), recipe()})

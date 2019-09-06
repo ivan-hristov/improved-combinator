@@ -9,6 +9,47 @@ end
 
 
 add_styles({
+    [constants.style.hidden_frame] =
+    {
+        type = "frame_style",
+        font = "default-semibold",      
+        font_color = {r=1, g=1, b=1},
+
+        top_padding  = 0,
+        right_padding = 0,
+        bottom_padding = 0,
+        left_padding = 0,
+
+        title_top_padding = 0,
+        title_left_padding = 0,
+        title_bottom_padding = 0,
+        title_right_padding = 0,
+
+        flow_style = {
+          type = "flow_style",
+          horizontal_spacing = 0,
+          vertical_spacing = 0
+        },
+        horizontal_flow_style =
+        {
+          type = "horizontal_flow_style",
+          horizontal_spacing = 0
+        },      
+        vertical_flow_style =
+        {
+          type = "vertical_flow_style",
+          vertical_spacing = 0
+        },
+        graphical_set =
+        {
+            type = "composition",
+            filename = constants.blank_image_4x4,
+            priority = "extra-high-no-scale",
+            load_in_minimal_mode = true,
+            corner_size = {1, 1},
+            position = {0, 0}
+        }
+    },
     [constants.style.default_frame] =
     {
         type = "frame_style",
