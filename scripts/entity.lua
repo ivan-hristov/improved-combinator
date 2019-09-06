@@ -40,33 +40,29 @@ end
 
 local function onBuiltEntity(event)
     local entity = event.created_entity
-    logger.print("onBuildEntity "..entity.name)
+    logger.print("onBuildEntity "..entity.name.." number "..entity.unit_number)
 
     if entity.name == constants.entity.name then
         global.entity = entity
         global.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
-
-        logger.print("onCreatedSubEntity "..global.entity_input.name)
-        logger.print("onCreatedSubEntity "..global.entity_output.name.." number "..global.entity_output.unit_number)
     end
 end
 
-local function onEntityDied(event)
-
-    logger.print("onEntityDied "..event.entity.name)
-
-    if global.entity_input then
-        global.entity_input.destroy()
-        global.entity_input = nil
+local function onEntityDied(event)   
+    local entity = event.entity
+    if entity.name == constants.entity.name then
+        logger.print("onEntityDied "..entity.name.." number "..entity.unit_number)
+        if global.entity_input then
+            global.entity_input.destroy()
+            global.entity_input = nil
+        end
+        if global.entity_output then
+            global.entity_output.destroy()
+            global.entity_output = nil
+        end
+        global.entity = nil
     end
-
-    if global.entity_output then
-        global.entity_output.destroy()
-        global.entity_output = nil
-    end
-
-    global.entity = nil
 end
 
 script.on_event(defines.events.on_built_entity, onBuiltEntity)
