@@ -76,8 +76,7 @@ local function onGuiOpen(event)
 		global.gui.open = true
 	elseif player.selected then
 		if player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
-			--drawEmptyGui(player, event.player_index)
-			-- TODO Ensure it gets closed
+			drawEmptyGui(player, event.player_index)
 		end
 	end
 end
