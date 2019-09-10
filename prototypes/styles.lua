@@ -52,57 +52,47 @@ add_styles({
     },
     [constants.style.default_frame] =
     {
-        type = "frame_style",
-        font = "default-semibold",
-        font_color = {r=1, g=1, b=1},
-
-        top_padding  = 0,
-        right_padding = 0,
-        bottom_padding = 0,
-        left_padding = 0,
-
-        title_top_padding = 0,
-        title_left_padding = 0,
-        title_bottom_padding = 0,
-        title_right_padding = 0,
-
-        graphical_set =
-        {
-            type = "composition",
-            filename = "__core__/graphics/gui.png",
-            priority = "extra-high-no-scale",
-            load_in_minimal_mode = true,
-            corner_size = {3, 3},
-            position = {8, 0}
-        },
-        flow_style =
-        {
-            type = "flow_style",
-            horizontal_spacing = 0,
-            vertical_spacing = 0
-        },
-        horizontal_flow_style =
-        {
-            type = "horizontal_flow_style",
-            horizontal_spacing = 0,
-        },
-        vertical_flow_style =
-        {
-            type = "vertical_flow_style",
-            vertical_spacing = 0
-        }
+      type = "frame_style",
+      title_style =
+      {
+        type = "label_style",
+        parent = "frame_title",
+      },
+      -- padding of the content area of the frame
+      top_padding  = 4,
+      right_padding = 8,
+      bottom_padding = 4,
+      left_padding = 8,
+      graphical_set =
+      {
+        base = {position = {0, 0}, corner_size = 8},
+        shadow = default_shadow
+      },
+      flow_style = { type = "flow_style" },
+      horizontal_flow_style = { type = "horizontal_flow_style" },
+      vertical_flow_style = { type = "vertical_flow_style"  },
+      header_flow_style = { type = "horizontal_flow_style", vertical_align = "center", bottom_padding = 4},
+      header_filler_style =
+      {
+        type = "empty_widget_style",
+        parent = "draggable_space_header",
+        height = 24
+      },
+      use_header_filler = true,
+      drag_by_title = true,
+      border = {}
     },
-    [constants.style.default_frame_fill] =
+    [constants.style.main_frame] =
     {
         type = "frame_style",
         parent = constants.style.default_frame,
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
 
-        top_padding  = 30,
-        right_padding = 10,
-        bottom_padding = 10,
-        left_padding = 10,
+        top_padding  = 0,
+        right_padding = 0,
+        bottom_padding = 0,
+        left_padding = 0,
 
         minimal_width = 700,
         maximal_width = 700,
@@ -114,7 +104,7 @@ add_styles({
     [constants.style.options_frame] =
     {
         type = "frame_style",
-        parent = constants.style.default_frame_fill,
+        parent = "menu_frame",
         vertical_align = "top",
         horizontal_align = "left",
 

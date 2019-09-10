@@ -10,6 +10,16 @@ local function onInit()
     end
 end
 
+local function addGuiFrameH(container, parent, key, style, caption)
+	container = container or {}
+	if not container or not container.valid then
+		container = parent.add({type = "frame", direction="horizontal", name = key})
+	end
+	container.caption = caption or container.caption
+	container.style = style or container.style
+	return container
+end
+
 local function addGuiFrameV(container, parent, key, style, caption)
 	container = container or {}
 	if not container or not container.valid then
@@ -36,10 +46,9 @@ local function drawGui(player, player_index)
 	global.gui[player_index] = global.gui[player_index] or {}
     local gui = global.gui[player_index]
     
-    gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.main_panel, constants.style.default_frame_fill)
-    gui.options = addGuiFrameV(gui.options, gui.main, constants.container.options_panel, constants.style.options_frame)
-    
-    gui.button = addGuiButton(gui.button, gui.options, constants.actions.press_button, "", constants.style.add_condition_button, "first-button", "this-is-the-first-button")
+    gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.main_panel, constants.style.main_frame, "MAIN")
+	gui.options = addGuiFrameV(gui.options, gui.main, constants.container.options_panel, constants.style.options_frame)
+    --gui.button = addGuiButton(gui.button, gui.options, constants.actions.press_button, "", constants.style.add_condition_button, "first-button", "this-is-the-first-button")
 
     player.opened = gui.main
 end
@@ -97,9 +106,20 @@ local function onGuiClose(event)
 	end
 end  
 
+local function onGuiClick(event)
+	element = event.element
+	name = element.name or "nil"
+	parent_name = "nil"
+	if element.parent then
+		parent_name = element.parent.name
+	end
 
+	logger.print("function.onGuiClick name: "..name.." parent: "..parent_name)
+end
 
 
 --script.on_init(onInit)
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
 script.on_event(defines.events.on_gui_closed, onGuiClose)
+
+script.on_event(defines.events.on_gui_click, onGuiClick)
