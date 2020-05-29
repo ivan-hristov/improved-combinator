@@ -10,7 +10,8 @@ local function onInit()
     end
 end
 
-local function addGuiFrameH(container, parent, key, style, caption)
+-- Not Used --
+local function addGuiFrameH(parent, container, style, key, caption)
     container = container or {}
     if not container or not container.valid then
         container = parent.add({
@@ -25,7 +26,7 @@ local function addGuiFrameH(container, parent, key, style, caption)
     return container
 end
 
-local function addGuiFrameV(container, parent, key, style, caption)
+local function addGuiFrameV(parent, container, style, key, caption)
     container = container or {}
     if not container or not container.valid then
         container = parent.add({
@@ -40,7 +41,7 @@ local function addGuiFrameV(container, parent, key, style, caption)
     return container
 end
 
-local function addGuiButton(container, parent, action, key, style, caption, tooltip)
+local function addGuiButton(parent, container, style, key, caption, action, tooltip)
     container = container or {}
     if key ~= nil then action = action..key end
     if not container or not container.valid then
@@ -56,15 +57,16 @@ local function drawGui(player, player_index)
     global.gui[player_index] = global.gui[player_index] or {}
     local gui = global.gui[player_index]
     
-    gui.main = addGuiFrameV(gui.main, player.gui.screen, constants.container.main_panel, constants.style.main_frame, "MAIN FRAME")
+    gui.main = addGuiFrameV(player.gui.screen, gui.main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME")
     gui.main.force_auto_center()
-    
-    --gui.options = addGuiFrameV(gui.options, gui.main, constants.container.options_panel, constants.style.options_frame)
-    --gui.button = addGuiButton(gui.button, gui.options, constants.actions.press_button, "", constants.style.add_condition_button, "first-button", "this-is-the-first-button")
+
+    gui.options = addGuiFrameV(gui.main, gui.options, constants.style.options_frame, constants.container.options_panel)
+    gui.button = addGuiButton(gui.options, gui.button, constants.style.large_button_frame, "ac_large_button_1", "Button", "")
 
     player.opened = gui.main
 end
 
+-- Not used --
 local function drawEmptyGui(player, player_index)
     global.gui[player_index] = global.gui[player_index] or {}
     local gui = global.gui[player_index]

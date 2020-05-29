@@ -9,6 +9,7 @@ end
 
 
 add_styles({
+    -- ?? --
     [constants.style.hidden_frame] =
     {
         type = "frame_style",
@@ -50,6 +51,7 @@ add_styles({
             position = {0, 0}
         }
     },
+    -- Not used --
     [constants.style.default_frame] =
     {
       type = "frame_style",
@@ -89,7 +91,6 @@ add_styles({
         parent = "dialog_frame",
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
-        auto_center = true,
 
         top_padding  = 0,
         right_padding = 0,
@@ -106,7 +107,7 @@ add_styles({
     [constants.style.options_frame] =
     {
         type = "frame_style",
-        parent = "menu_frame",
+        parent = constants.style.main_frame,
         vertical_align = "top",
         horizontal_align = "left",
 
@@ -115,16 +116,18 @@ add_styles({
         bottom_padding = 10,
         left_padding = 10,
 
-        width = 300,
+        width = 400,
         height = 610,
         maximal_height = 610,
     },
-    [constants.style.condition_button] =
+    [constants.style.large_button_frame] =
     {
-      type = "button_style",
-      parent = "button_with_shadow",
-      horizontal_align = "left",
-      height = 36,
-      width = 288
-    },
+        type = "button_style",
+        parent = "button_with_shadow",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+        
+        height = 36
+    }
+
 })
