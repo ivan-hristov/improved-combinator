@@ -2,11 +2,11 @@ local constants = require("constants")
 local logger = require("scripts.logger")
 
 local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
-	position = {x = mainEntity.position.x + xOffset,y = mainEntity.position.y + yOffset}
-	local area = {
-		{position.x - 1.5, position.y - 1.5}, 
-		{position.x + 1.5, position.y + 1.5}
-	}
+    position = {x = mainEntity.position.x + xOffset,y = mainEntity.position.y + yOffset}
+    local area = {
+        {position.x - 1.5, position.y - 1.5}, 
+        {position.x + 1.5, position.y + 1.5}
+    }
     local ghost = false
     local ghosts = mainEntity.surface.find_entities_filtered { area = area, name = "entity-ghost", force = mainEntity.force }
     for _, each_ghost in pairs(ghosts) do
@@ -16,9 +16,9 @@ local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
             else
                 each_ghost.revive()
                 if not each_ghost.valid then 
-					ghost = true
+                    ghost = true
                 else 
-					each_ghost.destroy()
+                    each_ghost.destroy()
                 end
             end
         end
@@ -29,8 +29,8 @@ local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
         if entity then
             entity.direction = defines.direction.south
             entity.teleport(position)
-			entity.destructible = false
-			entity.operable = false
+            entity.destructible = false
+            entity.operable = false
             return entity
         end
     else

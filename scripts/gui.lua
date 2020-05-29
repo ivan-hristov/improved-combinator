@@ -11,62 +11,79 @@ local function onInit()
 end
 
 local function addGuiFrameH(container, parent, key, style, caption)
-	container = container or {}
-	if not container or not container.valid then
-		container = parent.add({type = "frame", direction="horizontal", name = key})
-	end
-	container.caption = caption or container.caption
-	container.style = style or container.style
-	return container
+    container = container or {}
+    if not container or not container.valid then
+        container = parent.add({
+            type = "frame",
+            style = "dialog_frame",
+            direction ="horizontal",
+            name = key
+        })
+    end
+    container.caption = caption or container.caption
+    container.style = style or container.style
+    return container
 end
 
 local function addGuiFrameV(container, parent, key, style, caption)
-	container = container or {}
-	if not container or not container.valid then
-		container = parent.add({type = "frame", direction="vertical", name = key})
-	end
-	container.caption = caption or container.caption
-	container.style = style or container.style
-	return container
+    container = container or {}
+    if not container or not container.valid then
+        container = parent.add({
+            type = "frame",
+            style = "dialog_frame",
+            direction = "vertical",
+            name = key
+        })
+    end
+    container.caption = caption or container.caption
+    container.style = style or container.style
+    return container
 end
 
 local function addGuiButton(container, parent, action, key, style, caption, tooltip)
-	container = container or {}
-	if key ~= nil then action = action..key end
-	if not container or not container.valid then
-		container = parent.add({type = "button", name = action})
-	end
-	if style ~= nil then container.style = style end
-	if caption ~= nil then container.caption = caption end
-	if tooltip ~= nil then container.tooltip = tooltip end
-	return container
+    container = container or {}
+    if key ~= nil then action = action..key end
+    if not container or not container.valid then
+        container = parent.add({type = "button", name = action})
+    end
+    if style ~= nil then container.style = style end
+    if caption ~= nil then container.caption = caption end
+    if tooltip ~= nil then container.tooltip = tooltip end
+    return container
 end
 
 local function drawGui(player, player_index)
-	global.gui[player_index] = global.gui[player_index] or {}
+    global.gui[player_index] = global.gui[player_index] or {}
     local gui = global.gui[player_index]
     
-    gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.main_panel, constants.style.main_frame, "MAIN")
-	gui.options = addGuiFrameV(gui.options, gui.main, constants.container.options_panel, constants.style.options_frame)
+    gui.main = addGuiFrameV(gui.main, player.gui.screen, constants.container.main_panel, constants.style.main_frame, "MAIN FRAME")
+    gui.main.force_auto_center()
+    
+    --gui.options = addGuiFrameV(gui.options, gui.main, constants.container.options_panel, constants.style.options_frame)
     --gui.button = addGuiButton(gui.button, gui.options, constants.actions.press_button, "", constants.style.add_condition_button, "first-button", "this-is-the-first-button")
 
     player.opened = gui.main
 end
 
 local function drawEmptyGui(player, player_index)
-	global.gui[player_index] = global.gui[player_index] or {}
-	local gui = global.gui[player_index]
-	
-	gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.hidden_panel, constants.style.hidden_frame)
+    global.gui[player_index] = global.gui[player_index] or {}
+    local gui = global.gui[player_index]
+    
+    gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.hidden_panel, constants.style.hidden_frame)
 
-	player.opened = gui.main
+    player.opened = gui.main
+end
+
+local function hideGui(player, player_index)
+    logger.print("function.hideFrame")
+    global.gui[player_index] = nil
+    global.gui.open = false
+    player.opened = nil
 end
 
 local function onGuiOpen(event)
     logger.print("function.onGuiOpen")
-	
-	onInit()
-
+    
     if event.entity and event.entity.name then
         logger.print("Entity: "..event.entity.name)
     end
@@ -79,47 +96,46 @@ local function onGuiOpen(event)
         end
     end
 
-	local player = game.players[event.player_index]
-	if player.selected and player.selected.name == constants.entity.name then
-		drawGui(player, event.player_index)
-		global.gui.open = true
-	elseif player.selected then
-		if player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
-			drawEmptyGui(player, event.player_index)
-		end
-	end
+    local player = game.players[event.player_index]
+    if player.selected then        
+        if player.selected.name == constants.entity.name then
+            drawGui(player, event.player_index)
+            global.gui.open = true
+        elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
+            hideGui(player, event.player_index)
+        end
+    end
 end
 
 local function onGuiClose(event)
     logger.print("function.onGuiClose")
 
-	local player = game.players[event.player_index]
-	if global.gui ~= nil and event.gui_type == defines.gui_type.custom then
-		if global.gui.open and global.gui[event.player_index] ~= nil and global.gui[event.player_index].main == event.element then
+    local player = game.players[event.player_index]
+    if global.gui ~= nil and event.gui_type == defines.gui_type.custom then
+        if global.gui.open and global.gui[event.player_index] ~= nil and global.gui[event.player_index].main == event.element then
             if global.gui[event.player_index].main and global.gui[event.player_index].main.valid then
                 global.gui[event.player_index].main.destroy()
             end
             global.gui[event.player_index] = nil
-			global.gui.open = false
-			player.opened = nil
-		end
-	end
-end  
+            global.gui.open = false
+            player.opened = nil
+        end
+    end
+end
 
 local function onGuiClick(event)
-	element = event.element
-	name = element.name or "nil"
-	parent_name = "nil"
-	if element.parent then
-		parent_name = element.parent.name
-	end
+    element = event.element
+    name = element.name or "nil"
+    parent_name = "nil"
+    if element.parent then
+        parent_name = element.parent.name
+    end
 
-	logger.print("function.onGuiClick name: "..name.." parent: "..parent_name)
+    --logger.print("function.onGuiClick name: "..name.." parent: "..parent_name)
 end
 
 
---script.on_init(onInit)
+script.on_init(onInit)
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
 script.on_event(defines.events.on_gui_closed, onGuiClose)
-
 script.on_event(defines.events.on_gui_click, onGuiClick)

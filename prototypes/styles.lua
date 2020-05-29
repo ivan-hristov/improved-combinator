@@ -82,12 +82,14 @@ add_styles({
       drag_by_title = true,
       border = {}
     },
+    -- Main Frame --
     [constants.style.main_frame] =
     {
         type = "frame_style",
-        parent = constants.style.default_frame,
+        parent = "dialog_frame",
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
+        auto_center = true,
 
         top_padding  = 0,
         right_padding = 0,
