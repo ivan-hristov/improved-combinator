@@ -115,12 +115,29 @@ add_styles({
         width = 400,
         height = 600
     },
+    [constants.style.options_frame] =
+    {
+        type = "frame_style",
+        parent = "inner_frame_in_outer_frame",
+        vertical_align = "center",
+        horizontal_align = "left",
+
+        top_padding  = 7,
+        right_padding = 7,
+        bottom_padding = 7,
+        left_padding = 7
+    },
     [constants.style.options_list] =
     {
         type = "list_box_style",
-        parent = "floating_train_station_list_box",
         vertical_align = "top",
-        horizontal_align = "left"
+        horizontal_align = "left",
+
+        top_padding  = 0,
+        right_padding = 0,
+        bottom_padding = 0,
+        left_padding = 0
+
     },
     [constants.style.large_button_frame] =
     {
@@ -131,5 +148,4 @@ add_styles({
         
         height = 36
     }
-
 })
