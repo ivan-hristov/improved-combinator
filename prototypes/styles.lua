@@ -92,33 +92,35 @@ add_styles({
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
 
-        top_padding  = 0,
-        right_padding = 0,
-        bottom_padding = 0,
-        left_padding = 0,
+        top_padding  = 5,
+        right_padding = 5,
+        bottom_padding = 5,
+        left_padding = 5,
 
-        minimal_width = 700,
-        maximal_width = 700,
-        minimal_height = 650,
-        maximal_height = 650,
         width = 700,
         height = 650
     },
-    [constants.style.options_frame] =
+    [constants.style.tasks_frame] =
     {
         type = "frame_style",
-        parent = constants.style.main_frame,
+        parent = "inside_deep_frame_for_tabs",
         vertical_align = "top",
         horizontal_align = "left",
 
-        top_padding  = 10,
-        right_padding = 10,
-        bottom_padding = 10,
-        left_padding = 10,
+        top_padding  = 5,
+        right_padding = 5,
+        bottom_padding = 5,
+        left_padding = 5,
 
         width = 400,
-        height = 610,
-        maximal_height = 610,
+        height = 600
+    },
+    [constants.style.options_list] =
+    {
+        type = "list_box_style",
+        parent = "floating_train_station_list_box",
+        vertical_align = "top",
+        horizontal_align = "left"
     },
     [constants.style.large_button_frame] =
     {

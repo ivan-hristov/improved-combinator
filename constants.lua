@@ -37,15 +37,16 @@ constants.style.prefix_uuid         = "ac_"
 constants.style.hidden_frame        = constants.style.prefix_uuid.."hidden_frame"
 constants.style.default_frame       = constants.style.prefix_uuid.."frame_default"
 constants.style.main_frame          = constants.style.prefix_uuid.."main_frame"
-constants.style.options_frame       = constants.style.prefix_uuid.."options_frame"
+constants.style.tasks_frame         = constants.style.prefix_uuid.."tasks_frame"
 constants.style.large_button_frame  = constants.style.prefix_uuid.."large_button_frame"
+constants.style.options_list        = constants.style.prefix_uuid.."options_list"
 
 -- Window Names  --
 constants.container.prefix_uuid     = "ac_"
 constants.container.hidden_panel    = constants.container.prefix_uuid.."hidden_panel"
 constants.container.main_panel      = constants.container.prefix_uuid.."main"
 constants.container.main_menu       = constants.container.prefix_uuid.."menu"
-constants.container.options_panel   = constants.container.prefix_uuid.."options"
+constants.container.tasks_panel     = constants.container.prefix_uuid.."tasks"
 
 
 constants.actions.prefix_uuid       = "ac_"

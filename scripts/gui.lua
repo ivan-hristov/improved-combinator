@@ -10,42 +10,20 @@ local function onInit()
     end
 end
 
--- Not Used --
-local function addGuiFrameH(parent, container, style, key, caption)
+local function addGuiFrame(parent, container, style, direction, frame_name, caption)
     container = container or {}
     if not container or not container.valid then
-        container = parent.add({
-            type = "frame",
-            style = "dialog_frame",
-            direction ="horizontal",
-            name = key
-        })
+        container = parent.add({type = "frame", style = "dialog_frame", direction = direction, name = frame_name})
     end
     container.caption = caption or container.caption
     container.style = style or container.style
     return container
 end
 
-local function addGuiFrameV(parent, container, style, key, caption)
+local function addGuiButton(parent, container, style, button_name, caption, tooltip)
     container = container or {}
     if not container or not container.valid then
-        container = parent.add({
-            type = "frame",
-            style = "dialog_frame",
-            direction = "vertical",
-            name = key
-        })
-    end
-    container.caption = caption or container.caption
-    container.style = style or container.style
-    return container
-end
-
-local function addGuiButton(parent, container, style, key, caption, action, tooltip)
-    container = container or {}
-    if key ~= nil then action = action..key end
-    if not container or not container.valid then
-        container = parent.add({type = "button", name = action})
+        container = parent.add({type = "button", name = button_name})
     end
     if style ~= nil then container.style = style end
     if caption ~= nil then container.caption = caption end
@@ -56,22 +34,18 @@ end
 local function drawGui(player, player_index)
     global.gui[player_index] = global.gui[player_index] or {}
     local gui = global.gui[player_index]
-    
-    gui.main = addGuiFrameV(player.gui.screen, gui.main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME")
-    gui.main.force_auto_center()
 
-    gui.options = addGuiFrameV(gui.main, gui.options, constants.style.options_frame, constants.container.options_panel)
-    gui.button = addGuiButton(gui.options, gui.button, constants.style.large_button_frame, "ac_large_button_1", "Button", "")
+    gui.main_frame = addGuiFrame(player.gui.screen, gui.main_frame, constants.style.main_frame, "vertical", constants.container.main_panel, "MAIN FRAME")
+    gui.main_frame.force_auto_center()
 
-    player.opened = gui.main
-end
+    gui.options_frame = addGuiFrame(gui.main_frame, gui.options_frame, constants.style.tasks_frame, "vertical", constants.container.tasks_panel)
 
--- Not used --
-local function drawEmptyGui(player, player_index)
-    global.gui[player_index] = global.gui[player_index] or {}
-    local gui = global.gui[player_index]
-    
-    gui.main = addGuiFrameV(gui.main, player.gui.center, constants.container.hidden_panel, constants.style.hidden_frame)
+
+    --gui.button = addGuiButton(gui.options_frame, gui.button, constants.style.large_button_frame, "ac_large_button_1", "+ Button")
+
+    --gui.options = gui.options_frame.add({type = "list-box", name = "ac_options", items = {"item1", "item2"} })
+    --gui.options.style = constants.style.options_list
+
 
     player.opened = gui.main
 end
@@ -126,18 +100,22 @@ local function onGuiClose(event)
 end
 
 local function onGuiClick(event)
-    element = event.element
-    name = element.name or "nil"
-    parent_name = "nil"
-    if element.parent then
-        parent_name = element.parent.name
-    end
+    name = event.element.name or "nil"
+    logger.print("function.onGuiClick name: "..name)
+end
 
-    --logger.print("function.onGuiClick name: "..name.." parent: "..parent_name)
+local function onGuiListClick(event)
+    name = event.element.name or "nil"
+    index = event.element.selected_index or "nil"
+    --event.element.visible = false
+
+    logger.print("function.onGuiListClick name: "..name.." index: "..index)
 end
 
 
 script.on_init(onInit)
 script.on_event(defines.events.on_gui_opened, onGuiOpen)
 script.on_event(defines.events.on_gui_closed, onGuiClose)
-script.on_event(defines.events.on_gui_click, onGuiClick)
+--script.on_event(defines.events.on_gui_click, onGuiClick)
+--script.on_event(defines.events.on_gui_selection_state_changed, onGuiListClick)
+
