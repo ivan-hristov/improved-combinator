@@ -1,28 +1,45 @@
 local constants = require("constants")
 local logger = require("scripts.logger")
-local init = false
+local test_counter = 0
+local gui_element_id = 0
+local gui_elements = {}
 
 ------------- String Utils -------------
 local function starts_with(str, start)
     return str:sub(1, #start) == start
 end
+
+local function contains_string(array, name)
+    for _, k in pairs(array) do
+        if k == name then
+            return true
+        end
+    end
+    return false
+end
 ----------------------------------------
 
-local function onInit()
-    if not init then
-        global.gui = global.gui or {}
-        init = true
-    end
-end
 
 local function addGuiFrame(parent, frame, style, name, caption)
     frame = frame or {}
     if not frame or not frame.valid then
-        frame = parent.add({type = "frame", direction = "vertical", name = name})
-        frame.caption = caption or frame.caption
-        frame.style = style or frame.style
+        if not contains_string(parent.children_names, name) then
+            frame = parent.add({type = "frame", direction = "vertical", name = name})
+            frame.caption = caption or frame.caption
+            frame.style = style or frame.style
+        end
     end
     return frame
+end
+
+local function addGuiScrollPane(parent, scroll_pane, style, name, caption)
+    scroll_pane = scroll_pane or {}
+    if not scroll_pane or not scroll_pane.valid then
+        scroll_pane = parent.add({type = "scroll-pane", direction = "vertical", name = name})
+        scroll_pane.caption = caption or scroll_pane.caption
+        scroll_pane.style = style or scroll_pane.style
+    end
+    return scroll_pane
 end
 
 local function addGuiButton(parent, button, style, name, caption, tooltip)
@@ -54,32 +71,37 @@ local function addGuiListBox(parent, list, style, name, items)
 end
 
 local function drawGui(player, player_index)
-    global.gui[player_index] = global.gui[player_index] or {}
-    local gui = global.gui[player_index]
 
-    gui.main = addGuiFrame(player.gui.screen, gui.main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME")
-    gui.main.force_auto_center()
+    main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME 2")
+    main.force_auto_center()
+    tasks_frame = addGuiFrame(main, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
 
-    gui.tasks_frame = addGuiFrame(gui.main, gui.tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
+    ---------------- Add drop down menu to add task ----------------
+    add_task_button = addGuiButton(tasks_frame, add_task_button, constants.style.large_button_frame, "add_task_button", "+ Add Task")
+    add_task_dropdown_options_frame = addGuiFrame(tasks_frame, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
+    add_task_dropdown_options_frame.visible = false
+    add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, "add_task_list", {"Repeatable Timer", "Single User Timer", "3", "4", "5"})
+    ----------------------------------------------------------------
 
-    gui.ac_btn_1 = addGuiButton(gui.tasks_frame, gui.ac_btn_1, constants.style.large_button_frame, "ac_btn_1", "+ Button")
-    gui.ac_frame_opt_1 = addGuiFrame(gui.tasks_frame, gui.ac_frame_opt_1, constants.style.options_frame, "ac_frame_opt_1")
-    gui.ac_frame_opt_1.visible = false
-    gui.ac_opt_1 = addGuiListBox(gui.ac_frame_opt_1, gui.ac_opt_1, constants.style.options_list, "ac_opt_1", {"item1", "item2"})
-    
+    for key, _ in  pairs(gui_elements) do
+        addGuiFrame(tasks_frame, "", constants.style.conditional_frame, key)
+    end
 
-    gui.ac_btn_2 = addGuiButton(gui.tasks_frame, gui.ac_btn_2, constants.style.large_button_frame, "ac_btn_2", "+ Button 2")
-    gui.ac_frame_opt_2 = addGuiFrame(gui.tasks_frame, gui.ac_frame_opt_2, constants.style.options_frame, "ac_frame_opt_2")
-    gui.ac_frame_opt_2.visible = false
-    gui.ac_opt_2 = addGuiListBox(gui.ac_frame_opt_2, gui.ac_opt_2, constants.style.options_list, "ac_opt_2", {"new items1", "new items2", "new items3"})
+    --for key, _ in  pairs(gui_elements) do
+    --    local ok, err = pcall(function() addGuiFrame(tasks_frame, "", constants.style.conditional_frame, key) end)
+    --    if not ok then
+    --        logger.print("function.drawGui ERROR")
+    --        for i, name in pairs(tasks_frame.children_names) do
+    --            logger.print("  "..name)
+    --        end
+    --    end
+    --end
 
-    player.opened = gui.main
+    player.opened = main
 end
 
 local function hideGui(player, player_index)
     logger.print("function.hideFrame")
-    global.gui[player_index] = nil
-    global.gui.open = false
     player.opened = nil
 end
 
@@ -102,7 +124,6 @@ local function onGuiOpen(event)
     if player.selected then        
         if player.selected.name == constants.entity.name then
             drawGui(player, event.player_index)
-            global.gui.open = true
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             hideGui(player, event.player_index)
         end
@@ -113,26 +134,23 @@ local function onGuiClose(event)
     logger.print("function.onGuiClose")
 
     local player = game.players[event.player_index]
-    if global.gui ~= nil and event.gui_type == defines.gui_type.custom then
-        if global.gui.open and global.gui[event.player_index] ~= nil and global.gui[event.player_index].main == event.element then
-            if global.gui[event.player_index].main and global.gui[event.player_index].main.valid then
-                global.gui[event.player_index].main.destroy()
-            end
-            global.gui[event.player_index] = nil
-            global.gui.open = false
-            player.opened = nil
-        end
+    if player.opened then        
+        player.opened = nil
+    end
+
+    if event.element then
+        event.element.destroy()
+        event.element = nil
     end
 end
 
 local function onGuiClick(event)
-    global.gui[event.player_index] = global.gui[event.player_index] or {}
-    local gui = global.gui[event.player_index]
     local name = event.element.name
     local player = game.players[event.player_index]
 
-    if starts_with(name, "ac_btn_") then
-        gui["ac_frame_opt_"..string.sub(name, -1)].visible = true
+    if name == "add_task_button" then
+        tasks_frame = event.element.parent
+        tasks_frame.add_task_dropdown_options_frame.visible = true
     end
 
     logger.print("function.onGuiClick name: "..name)
@@ -140,9 +158,17 @@ end
 
 local function onGuiListClick(event)
     local name = event.element.name
-    local index = event.element.selected_index
+    local index = event.element.selected_index    
 
-    if starts_with(name, "ac_opt_") then
+    if starts_with(name, "add_task_list") then
+        if event.element.selected_index == 1 then
+            gui_element_id = gui_element_id + 1
+            new_frame_name = "new_test_frame_"..gui_element_id
+            gui_elements[new_frame_name] = gui_element_id            
+            tasks_frame = event.element.parent.parent
+            addGuiFrame(tasks_frame, "", constants.style.conditional_frame, new_frame_name)
+        end
+
         event.element.parent.visible = false
         event.element.selected_index = 0
     end

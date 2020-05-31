@@ -115,7 +115,7 @@ add_styles({
         width = 400,
         height = 600
     },
-    [constants.style.options_frame] =
+    [constants.style.dropdown_options_frame] =
     {
         type = "frame_style",
         parent = "inner_frame_in_outer_frame",
@@ -147,5 +147,15 @@ add_styles({
         horizontally_stretchable = "on",
         
         height = 36
-    }
+    },
+    [constants.style.conditional_frame] =
+    {
+        type = "frame_style",
+        parent = "dark_frame",
+        vertical_align = "center",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+
+        height = 36
+    },
 })
