@@ -1,8 +1,6 @@
 local constants = require("constants")
 local logger = require("scripts.logger")
-local test_counter = 0
-local gui_element_id = 0
-local gui_elements = {}
+local unique_gui_index = 0
 
 ------------- String Utils -------------
 local function starts_with(str, start)
@@ -154,8 +152,6 @@ local function onGuiClick(event)
     logger.print("function.onGuiClick name: "..name)
 end
 
-list_index = 0
-
 local function onGuiListClick(event)
 
     local name = event.element.name
@@ -163,10 +159,10 @@ local function onGuiListClick(event)
 
     if starts_with(name, "add_task_list") then
         if event.element.selected_index == 1 then
-            list_index = list_index + 1
-            new_element_name = "new_frame_name_"..list_index            
+            unique_gui_index = unique_gui_index + 1
+            new_element_name = "new_frame_name_"..unique_gui_index            
 
-            addGuiFrame(event.element.parent.parent, "", constants.style.conditional_frame, new_element_name)
+            addGuiFrame(event.element.parent.parent, nil, constants.style.conditional_frame, new_element_name)
   
             entity_unit_number = global.opened_entity[event.player_index]
             global.entities[entity_unit_number].logic = global.entities[entity_unit_number].logic or {}
@@ -177,7 +173,7 @@ local function onGuiListClick(event)
         event.element.selected_index = 0
     end
 
-    logger.print("function.onGuiListClick name: "..name..", index: "..index..", ID: "..entity_unit_number)
+    logger.print("function.onGuiListClick name: "..name..", index: "..index)
 end
 
 
