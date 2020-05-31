@@ -38,30 +38,58 @@ local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
     end
 end
 
+-----------------------------------------------
+function tablelength(T)
+    local count = 0
+    for _ in pairs(T) do count = count + 1 end
+    return count
+end
+-----------------------------------------------
+
+local function onInit()
+    logger.print("function.onInit")
+    global.opened_entity = global.opened_entity or {}
+    global.entities = global.entities or {}
+end
+
 local function onBuiltEntity(event)
     local entity = event.created_entity
     if entity.name == constants.entity.name then
-        global.entity = entity
-        global.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
-        global.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
+        main_entity = {}
+        main_entity.logic = {}
+        main_entity.entity = entity
+        main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
+        main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
+
+        global.entities[entity.unit_number] = main_entity
+
+        logger.print("function.onBuiltEntity Entity Added "..entity.unit_number.." ("..tablelength(global.entities)..")")
     end
 end
 
 local function onEntityDied(event)   
     local entity = event.entity
     if entity.name == constants.entity.name then
-        if global.entity_input then
-            global.entity_input.destroy()
-            global.entity_input = nil
+        main_entity = global.entities[entity.unit_number]
+
+        if main_entity.entity_input then
+            main_entity.entity_input.destroy()
+            main_entity.entity_input = nil
         end
-        if global.entity_output then
-            global.entity_output.destroy()
-            global.entity_output = nil
+        if main_entity.entity_output then
+            main_entity.entity_output.destroy()
+            main_entity.entity_output = nil
         end
-        global.entity = nil
+        main_entity.entity = nil
+        main_entity.logic = nil
+        main_entity.player_gui = nil
+        global.entities[entity.unit_number] = nil
+
+        logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..tablelength(global.entities)..")")
     end
 end
 
+script.on_init(onInit)
 script.on_event(defines.events.on_built_entity, onBuiltEntity)
 script.on_event(defines.events.on_robot_built_entity, onBuiltEntity)
 

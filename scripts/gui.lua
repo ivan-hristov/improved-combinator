@@ -70,9 +70,10 @@ local function addGuiListBox(parent, list, style, name, items)
     return list
 end
 
-local function drawGui(player, player_index)
+local function drawGui(player, player_index, entity)
+    logger.print("function.drawGui")
 
-    main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME 2")
+    main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..entity.unit_number)
     main.force_auto_center()
     tasks_frame = addGuiFrame(main, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
 
@@ -83,34 +84,27 @@ local function drawGui(player, player_index)
     add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, "add_task_list", {"Repeatable Timer", "Single User Timer", "3", "4", "5"})
     ----------------------------------------------------------------
 
-    for key, _ in  pairs(gui_elements) do
-        addGuiFrame(tasks_frame, "", constants.style.conditional_frame, key)
+    for _, v in  pairs(global.entities[entity.unit_number].logic) do
+        addGuiFrame(tasks_frame, "", constants.style.conditional_frame, v)
     end
 
-    --for key, _ in  pairs(gui_elements) do
-    --    local ok, err = pcall(function() addGuiFrame(tasks_frame, "", constants.style.conditional_frame, key) end)
-    --    if not ok then
-    --        logger.print("function.drawGui ERROR")
-    --        for i, name in pairs(tasks_frame.children_names) do
-    --            logger.print("  "..name)
-    --        end
-    --    end
-    --end
-
+    global.opened_entity[player_index] = entity.unit_number
     player.opened = main
 end
 
-local function hideGui(player, player_index)
+local function hideGui(player)
     logger.print("function.hideFrame")
     player.opened = nil
 end
 
 local function onGuiOpen(event)
     logger.print("function.onGuiOpen")
-    
-    if event.entity and event.entity.name then
-        logger.print("Entity: "..event.entity.name)
+
+    if not event.entity then
+        return
     end
+
+    logger.print("Entity: "..event.entity.name..", ID: "..event.entity.unit_number)
 
     if event.player_index and game.players[event.player_index] then
         local player = game.players[event.player_index]    
@@ -123,9 +117,9 @@ local function onGuiOpen(event)
     local player = game.players[event.player_index]
     if player.selected then        
         if player.selected.name == constants.entity.name then
-            drawGui(player, event.player_index)
+            drawGui(player, event.player_index, event.entity)
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
-            hideGui(player, event.player_index)
+            hideGui(player)
         end
     end
 end
@@ -133,12 +127,16 @@ end
 local function onGuiClose(event)
     logger.print("function.onGuiClose")
 
-    local player = game.players[event.player_index]
-    if player.opened then        
-        player.opened = nil
-    end
-
     if event.element then
+        local player = game.players[event.player_index]
+        if player.opened then        
+            player.opened = nil
+        end
+    
+        if global.opened_entity then
+            global.opened_entity[event.player_index] = nil
+        end
+
         event.element.destroy()
         event.element = nil
     end
@@ -156,24 +154,30 @@ local function onGuiClick(event)
     logger.print("function.onGuiClick name: "..name)
 end
 
+list_index = 0
+
 local function onGuiListClick(event)
+
     local name = event.element.name
-    local index = event.element.selected_index    
+    local index = event.element.selected_index
 
     if starts_with(name, "add_task_list") then
         if event.element.selected_index == 1 then
-            gui_element_id = gui_element_id + 1
-            new_frame_name = "new_test_frame_"..gui_element_id
-            gui_elements[new_frame_name] = gui_element_id            
-            tasks_frame = event.element.parent.parent
-            addGuiFrame(tasks_frame, "", constants.style.conditional_frame, new_frame_name)
+            list_index = list_index + 1
+            new_element_name = "new_frame_name_"..list_index            
+
+            addGuiFrame(event.element.parent.parent, "", constants.style.conditional_frame, new_element_name)
+  
+            entity_unit_number = global.opened_entity[event.player_index]
+            global.entities[entity_unit_number].logic = global.entities[entity_unit_number].logic or {}
+            table.insert(global.entities[entity_unit_number].logic, new_element_name)
         end
 
         event.element.parent.visible = false
         event.element.selected_index = 0
     end
 
-    logger.print("function.onGuiListClick name: "..name..", index: "..index)
+    logger.print("function.onGuiListClick name: "..name..", index: "..index..", ID: "..entity_unit_number)
 end
 
 
