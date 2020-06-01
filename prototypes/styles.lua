@@ -107,10 +107,10 @@ add_styles({
         vertical_align = "top",
         horizontal_align = "left",
 
-        top_padding  = 5,
-        right_padding = 5,
-        bottom_padding = 5,
-        left_padding = 5,
+        top_padding  = 0,
+        right_padding = 0,
+        bottom_padding = 0,
+        left_padding = 0,
 
         width = 400,
         height = 600
@@ -121,6 +121,7 @@ add_styles({
         parent = "inner_frame_in_outer_frame",
         vertical_align = "center",
         horizontal_align = "left",
+        horizontally_stretchable = "on",
 
         top_padding  = 7,
         right_padding = 7,
@@ -145,7 +146,7 @@ add_styles({
         parent = "button_with_shadow",
         horizontal_align = "left",
         horizontally_stretchable = "on",
-        
+
         height = 36
     },
     [constants.style.conditional_frame] =
@@ -157,5 +158,32 @@ add_styles({
         horizontally_stretchable = "on",
 
         height = 36
+    },
+    [constants.style.scroll_pane] =
+    {
+        type = "scroll_pane_style",
+        parent = "scroll_pane_with_dark_background_under_subheader",
+        top_padding  = 5,
+        right_padding = 5,
+        bottom_padding = 5,
+        left_padding = 5,
+        width = 400,
+        height = 600,        
+        background_graphical_set =
+        {
+            position = {282, 17},
+            corner_size = 8,
+            overall_tiling_horizontal_spacing = 8,
+            overall_tiling_horizontal_padding = 4,
+            overall_tiling_vertical_spacing = 12,
+            overall_tiling_vertical_size = 28,
+            overall_tiling_vertical_padding = 4
+        },
+        vertical_flow_style =
+        {
+            type = "vertical_flow_style",
+            width = 378,
+            horizontally_stretchable = "off"
+        },
     },
 })

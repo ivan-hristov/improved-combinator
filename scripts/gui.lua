@@ -17,25 +17,25 @@ local function contains_string(array, name)
 end
 ----------------------------------------
 
-
 local function addGuiFrame(parent, frame, style, name, caption)
     frame = frame or {}
     if not frame or not frame.valid then
         if not contains_string(parent.children_names, name) then
-            frame = parent.add({type = "frame", direction = "vertical", name = name})
+            frame = parent.add({type = "frame", direction = "vertical", name = name, style = style})
             frame.caption = caption or frame.caption
-            frame.style = style or frame.style
         end
     end
     return frame
 end
 
-local function addGuiScrollPane(parent, scroll_pane, style, name, caption)
+local function addGuiScrollPane(parent, scroll_pane, style, name)
     scroll_pane = scroll_pane or {}
     if not scroll_pane or not scroll_pane.valid then
-        scroll_pane = parent.add({type = "scroll-pane", direction = "vertical", name = name})
-        scroll_pane.caption = caption or scroll_pane.caption
-        scroll_pane.style = style or scroll_pane.style
+        scroll_pane = parent.add({
+            type = "scroll-pane",
+            direction = "vertical",
+            name = key,
+            style = style})
     end
     return scroll_pane
 end
@@ -43,20 +43,11 @@ end
 local function addGuiButton(parent, button, style, name, caption, tooltip)
     button = button or {}
     if not button or not button.valid then
-        button = parent.add({type = "button", name = name})
+        button = parent.add({type = "button", name = name, style = style})
         button.caption = caption or button.caption
-        button.style = style or button.style
         button.tooltip = tooltip or button.tooltip
     end
     return button
-end
-
-local function addGuiFlow(parent, flow, name, direction)
-    flow = flow or {}
-    if not flow or not flow.valid then
-        flow = parent.add({type = "flow", name = name, direction = direction})
-    end
-    return flow
 end
 
 local function addGuiListBox(parent, list, style, name, items)
@@ -74,16 +65,17 @@ local function drawGui(player, player_index, entity)
     main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..entity.unit_number)
     main.force_auto_center()
     tasks_frame = addGuiFrame(main, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
+    scroll_pane = addGuiScrollPane(tasks_frame, scroll_pane, constants.style.scroll_pane, "ac_scroll_pane")
 
     ---------------- Add drop down menu to add task ----------------
-    add_task_button = addGuiButton(tasks_frame, add_task_button, constants.style.large_button_frame, "add_task_button", "+ Add Task")
-    add_task_dropdown_options_frame = addGuiFrame(tasks_frame, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
+    add_task_button = addGuiButton(scroll_pane, add_task_button, constants.style.large_button_frame, "add_task_button", "+ Add Task")
+    add_task_dropdown_options_frame = addGuiFrame(scroll_pane, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
     add_task_dropdown_options_frame.visible = false
     add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, "add_task_list", {"Repeatable Timer", "Single User Timer", "3", "4", "5"})
     ----------------------------------------------------------------
 
     for _, v in  pairs(global.entities[entity.unit_number].logic) do
-        addGuiFrame(tasks_frame, "", constants.style.conditional_frame, v)
+        addGuiFrame(scroll_pane, "", constants.style.conditional_frame, v)
     end
 
     global.opened_entity[player_index] = entity.unit_number

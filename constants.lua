@@ -42,6 +42,8 @@ constants.style.large_button_frame     = constants.style.prefix_uuid.."large_but
 constants.style.dropdown_options_frame = constants.style.prefix_uuid.."drowdown_options_frame"
 constants.style.conditional_frame      = constants.style.prefix_uuid.."conditional_frame"
 constants.style.options_list           = constants.style.prefix_uuid.."options_list"
+constants.style.scroll_pane            = constants.style.prefix_uuid.."scroll_pane"
+
 
 -- Window Names  --
 constants.container.prefix_uuid        = "ac_"
