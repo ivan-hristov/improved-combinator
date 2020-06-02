@@ -66,6 +66,19 @@ local function addGuiListBox(parent, list, style, name, items)
     return list
 end
 
+local function addGuiConditional(parent, frame_name, close_button_name)
+    local conditional_frame = addGuiFrame(parent, conditional_frame, constants.style.conditional_frame, frame_name)
+    addGuiSpriteButton(
+        conditional_frame,
+        close_button,
+        constants.style.close_button_frame,
+        close_button_name,
+        "utility/close_white",
+        "utility/close_black",
+        "utility/close_black"
+    )
+end
+
 local function drawGui(player, player_index, entity)
     logger.print("function.drawGui")
 
@@ -82,16 +95,7 @@ local function drawGui(player, player_index, entity)
     ----------------------------------------------------------------
 
     for _, v in  pairs(global.entities[entity.unit_number].logic.condition) do
-        local conditional_frame = addGuiFrame(scroll_pane, conditional_frame, constants.style.conditional_frame, v.frame)
-        addGuiSpriteButton(
-            conditional_frame,
-            close_button,
-            constants.style.close_button_frame,
-            v.close,
-            "utility/close_white",
-            "utility/close_black",
-            "utility/close_black"
-        )
+        addGuiConditional(scroll_pane, v.frame, v.close) 
     end
 
     global.opened_entity[player_index] = entity.unit_number
@@ -152,17 +156,23 @@ local function onGuiClick(event)
     local name = event.element.name
     local player = game.players[event.player_index]
 
+    logger.print("function.onGuiClick name: "..name)
+
     if name == "add_task_button" then
         tasks_frame = event.element.parent
         tasks_frame.add_task_dropdown_options_frame.visible = true
+        logger.print("  - add_task_button")
+
     elseif starts_with(name, "new_button_name_") then
         local entity_unit_number = global.opened_entity[event.player_index]        
-        local number = string.sub(name, string.len("new_button_name_"))
+        local number = tonumber(string.sub(name, string.len("new_button_name_") + 1))
+
         global.entities[entity_unit_number].logic.condition[number] = nil
         event.element.parent.destroy()
+
+        logger.print("  - "..name)
     end
 
-    logger.print("function.onGuiClick name: "..name)
 end
 
 local function onGuiListClick(event)
@@ -176,24 +186,12 @@ local function onGuiListClick(event)
             local unique_gui_index = global.entities[entity_unit_number].inner_elements_counter + 1
             global.entities[entity_unit_number].inner_elements_counter = unique_gui_index
 
-            local new_element_name = "new_frame_name_"..unique_gui_index
-            local new_button_name = "new_button_name_"..unique_gui_index
-            
-            local conditional_frame = addGuiFrame(event.element.parent.parent, conditional_frame, constants.style.conditional_frame, new_element_name)
-            addGuiSpriteButton(
-                conditional_frame,
-                close_button,
-                constants.style.close_button_frame,
-                new_button_name,
-                "utility/close_white",
-                "utility/close_black",
-                "utility/close_black"
-            )
-
             local condition = {}
-            condition.frame = new_element_name
-            condition.close = new_button_name
+            condition.frame = "new_frame_name_"..unique_gui_index
+            condition.close = "new_button_name_"..unique_gui_index
             global.entities[entity_unit_number].logic.condition[unique_gui_index] = condition
+
+            addGuiConditional(event.element.parent.parent, condition.frame, condition.close)           
         end
 
         event.element.parent.visible = false
