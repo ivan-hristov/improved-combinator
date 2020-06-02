@@ -1,6 +1,5 @@
 local constants = require("constants")
 local logger = require("scripts.logger")
-local unique_gui_index = 0
 
 ------------- String Utils -------------
 local function starts_with(str, start)
@@ -50,6 +49,14 @@ local function addGuiButton(parent, button, style, name, caption, tooltip)
     return button
 end
 
+local function addGuiSpriteButton(parent, button, style, name, sprite, hovered_sprite, clicked_sprite)
+    button = button or {}
+    if not button or not button.valid then
+        button = parent.add({type = "sprite-button", name = name, style = style, sprite = sprite, hovered_sprite = hovered_sprite, clicked_sprite = clicked_sprite})
+    end
+    return button
+end
+
 local function addGuiListBox(parent, list, style, name, items)
     list = list or {}
     if not list or not list.valid then
@@ -62,20 +69,29 @@ end
 local function drawGui(player, player_index, entity)
     logger.print("function.drawGui")
 
-    main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..entity.unit_number)
+    local main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..entity.unit_number)
     main.force_auto_center()
-    tasks_frame = addGuiFrame(main, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
-    scroll_pane = addGuiScrollPane(tasks_frame, scroll_pane, constants.style.scroll_pane, "ac_scroll_pane")
+    local tasks_frame = addGuiFrame(main, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
+    local scroll_pane = addGuiScrollPane(tasks_frame, scroll_pane, constants.style.scroll_pane, "ac_scroll_pane")
 
     ---------------- Add drop down menu to add task ----------------
-    add_task_button = addGuiButton(scroll_pane, add_task_button, constants.style.large_button_frame, "add_task_button", "+ Add Task")
-    add_task_dropdown_options_frame = addGuiFrame(scroll_pane, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
+    local add_task_button = addGuiButton(scroll_pane, add_task_button, constants.style.large_button_frame, "add_task_button", "+ Add Task")
+    local add_task_dropdown_options_frame = addGuiFrame(scroll_pane, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
     add_task_dropdown_options_frame.visible = false
-    add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, "add_task_list", {"Repeatable Timer", "Single User Timer", "3", "4", "5"})
+    local add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, "add_task_list", {"Repeatable Timer", "Single User Timer", "3", "4", "5"})
     ----------------------------------------------------------------
 
-    for _, v in  pairs(global.entities[entity.unit_number].logic) do
-        addGuiFrame(scroll_pane, "", constants.style.conditional_frame, v)
+    for _, v in  pairs(global.entities[entity.unit_number].logic.condition) do
+        local conditional_frame = addGuiFrame(scroll_pane, conditional_frame, constants.style.conditional_frame, v.frame)
+        addGuiSpriteButton(
+            conditional_frame,
+            close_button,
+            constants.style.close_button_frame,
+            v.close,
+            "utility/close_white",
+            "utility/close_black",
+            "utility/close_black"
+        )
     end
 
     global.opened_entity[player_index] = entity.unit_number
@@ -139,6 +155,11 @@ local function onGuiClick(event)
     if name == "add_task_button" then
         tasks_frame = event.element.parent
         tasks_frame.add_task_dropdown_options_frame.visible = true
+    elseif starts_with(name, "new_button_name_") then
+        local entity_unit_number = global.opened_entity[event.player_index]        
+        local number = string.sub(name, string.len("new_button_name_"))
+        global.entities[entity_unit_number].logic.condition[number] = nil
+        event.element.parent.destroy()
     end
 
     logger.print("function.onGuiClick name: "..name)
@@ -151,14 +172,28 @@ local function onGuiListClick(event)
 
     if starts_with(name, "add_task_list") then
         if event.element.selected_index == 1 then
-            unique_gui_index = unique_gui_index + 1
-            new_element_name = "new_frame_name_"..unique_gui_index            
+            local entity_unit_number = global.opened_entity[event.player_index]
+            local unique_gui_index = global.entities[entity_unit_number].inner_elements_counter + 1
+            global.entities[entity_unit_number].inner_elements_counter = unique_gui_index
 
-            addGuiFrame(event.element.parent.parent, nil, constants.style.conditional_frame, new_element_name)
-  
-            entity_unit_number = global.opened_entity[event.player_index]
-            global.entities[entity_unit_number].logic = global.entities[entity_unit_number].logic or {}
-            table.insert(global.entities[entity_unit_number].logic, new_element_name)
+            local new_element_name = "new_frame_name_"..unique_gui_index
+            local new_button_name = "new_button_name_"..unique_gui_index
+            
+            local conditional_frame = addGuiFrame(event.element.parent.parent, conditional_frame, constants.style.conditional_frame, new_element_name)
+            addGuiSpriteButton(
+                conditional_frame,
+                close_button,
+                constants.style.close_button_frame,
+                new_button_name,
+                "utility/close_white",
+                "utility/close_black",
+                "utility/close_black"
+            )
+
+            local condition = {}
+            condition.frame = new_element_name
+            condition.close = new_button_name
+            global.entities[entity_unit_number].logic.condition[unique_gui_index] = condition
         end
 
         event.element.parent.visible = false

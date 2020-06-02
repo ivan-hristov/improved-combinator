@@ -57,6 +57,8 @@ local function onBuiltEntity(event)
     if entity.name == constants.entity.name then
         main_entity = {}
         main_entity.logic = {}
+        main_entity.logic.condition = {}
+        main_entity.inner_elements_counter = 0
         main_entity.entity = entity
         main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
         main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
@@ -81,7 +83,9 @@ local function onEntityDied(event)
             main_entity.entity_output = nil
         end
         main_entity.entity = nil
+        main_entity.logic.condition = nil
         main_entity.logic = nil
+        main_entity.inner_elements_counter = nil
         main_entity.player_gui = nil
         global.entities[entity.unit_number] = nil
 

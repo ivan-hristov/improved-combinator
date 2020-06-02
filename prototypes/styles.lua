@@ -84,7 +84,8 @@ add_styles({
       drag_by_title = true,
       border = {}
     },
-    -- Main Frame --
+
+
     [constants.style.main_frame] =
     {
         type = "frame_style",
@@ -157,7 +158,29 @@ add_styles({
         horizontal_align = "left",
         horizontally_stretchable = "on",
 
+        top_padding  = 0,
+        right_padding = 0,
+        bottom_padding = 0,
+        left_padding = 0,
+
         height = 36
+    },
+    [constants.style.close_button_frame] =
+    {
+        type = "button_style",
+        vertical_align = "center",
+        horizontal_align = "right",
+        padding = 0,
+        size = {16, 28},
+        left_margin = 354, -- TEMP
+        top_margin = 0,
+
+        default_graphical_set =
+        {
+            base = {position = {68, 0}, corner_size = 8},
+            shadow = {position = {395, 86}, corner_size = 8, draw_type = "outer"}
+        },
+        left_click_sound = {{ filename = "__core__/sound/gui-tool-button.ogg", volume = 1 }},
     },
     [constants.style.scroll_pane] =
     {

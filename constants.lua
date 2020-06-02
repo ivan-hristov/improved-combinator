@@ -43,6 +43,7 @@ constants.style.dropdown_options_frame = constants.style.prefix_uuid.."drowdown_
 constants.style.conditional_frame      = constants.style.prefix_uuid.."conditional_frame"
 constants.style.options_list           = constants.style.prefix_uuid.."options_list"
 constants.style.scroll_pane            = constants.style.prefix_uuid.."scroll_pane"
+constants.style.close_button_frame     = constants.style.prefix_uuid.."close_button_frame"
 
 
 -- Window Names  --
