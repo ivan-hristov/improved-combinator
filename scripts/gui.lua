@@ -16,6 +16,7 @@ local function contains_string(array, name)
 end
 ----------------------------------------
 
+-------------- Utility Functions -------
 local function addGuiFrame(parent, frame, style, name, caption)
     frame = frame or {}
     if not frame or not frame.valid then
@@ -78,33 +79,74 @@ local function addGuiConditional(parent, frame_name, close_button_name)
         "utility/close_black"
     )
 end
+----------------------------------------
 
-local function drawGui(player, player_index, entity)
-    logger.print("function.drawGui")
 
-    local main = addGuiFrame(player.gui.screen, main, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..entity.unit_number)
-    main.force_auto_center()
-    local tasks_frame = addGuiFrame(main, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
-    local scroll_pane = addGuiScrollPane(tasks_frame, scroll_pane, constants.style.scroll_pane, "ac_scroll_pane")
+local function buildGui(parent, unit_number)
+    logger.print("function.buildGui")
+
+    local main_frame = addGuiFrame(parent, main_frame, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..unit_number)
+    main_frame.force_auto_center()
+
+    local tasks_frame = addGuiFrame(main_frame, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
+    local scroll_pane = addGuiScrollPane(tasks_frame, scroll_pane, constants.style.scroll_pane, constants.container.scroll_pane)
 
     ---------------- Add drop down menu to add task ----------------
-    local add_task_button = addGuiButton(scroll_pane, add_task_button, constants.style.large_button_frame, "add_task_button", "+ Add Task")
+    local add_task_button = addGuiButton(scroll_pane, add_task_button, constants.style.large_button_frame, constants.container.add_task_button, "+ Add Task")
     local add_task_dropdown_options_frame = addGuiFrame(scroll_pane, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
     add_task_dropdown_options_frame.visible = false
-    local add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, "add_task_list", {"Repeatable Timer", "Single User Timer", "3", "4", "5"})
-    ----------------------------------------------------------------
-
-    for _, v in  pairs(global.entities[entity.unit_number].logic.condition) do
-        addGuiConditional(scroll_pane, v.frame, v.close) 
+    local add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, constants.container.add_task_list, {"Repeatable Timer", "Single User Timer"})
+    
+    add_task_button_events = {}
+    add_task_button_events.onClick = function(event)
+        event.element.parent.add_task_dropdown_options_frame.visible = true
     end
 
-    global.opened_entity[player_index] = entity.unit_number
-    player.opened = main
-end
+    global.entities[unit_number].logic[constants.container.add_task_button] = add_task_button_events
 
-local function hideGui(player)
-    logger.print("function.hideFrame")
-    player.opened = nil
+    add_task_list_events = {}
+    add_task_list_events.onSelectionChanged = {}
+    add_task_list_events.onSelectionChanged[1] = function(event)
+        local unit_number = global.opened_entity[event.player_index]
+        local unique_gui_index = tostring(global.entities[unit_number].inner_elements_counter + 1)
+        global.entities[unit_number].inner_elements_counter = unique_gui_index
+
+        local condition = {}
+        condition.dynamic = true
+        condition.frame = "new_frame_name_"..unique_gui_index
+        condition.close = "new_button_name_"..unique_gui_index
+        global.entities[unit_number].logic[unique_gui_index] = condition
+
+        addGuiConditional(event.element.parent.parent, condition.frame, condition.close)      
+        event.element.parent.visible = false
+        event.element.selected_index = 0
+
+        local events = {}
+        events.onClick = function(event)
+            local name = event.element.name
+            local unit_number = global.opened_entity[event.player_index]
+            local number = tonumber(string.sub(name, string.len("new_button_name_") + 1))
+
+            global.entities[unit_number].logic[number] = nil
+            event.element.parent.destroy()
+        end
+        global.entities[unit_number].logic[condition.close] = events
+    end
+    add_task_list_events.onSelectionChanged[2] = function(event)
+        
+        event.element.parent.visible = false
+        event.element.selected_index = 0
+    end
+    global.entities[unit_number].logic[constants.container.add_task_list] = add_task_list_events
+    ----------------------------------------------------------------
+
+    for _, v in  pairs(global.entities[unit_number].logic) do
+        if v.dynamic then
+            addGuiConditional(scroll_pane, v.frame, v.close)
+        end
+    end
+
+    return main_frame
 end
 
 local function onGuiOpen(event)
@@ -114,22 +156,13 @@ local function onGuiOpen(event)
         return
     end
 
-    logger.print("Entity: "..event.entity.name..", ID: "..event.entity.unit_number)
-
-    if event.player_index and game.players[event.player_index] then
-        local player = game.players[event.player_index]    
-        
-        if player.selected then
-            logger.print("Selected: "..player.selected.name)
-        end
-    end
-
     local player = game.players[event.player_index]
     if player.selected then        
         if player.selected.name == constants.entity.name then
-            drawGui(player, event.player_index, event.entity)
+            global.opened_entity[event.player_index] = event.entity.unit_number
+            player.opened = buildGui(player.gui.screen, event.entity.unit_number)
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
-            hideGui(player)
+            player.opened = nil
         end
     end
 end
@@ -153,52 +186,31 @@ local function onGuiClose(event)
 end
 
 local function onGuiClick(event)
+    logger.print("function.onGuiClick name: "..event.element.name)
+
     local name = event.element.name
     local player = game.players[event.player_index]
+    local entity_unit_number = global.opened_entity[event.player_index]
 
-    logger.print("function.onGuiClick name: "..name)
-
-    if name == "add_task_button" then
-        tasks_frame = event.element.parent
-        tasks_frame.add_task_dropdown_options_frame.visible = true
-        logger.print("  - add_task_button")
-
-    elseif starts_with(name, "new_button_name_") then
-        local entity_unit_number = global.opened_entity[event.player_index]        
-        local number = tonumber(string.sub(name, string.len("new_button_name_") + 1))
-
-        global.entities[entity_unit_number].logic.condition[number] = nil
-        event.element.parent.destroy()
-
-        logger.print("  - "..name)
+    local logic = global.entities[entity_unit_number].logic[name]
+    if logic then
+        logic.onClick(event)
     end
 
 end
 
 local function onGuiListClick(event)
+    logger.print("function.onGuiListClick name: "..event.element.name)
 
     local name = event.element.name
-    local index = event.element.selected_index
+    local player = game.players[event.player_index]
+    local unit_number = global.opened_entity[event.player_index]
+    local selected_index = event.element.selected_index
 
-    if starts_with(name, "add_task_list") then
-        if event.element.selected_index == 1 then
-            local entity_unit_number = global.opened_entity[event.player_index]
-            local unique_gui_index = global.entities[entity_unit_number].inner_elements_counter + 1
-            global.entities[entity_unit_number].inner_elements_counter = unique_gui_index
-
-            local condition = {}
-            condition.frame = "new_frame_name_"..unique_gui_index
-            condition.close = "new_button_name_"..unique_gui_index
-            global.entities[entity_unit_number].logic.condition[unique_gui_index] = condition
-
-            addGuiConditional(event.element.parent.parent, condition.frame, condition.close)           
-        end
-
-        event.element.parent.visible = false
-        event.element.selected_index = 0
+    local logic = global.entities[unit_number].logic[name]
+    if logic then
+        logic.onSelectionChanged[selected_index](event)
     end
-
-    logger.print("function.onGuiListClick name: "..name..", index: "..index)
 end
 
 
