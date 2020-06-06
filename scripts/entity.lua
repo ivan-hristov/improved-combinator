@@ -81,7 +81,7 @@ local function onEntityDied(event)
             main_entity.entity_output.destroy()
             main_entity.entity_output = nil
         end
-        main_entity.node:clear_children()
+        main_entity.node:remove()
         main_entity.node = nil
         global.entities[entity.unit_number] = nil
 

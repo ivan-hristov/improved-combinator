@@ -30,6 +30,20 @@ function node:remove_child(id)
     end
 end
 
+function node:remove()
+    if self.parent then
+        self.parent:remove_child(self.id)
+    else
+        self:clear_children()
+        self.id = nil
+        self.entity_id = nil
+        self.parent = nil
+        self.events = {}
+        self.gui = {}
+        self.children = {}
+    end
+end
+
 function node:clear_children()
     for _, child in pairs(self.children) do
         child:clear_children()

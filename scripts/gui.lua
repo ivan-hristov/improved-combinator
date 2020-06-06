@@ -103,7 +103,7 @@ function create_main_gui(unit_number)
             clicked_sprite = "utility/close_black"
         }
         close_button_node.events.on_click = function(event, node)
-            node.parent.parent:remove_child(node.parent.id)
+            node.parent:remove()
             event.element.parent.destroy()
         end
 
