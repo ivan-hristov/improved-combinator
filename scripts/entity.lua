@@ -1,3 +1,5 @@
+require("scripts.gui")
+local node = require("scripts.node")
 local constants = require("constants")
 local logger = require("scripts.logger")
 
@@ -44,6 +46,7 @@ function tablelength(T)
     for _ in pairs(T) do count = count + 1 end
     return count
 end
+
 -----------------------------------------------
 
 local function onInit()
@@ -56,15 +59,12 @@ local function onBuiltEntity(event)
     local entity = event.created_entity
     if entity.name == constants.entity.name then
         main_entity = {}
-        main_entity.logic = {}
-        main_entity.inner_elements_counter = 0
-        main_entity.entity = entity
         main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
         main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
-
+        main_entity.node = create_main_gui(entity.unit_number)
         global.entities[entity.unit_number] = main_entity
 
-        logger.print("function.onBuiltEntity Entity Added "..entity.unit_number.." ("..tablelength(global.entities)..")")
+        logger.print("function.onBuiltEntity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
@@ -81,10 +81,8 @@ local function onEntityDied(event)
             main_entity.entity_output.destroy()
             main_entity.entity_output = nil
         end
-        main_entity.entity = nil
-        main_entity.logic = nil
-        main_entity.inner_elements_counter = nil
-        main_entity.player_gui = nil
+        main_entity.node:clear_children()
+        main_entity.node = nil
         global.entities[entity.unit_number] = nil
 
         logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..tablelength(global.entities)..")")

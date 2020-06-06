@@ -1,4 +1,5 @@
 local constants = require("constants")
+local node = require("scripts.node")
 local logger = require("scripts.logger")
 
 ------------- String Utils -------------
@@ -14,143 +15,123 @@ local function contains_string(array, name)
     end
     return false
 end
-----------------------------------------
 
--------------- Utility Functions -------
-local function addGuiFrame(parent, frame, style, name, caption)
-    frame = frame or {}
-    if not frame or not frame.valid then
-        if not contains_string(parent.children_names, name) then
-            frame = parent.add({type = "frame", direction = "vertical", name = name, style = style})
-            frame.caption = caption or frame.caption
+-------------- Gui Functions -------
+function create_main_gui(unit_number)
+    local root = node:new(unit_number)
+    root.gui = {
+        type = "frame",
+        direction = "vertical",
+        name = root.id,
+        style = constants.style.main_frame,
+        caption = "MAIN FRAME "..unit_number
+    }
+
+    local tasks_area = root:add_child()
+    tasks_area.gui = {
+        type = "frame",
+        direction = "vertical",
+        name = tasks_area.id,
+        style = constants.style.tasks_frame
+    }
+
+    local scroll_pane = tasks_area:add_child()
+    scroll_pane.gui = {
+        type = "scroll-pane",
+        direction = "vertical",
+        name = scroll_pane.id,
+        style = constants.style.scroll_pane
+    }
+
+    local new_task_button = scroll_pane:add_child()
+    new_task_button.gui = {
+        type = "button",
+        name = new_task_button.id,
+        style = constants.style.large_button_frame,
+        caption = "+ Add Task"
+    }
+
+    local task_dropdown_frame = scroll_pane:add_child()
+    task_dropdown_frame.gui = {
+        type = "frame",
+        direction = "vertical",
+        name = task_dropdown_frame.id,
+        style = constants.style.dropdown_options_frame,
+        visible = false
+    }
+
+    new_task_button.events.on_click = function(event, node)
+        if event.element.parent[task_dropdown_frame.id].visible then
+            event.element.parent[task_dropdown_frame.id].visible = false
+        else
+            event.element.parent[task_dropdown_frame.id].visible = true
         end
     end
-    return frame
-end
 
-local function addGuiScrollPane(parent, scroll_pane, style, name)
-    scroll_pane = scroll_pane or {}
-    if not scroll_pane or not scroll_pane.valid then
-        scroll_pane = parent.add({
-            type = "scroll-pane",
-            direction = "vertical",
-            name = key,
-            style = style})
-    end
-    return scroll_pane
-end
-
-local function addGuiButton(parent, button, style, name, caption, tooltip)
-    button = button or {}
-    if not button or not button.valid then
-        button = parent.add({type = "button", name = name, style = style})
-        button.caption = caption or button.caption
-        button.tooltip = tooltip or button.tooltip
-    end
-    return button
-end
-
-local function addGuiSpriteButton(parent, button, style, name, sprite, hovered_sprite, clicked_sprite)
-    button = button or {}
-    if not button or not button.valid then
-        button = parent.add({type = "sprite-button", name = name, style = style, sprite = sprite, hovered_sprite = hovered_sprite, clicked_sprite = clicked_sprite})
-    end
-    return button
-end
-
-local function addGuiListBox(parent, list, style, name, items)
-    list = list or {}
-    if not list or not list.valid then
-        list = parent.add({type = "list-box", name = name, items = items})
-        list.style = style or list.style
-    end
-    return list
-end
-
-local function addGuiConditional(parent, frame_name, close_button_name)
-    local conditional_frame = addGuiFrame(parent, conditional_frame, constants.style.conditional_frame, frame_name)
-    addGuiSpriteButton(
-        conditional_frame,
-        close_button,
-        constants.style.close_button_frame,
-        close_button_name,
-        "utility/close_white",
-        "utility/close_black",
-        "utility/close_black"
-    )
-end
-----------------------------------------
-
-
-local function buildGui(parent, unit_number)
-    logger.print("function.buildGui")
-
-    local main_frame = addGuiFrame(parent, main_frame, constants.style.main_frame, constants.container.main_panel, "MAIN FRAME "..unit_number)
-    main_frame.force_auto_center()
-
-    local tasks_frame = addGuiFrame(main_frame, tasks_frame, constants.style.tasks_frame, constants.container.tasks_panel)
-    local scroll_pane = addGuiScrollPane(tasks_frame, scroll_pane, constants.style.scroll_pane, constants.container.scroll_pane)
-
-    ---------------- Add drop down menu to add task ----------------
-    local add_task_button = addGuiButton(scroll_pane, add_task_button, constants.style.large_button_frame, constants.container.add_task_button, "+ Add Task")
-    local add_task_dropdown_options_frame = addGuiFrame(scroll_pane, add_task_dropdown_options_frame, constants.style.dropdown_options_frame, "add_task_dropdown_options_frame")
-    add_task_dropdown_options_frame.visible = false
-    local add_task_list = addGuiListBox(add_task_dropdown_options_frame, add_task_list, constants.style.options_list, constants.container.add_task_list, {"Repeatable Timer", "Single User Timer"})
-    
-    add_task_button_events = {}
-    add_task_button_events.onClick = function(event)
-        event.element.parent.add_task_dropdown_options_frame.visible = true
-    end
-
-    global.entities[unit_number].logic[constants.container.add_task_button] = add_task_button_events
-
-    add_task_list_events = {}
-    add_task_list_events.onSelectionChanged = {}
-    add_task_list_events.onSelectionChanged[1] = function(event)
-        local unit_number = global.opened_entity[event.player_index]
-        local unique_gui_index = tostring(global.entities[unit_number].inner_elements_counter + 1)
-        global.entities[unit_number].inner_elements_counter = unique_gui_index
-
-        local condition = {}
-        condition.dynamic = true
-        condition.frame = "new_frame_name_"..unique_gui_index
-        condition.close = "new_button_name_"..unique_gui_index
-        global.entities[unit_number].logic[unique_gui_index] = condition
-
-        addGuiConditional(event.element.parent.parent, condition.frame, condition.close)      
+    local task_dropdown_list = task_dropdown_frame:add_child()
+    task_dropdown_list.gui = {
+        type = "list-box",
+        name = task_dropdown_list.id,
+        style = constants.style.options_list,
+        items = {"Repeatable Timer", "Single User Timer"}    
+    }
+    task_dropdown_list.events.on_selection_state_changed = {}
+    task_dropdown_list.events.on_selection_state_changed[1] = function(event, node)
         event.element.parent.visible = false
         event.element.selected_index = 0
 
-        local events = {}
-        events.onClick = function(event)
-            local name = event.element.name
-            local unit_number = global.opened_entity[event.player_index]
-            local number = tonumber(string.sub(name, string.len("new_button_name_") + 1))
+        local scroll_pane_node = node.parent.parent
+        local scroll_pane_gui = event.element.parent.parent
 
-            global.entities[unit_number].logic[number] = nil
+        -- Setup Persistent Nodes --
+        local repeatable_time_node = scroll_pane_node:add_child()
+        repeatable_time_node.gui = {
+            type = "frame",
+            direction = "vertical",
+            name = repeatable_time_node.id,
+            style = constants.style.conditional_frame
+        }
+
+        local close_button_node = repeatable_time_node:add_child()
+        close_button_node.gui = {
+            type = "sprite-button",
+            direction = "vertical",
+            name = close_button_node.id,
+            style = constants.style.close_button_frame,
+            sprite = "utility/close_white",
+            hovered_sprite = "utility/close_black",
+            clicked_sprite = "utility/close_black"
+        }
+        close_button_node.events.on_click = function(event, node)
+            node.parent.parent:remove_child(node.parent.id)
             event.element.parent.destroy()
         end
-        global.entities[unit_number].logic[condition.close] = events
+
+        -- Setup Factorio GUI --
+        local repeatable_time_gui = scroll_pane_gui.add(repeatable_time_node.gui)
+        repeatable_time_gui.add(close_button_node.gui)
+
     end
-    add_task_list_events.onSelectionChanged[2] = function(event)
-        
+    task_dropdown_list.events.on_selection_state_changed[2] = function(event, node)
         event.element.parent.visible = false
         event.element.selected_index = 0
     end
-    global.entities[unit_number].logic[constants.container.add_task_list] = add_task_list_events
-    ----------------------------------------------------------------
 
-    for _, v in  pairs(global.entities[unit_number].logic) do
-        if v.dynamic then
-            addGuiConditional(scroll_pane, v.frame, v.close)
-        end
-    end
-
-    return main_frame
+    return root
 end
 
-local function onGuiOpen(event)
-    logger.print("function.onGuiOpen")
+local function buildGuiNodes(parent, node)
+    local new_gui = parent.add(node.gui)
+    for _, child in pairs(node.children) do
+        buildGuiNodes(new_gui, child)
+    end
+    return new_gui
+end
+----------------------------------------
+
+
+local function on_gui_opened(event)
+    logger.print("on_gui_opened")
 
     if not event.entity then
         return
@@ -160,15 +141,16 @@ local function onGuiOpen(event)
     if player.selected then        
         if player.selected.name == constants.entity.name then
             global.opened_entity[event.player_index] = event.entity.unit_number
-            player.opened = buildGui(player.gui.screen, event.entity.unit_number)
+            player.opened = buildGuiNodes(player.gui.screen, global.entities[event.entity.unit_number].node)
+            player.opened.force_auto_center()
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil
         end
     end
 end
 
-local function onGuiClose(event)
-    logger.print("function.onGuiClose")
+local function on_gui_closed(event)
+    logger.print("on_gui_closed")
 
     if event.element then
         local player = game.players[event.player_index]
@@ -185,37 +167,35 @@ local function onGuiClose(event)
     end
 end
 
-local function onGuiClick(event)
-    logger.print("function.onGuiClick name: "..event.element.name)
+local function on_gui_click(event)
+    logger.print("on_gui_click name: "..event.element.name)
 
     local name = event.element.name
     local player = game.players[event.player_index]
-    local entity_unit_number = global.opened_entity[event.player_index]
+    local unit_number = global.opened_entity[event.player_index]
 
-    local logic = global.entities[entity_unit_number].logic[name]
-    if logic then
-        logic.onClick(event)
+    local node = global.entities[unit_number].node:recursive_find(name)
+    if node and node.events.on_click then
+        node.events.on_click(event, node)
     end
-
 end
 
-local function onGuiListClick(event)
-    logger.print("function.onGuiListClick name: "..event.element.name)
+local function on_gui_selection_state_changed(event)
+    logger.print("on_gui_selection_state_changed name: "..event.element.name)
 
     local name = event.element.name
     local player = game.players[event.player_index]
     local unit_number = global.opened_entity[event.player_index]
     local selected_index = event.element.selected_index
 
-    local logic = global.entities[unit_number].logic[name]
-    if logic then
-        logic.onSelectionChanged[selected_index](event)
+    local node = global.entities[unit_number].node:recursive_find(name)
+    if node and node.events.on_selection_state_changed then
+        node.events.on_selection_state_changed[selected_index](event, node)
     end
 end
 
-
-script.on_event(defines.events.on_gui_opened, onGuiOpen)
-script.on_event(defines.events.on_gui_closed, onGuiClose)
-script.on_event(defines.events.on_gui_click, onGuiClick)
-script.on_event(defines.events.on_gui_selection_state_changed, onGuiListClick)
+script.on_event(defines.events.on_gui_opened, on_gui_opened)
+script.on_event(defines.events.on_gui_closed, on_gui_closed)
+script.on_event(defines.events.on_gui_click, on_gui_click)
+script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
 
