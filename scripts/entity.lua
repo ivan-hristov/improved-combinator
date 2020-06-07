@@ -3,6 +3,12 @@ local node = require("scripts.node")
 local constants = require("constants")
 local logger = require("scripts.logger")
 
+local function onInit()
+    logger.print("function.onInit")
+    global.opened_entity = global.opened_entity or {}
+    global.entities = global.entities or {}
+end
+
 local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
     position = {x = mainEntity.position.x + xOffset,y = mainEntity.position.y + yOffset}
     local area = {
@@ -40,29 +46,14 @@ local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
     end
 end
 
------------------------------------------------
-function tablelength(T)
-    local count = 0
-    for _ in pairs(T) do count = count + 1 end
-    return count
-end
-
------------------------------------------------
-
-local function onInit()
-    logger.print("function.onInit")
-    global.opened_entity = global.opened_entity or {}
-    global.entities = global.entities or {}
-end
-
 local function onBuiltEntity(event)
     local entity = event.created_entity
     if entity.name == constants.entity.name then
-        main_entity = {}
-        main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
-        main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
-        main_entity.node = create_main_gui(entity.unit_number)
-        global.entities[entity.unit_number] = main_entity
+        global.entities[entity.unit_number] = {}
+        global.entities[entity.unit_number].entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
+        global.entities[entity.unit_number].entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
+        global.entities[entity.unit_number].events = {}
+        global.entities[entity.unit_number].node = create_main_gui_2(entity.unit_number)
 
         logger.print("function.onBuiltEntity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
@@ -81,11 +72,12 @@ local function onEntityDied(event)
             main_entity.entity_output.destroy()
             main_entity.entity_output = nil
         end
-        main_entity.node:remove()
+        node.remove(main_entity.node)
         main_entity.node = nil
+        main_entity.events = nil
         global.entities[entity.unit_number] = nil
 
-        logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..tablelength(global.entities)..")")
+        logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
