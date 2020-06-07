@@ -1,5 +1,5 @@
 local constants = require("constants")
-local node = require("scripts.node")
+local node = require("node")
 local logger = require("scripts.logger")
 
 ------------- String Utils -------------
@@ -59,64 +59,19 @@ function create_main_gui(unit_number)
         style = constants.style.dropdown_options_frame,
         visible = false
     }
-
-    new_task_button.events.on_click = function(event, node)
-        if event.element.parent[task_dropdown_frame.id].visible then
-            event.element.parent[task_dropdown_frame.id].visible = false
-        else
-            event.element.parent[task_dropdown_frame.id].visible = true
-        end
-    end
+    new_task_button.events_id.on_click = "on_click_new_task_button"
+    new_task_button.events_params = { task_dropdown_frame_id = task_dropdown_frame.id}
 
     local task_dropdown_list = task_dropdown_frame:add_child()
     task_dropdown_list.gui = {
         type = "list-box",
         name = task_dropdown_list.id,
         style = constants.style.options_list,
-        items = {"Repeatable Timer", "Single User Timer"}    
+        items = {"Repeatable Timer", "Single Use Timer"}    
     }
-    task_dropdown_list.events.on_selection_state_changed = {}
-    task_dropdown_list.events.on_selection_state_changed[1] = function(event, node)
-        event.element.parent.visible = false
-        event.element.selected_index = 0
+    task_dropdown_list.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
-        local scroll_pane_node = node.parent.parent
-        local scroll_pane_gui = event.element.parent.parent
-
-        -- Setup Persistent Nodes --
-        local repeatable_time_node = scroll_pane_node:add_child()
-        repeatable_time_node.gui = {
-            type = "frame",
-            direction = "vertical",
-            name = repeatable_time_node.id,
-            style = constants.style.conditional_frame
-        }
-
-        local close_button_node = repeatable_time_node:add_child()
-        close_button_node.gui = {
-            type = "sprite-button",
-            direction = "vertical",
-            name = close_button_node.id,
-            style = constants.style.close_button_frame,
-            sprite = "utility/close_white",
-            hovered_sprite = "utility/close_black",
-            clicked_sprite = "utility/close_black"
-        }
-        close_button_node.events.on_click = function(event, node)
-            node.parent:remove()
-            event.element.parent.destroy()
-        end
-
-        -- Setup Factorio GUI --
-        local repeatable_time_gui = scroll_pane_gui.add(repeatable_time_node.gui)
-        repeatable_time_gui.add(close_button_node.gui)
-
-    end
-    task_dropdown_list.events.on_selection_state_changed[2] = function(event, node)
-        event.element.parent.visible = false
-        event.element.selected_index = 0
-    end
-
+    node:recursive_setup_events(root)
     return root
 end
 
@@ -127,8 +82,8 @@ local function buildGuiNodes(parent, node)
     end
     return new_gui
 end
-----------------------------------------
 
+----------------------------------------
 
 local function on_gui_opened(event)
     logger.print("on_gui_opened")
@@ -141,7 +96,11 @@ local function on_gui_opened(event)
     if player.selected then        
         if player.selected.name == constants.entity.name then
             global.opened_entity[event.player_index] = event.entity.unit_number
-            player.opened = buildGuiNodes(player.gui.screen, global.entities[event.entity.unit_number].node)
+            local root_node = global.entities[event.entity.unit_number].node
+            if not root_node.valid then
+                node:recursive_create_metatable(root_node)
+            end
+            player.opened = buildGuiNodes(player.gui.screen, root_node)
             player.opened.force_auto_center()
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil

@@ -1,7 +1,7 @@
-require("scripts.gui")
-local node = require("scripts.node")
+require("gui")
+local node = require("node")
 local constants = require("constants")
-local logger = require("scripts.logger")
+local logger = require("logger")
 
 local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
     position = {x = mainEntity.position.x + xOffset,y = mainEntity.position.y + yOffset}
@@ -81,8 +81,13 @@ local function onEntityDied(event)
             main_entity.entity_output.destroy()
             main_entity.entity_output = nil
         end
+
+        if not main_entity.node.valid then
+            node:recursive_create_metatable(main_entity.node)
+        end
         main_entity.node:remove()
         main_entity.node = nil
+        
         global.entities[entity.unit_number] = nil
 
         logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..tablelength(global.entities)..")")

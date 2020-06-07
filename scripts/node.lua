@@ -1,7 +1,8 @@
 local uid = require("scripts.uid")
+local events = require("scripts.events")
 local logger = require("scripts.logger")
 
-node = {}
+local node = {}
 
 function node:new(entity_id)
     new_node = {}
@@ -10,10 +11,57 @@ function node:new(entity_id)
     new_node.id = uid.generate()
     new_node.entity_id = entity_id
     new_node.parent = nil
+    new_node.events_id = {}
+    new_node.events_params = {}
     new_node.events = {}
     new_node.gui = {}
     new_node.children = {}
     return new_node
+end
+
+function node:create_metatable(node_param)
+    setmetatable(node_param, self)
+    self.__index = self
+end
+
+function node:recursive_create_metatable(node_param)
+    node:create_metatable(node_param)
+    node:setup_events(node_param)
+    for _, child in pairs(node_param.children) do
+        node:recursive_create_metatable(child)
+    end
+end
+
+function node:recursive_setup_node_events()
+    node:setup_events(self)
+    for _, child in pairs(self.children) do
+        child:recursive_setup_node_events()
+    end
+end
+
+function node:recursive_setup_events(node_param)
+    node:setup_events(node_param)
+    for _, child in pairs(node_param.children) do
+        node:recursive_setup_events(child)
+    end
+end
+
+function node:setup_events(node_param)
+    if not node_param.events_id then
+        return
+    elseif node_param.events_id.on_click then
+        if node_param.events_id.on_click == "on_click_new_task_button" then
+            node_param.events.on_click = events.on_click_new_task_button
+        elseif node_param.events_id.on_click == "on_click_close_button" then
+            node_param.events.on_click = events.on_click_close_button
+        end
+    elseif node_param.events_id.on_selection_state_changed then
+        if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
+            node_param.events.on_selection_state_changed = {}
+            node_param.events.on_selection_state_changed[1] = events.on_selection_repeatable_timer
+            node_param.events.on_selection_state_changed[2] = events.on_selection_single_timer
+        end
+    end
 end
 
 function node:add_child()
@@ -26,6 +74,7 @@ end
 function node:remove_child(id)
     if self.children[id] then
         self.children[id]:clear_children()
+        self.children[id]:clear()
         self.children[id] = nil
     end
 end
@@ -35,12 +84,7 @@ function node:remove()
         self.parent:remove_child(self.id)
     else
         self:clear_children()
-        self.id = nil
-        self.entity_id = nil
-        self.parent = nil
-        self.events = {}
-        self.gui = {}
-        self.children = {}
+        self:clear()
     end
 end
 
@@ -48,6 +92,17 @@ function node:clear_children()
     for _, child in pairs(self.children) do
         child:clear_children()
     end
+    self:clear()
+end
+
+function node:clear()
+    self.id = nil
+    self.entity_id = nil
+    self.parent = nil
+    self.events_id = {}
+    self.events_params = {}
+    self.events = {}
+    self.gui = {}
     self.children = {}
 end
 
@@ -66,11 +121,8 @@ function node:recursive_find(id)
     return nil
 end
 
-function node:debug_print()
-    logger.print("id: "..self.id.." gui: "..self.gui.style)
-    for _, child in pairs(self.children) do
-        child:debug_print()
-    end
+function node:valid()
+    return true
 end
 
 return node
