@@ -47,21 +47,6 @@ function events.on_selection_repeatable_timer(event, node)
     }
     close_button_node.events_id.on_click = "on_click_close_button"
 
-    -- DEBUG
-    for _, v in pairs(scroll_pane_gui.children_names) do
-        if v == close_button_node.id then
-            logger.print("MATCH FOUND element_name: "..v..", node_id: "..close_button_node.id)
-            local root = close_button_node
-            while root.parent do
-                root = root.parent
-            end
-            root:debug_print(0)
-
-            repeatable_time_node:remove()
-            return
-        end
-    end
-
     -- Setup Node Events --
     close_button_node:recursive_setup_events()
 

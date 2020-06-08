@@ -34,7 +34,6 @@ local function on_gui_opened(event)
             if not root_node.valid then
                 node:recursive_create_metatable(root_node)
             end
-            root_node:debug_print(0)
             player.opened = buildGuiNodes(player.gui.screen, root_node)
             player.opened.force_auto_center()
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
