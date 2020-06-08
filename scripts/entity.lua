@@ -40,15 +40,6 @@ local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
     end
 end
 
------------------------------------------------
-function tablelength(T)
-    local count = 0
-    for _ in pairs(T) do count = count + 1 end
-    return count
-end
-
------------------------------------------------
-
 local function onInit()
     logger.print("function.onInit")
     global.opened_entity = global.opened_entity or {}
@@ -90,7 +81,7 @@ local function onEntityDied(event)
         
         global.entities[entity.unit_number] = nil
 
-        logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..tablelength(global.entities)..")")
+        logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
