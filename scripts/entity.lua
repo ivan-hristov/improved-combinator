@@ -1,4 +1,3 @@
-require("gui")
 local node = require("node")
 local constants = require("constants")
 local logger = require("logger")
@@ -52,7 +51,7 @@ local function onBuiltEntity(event)
         main_entity = {}
         main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
         main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
-        main_entity.node = create_main_gui(entity.unit_number)
+        main_entity.node = node:create_main_gui(entity.unit_number)
         global.entities[entity.unit_number] = main_entity
 
         logger.print("function.onBuiltEntity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
