@@ -32,17 +32,10 @@ function node:recursive_create_metatable(node_param)
     end
 end
 
-function node:recursive_setup_node_events()
+function node:recursive_setup_events()
     node:setup_events(self)
     for _, child in pairs(self.children) do
-        child:recursive_setup_node_events()
-    end
-end
-
-function node:recursive_setup_events(node_param)
-    node:setup_events(node_param)
-    for _, child in pairs(node_param.children) do
-        node:recursive_setup_events(child)
+        child:recursive_setup_events()
     end
 end
 

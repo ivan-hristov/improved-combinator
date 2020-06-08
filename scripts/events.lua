@@ -45,7 +45,7 @@ function events.on_selection_repeatable_timer(event, node)
     close_button_node.events_id.on_click = "on_click_close_button"
 
     -- Setup Node Events --
-    close_button_node:recursive_setup_node_events()
+    close_button_node:recursive_setup_events()
 
     -- Setup Factorio GUI --
     local repeatable_time_gui = scroll_pane_gui.add(repeatable_time_node.gui)

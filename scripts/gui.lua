@@ -71,7 +71,7 @@ function create_main_gui(unit_number)
     }
     task_dropdown_list.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
-    node:recursive_setup_events(root)
+    root:recursive_setup_events()
     return root
 end
 
