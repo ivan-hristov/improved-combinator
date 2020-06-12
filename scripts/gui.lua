@@ -1,23 +1,7 @@
 local constants = require("constants")
-local node = require("node")
+local game_node = require("game_node")
 local logger = require("scripts.logger")
 
-local function safely_add_gui_child(parent, style)
-    for _, child in pairs(parent.children) do
-        if child == name then
-            return child
-        end
-    end
-    return parent.add(style)
-end
-
-local function buildGuiNodes(parent, node)
-    local new_gui = safely_add_gui_child(parent, node.gui)
-    for _, child in pairs(node.children) do
-        buildGuiNodes(new_gui, child)
-    end
-    return new_gui
-end
 
 local function on_gui_opened(event)
     logger.print("on_gui_opened")
@@ -32,9 +16,9 @@ local function on_gui_opened(event)
             global.opened_entity[event.player_index] = event.entity.unit_number
             local root_node = global.entities[event.entity.unit_number].node
             if not root_node.valid then
-                node:recursive_create_metatable(root_node)
+                game_node:recursive_create_metatable(root_node)
             end
-            player.opened = buildGuiNodes(player.gui.screen, root_node)
+            player.opened = game_node:buildGuiNodes(player.gui.screen, root_node)
             player.opened.force_auto_center()
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil

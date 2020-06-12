@@ -80,6 +80,7 @@ add_styles({
         vertical_align = "center",
         horizontal_align = "left",
         horizontally_stretchable = "on",
+        vertically_stretchable = "on",
 
         top_padding  = 0,
         right_padding = 0,
@@ -92,20 +93,28 @@ add_styles({
     {
         type = "button_style",
         parent = "button_with_shadow",
+        vertical_align = "center",
         horizontal_align = "left",
-        horizontally_stretchable = "on",
+        padding = 0,
 
-        width = 28,
-        height = 28
+        size = {28, 28},
+        left_margin = 0,
+        top_margin = 0,
+    },
+    [constants.style.time_selection_node] =
+    {
+      type = "button_style",
+      size = {84, 28},
+      left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
     },
     [constants.style.close_button_frame] =
     {
         type = "button_style",
         vertical_align = "center",
-        horizontal_align = "right",
+        horizontal_align = "left",
         padding = 0,
         size = {16, 28},
-        left_margin = 354, -- TEMP
+        left_margin = 96,
         top_margin = 0,
 
         default_graphical_set =
@@ -141,5 +150,16 @@ add_styles({
             width = 378,
             horizontally_stretchable = "off"
         },
+    },
+    [constants.style.label_frame] =
+    {
+      type = "label_style",
+      vertical_align = "center",
+      horizontally_squashable = "on",
+      top_margin = 4,
+      left_padding = 2,
+      width = 110,
+      font_color = {220, 220, 220},
+      hovered_font_color = {249, 168, 56}
     },
 })

@@ -41,7 +41,8 @@ constants.style.dropdown_options_frame = constants.style.prefix_uuid.."drowdown_
 constants.style.conditional_frame      = constants.style.prefix_uuid.."conditional_frame"
 constants.style.options_list           = constants.style.prefix_uuid.."options_list"
 constants.style.scroll_pane            = constants.style.prefix_uuid.."scroll_pane"
-constants.style.close_button_frame     = constants.style.prefix_uuid.."close_button_frame"
+constants.style.label_frame            = constants.style.prefix_uuid.."label_frame"
 constants.style.play_button_frame      = constants.style.prefix_uuid.."play_button_frame"
-
+constants.style.time_selection_node    = constants.style.prefix_uuid.."time_selection_node"
+constants.style.close_button_frame     = constants.style.prefix_uuid.."close_button_frame"
 return constants
