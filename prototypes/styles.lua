@@ -60,6 +60,21 @@ add_styles({
         bottom_padding = 7,
         left_padding = 7
     },
+    [constants.style.dropdown_subtask_options_frame] =
+    {
+        type = "frame_style",
+        parent = "inner_frame_in_outer_frame",
+        vertical_align = "center",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+
+        left_margin = 84,
+        
+        top_padding  = 7,
+        right_padding = 7,
+        bottom_padding = 7,
+        left_padding = 7
+    },
     [constants.style.options_list] =
     {
         type = "list_box_style",
@@ -81,6 +96,16 @@ add_styles({
 
         height = 36
     },
+    [constants.style.large_options_button_frame] =
+    {
+        type = "button_style",
+        parent = "button_with_shadow",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+
+        left_margin = 84,
+        height = 36
+    },
     [constants.style.conditional_frame] =
     {
         type = "frame_style",
@@ -97,6 +122,29 @@ add_styles({
 
         height = 36
     },
+    [constants.style.sub_conditional_frame] =
+    {
+        type = "frame_style",
+        parent = constants.style.conditional_frame,
+        left_margin = 84
+    },
+    [constants.style.group_vertical_flow_frame] =
+    {
+        type = "vertical_flow_style",
+        vertical_align = "center",
+        horizontal_align = "left",
+        vertical_spacing = 4
+    },
+    [constants.style.sub_group_vertical_flow_frame] =
+    {
+        type = "vertical_flow_style",
+        vertical_align = "center",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "off",
+        vertical_spacing = 4,
+        height = 0
+    },
     [constants.style.conditional_flow_frame] =
     {
         type = "horizontal_flow_style",
@@ -104,7 +152,6 @@ add_styles({
         vertically_stretchable = "on",
         vertical_align = "center",
         horizontal_align = "left",
-        vertical_spacing = 4,
         horizontal_spacing = 4,
         padding = 4,
         height = 36
@@ -210,8 +257,9 @@ add_styles({
         vertical_flow_style =
         {
             type = "vertical_flow_style",
+            horizontally_stretchable = "off",
             width = 378,
-            horizontally_stretchable = "off"
+            
         },
     },
     [constants.style.label_frame] =

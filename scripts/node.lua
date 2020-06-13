@@ -15,6 +15,7 @@ function node:new(entity_id)
     new_node.events_params = {}
     new_node.events = {}
     new_node.gui = {}
+    new_node.gui_element = nil  -- Non-persistent Factorio element
     new_node.children = {}
     return new_node
 end
@@ -78,6 +79,7 @@ function node:clear()
     self.events_params = {}
     self.events = {}
     self.gui = {}
+    self.gui_element = nil
     self.children = {}
 end
 
