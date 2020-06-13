@@ -4,7 +4,7 @@ local logger = require("scripts.logger")
 local input_signals = {}
 local current_index = 0
 
-local function readInputSignals()
+local function read_input_signals()
     local entity = global.entity_input
     if entity and entity.valid then
         input_signals = {}
@@ -36,11 +36,37 @@ local function readInputSignals()
     end
 end
 
-local function processSignals()
-
+local function fetch_logic(node, logic_array)
+    if node.logic and node.logic.progressbar then
+        table.insert(logic_array, node)
+    else
+        for _, child in pairs(node.children) do
+            fetch_logic(child, logic_array)
+        end
+    end
 end
 
-local function writeOutputSignals()
+local function process_events()
+    local logic_array = {}
+    for _, entity in pairs(global.entities) do
+        fetch_logic(entity.node, logic_array)        
+    end
+
+    for _, node in pairs(logic_array) do
+        if node.logic.value <= 1.0 then
+            node.logic.value = node.logic.value + 0.01
+        else
+            node.logic.value = 0
+        end
+
+        if node.gui_element and node.gui_element.valid then
+            --logger.print("Type: "..node.gui.type)
+            node.gui_element.value = node.logic.value
+        end
+    end
+end
+
+local function write_output_signals()
     entity = global.entity_output
     if entity and entity.valid and input_signals and current_index > 0 then
 
@@ -55,9 +81,9 @@ local function writeOutputSignals()
 end
 
 local function onTick(event)
-    readInputSignals()
-    processSignals()
-    writeOutputSignals()
+    read_input_signals()
+    process_events()
+    write_output_signals()
 end
 
 

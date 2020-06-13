@@ -17,6 +17,7 @@ function node:new(entity_id)
     new_node.gui = {}
     new_node.gui_element = nil  -- Non-persistent Factorio element
     new_node.children = {}
+    new_node.logic = nil
     return new_node
 end
 
@@ -81,6 +82,7 @@ function node:clear()
     self.gui = {}
     self.gui_element = nil
     self.children = {}
+    self.logic = nil
 end
 
 function node:recursive_find(id)

@@ -184,8 +184,9 @@ function node.on_selection_repeatable_timer(event, node_param)
         direction = "vertical",
         name = repeatable_time_node.id,
         style = constants.style.conditional_progress_frame,
-        value = 1
+        value = 0
     }
+    repeatable_time_node.logic = { progressbar=true, value = 0 }
 
     local repeatable_time_flow_node = repeatable_time_node:add_child()
     repeatable_time_flow_node.gui = {
