@@ -51,6 +51,10 @@ local function on_gui_click(event)
     local player = game.players[event.player_index]
     local unit_number = global.opened_entity[event.player_index]
 
+    if not global.entities[unit_number].node.valid then
+        game_node:recursive_create_metatable(global.entities[unit_number].node)
+    end
+
     local node = global.entities[unit_number].node:recursive_find(name)
     if node and node.events.on_click then
         node.events.on_click(event, node)
@@ -64,6 +68,10 @@ local function on_gui_selection_state_changed(event)
     local player = game.players[event.player_index]
     local unit_number = global.opened_entity[event.player_index]
     local selected_index = event.element.selected_index
+
+    if not global.entities[unit_number].node.valid then
+        game_node:recursive_create_metatable(global.entities[unit_number].node)
+    end
 
     local node = global.entities[unit_number].node:recursive_find(name)
     if node and node.events.on_selection_state_changed then

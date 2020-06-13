@@ -7,6 +7,14 @@ local function add_styles(styles)
     end
 end
 
+local default_shadow =
+{
+    position = {200, 128},
+    corner_size = 8,
+    tint = {0, 0, 0, 0.35},
+    scale = 0.5,
+    draw_type = "outer"
+}   
 
 add_styles({
     [constants.style.main_frame] =
@@ -89,10 +97,44 @@ add_styles({
 
         height = 36
     },
+    [constants.style.conditional_flow_frame] =
+    {
+        type = "horizontal_flow_style",
+        horizontally_stretchable = "off",
+        vertically_stretchable = "on",
+        vertical_align = "center",
+        horizontal_align = "left",
+        vertical_spacing = 4,
+        horizontal_spacing = 4,
+        padding = 4,
+        height = 36
+    },
+    [constants.style.conditional_progress_frame] =
+    {
+        type = "progressbar_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "off",
+        color = {0, 198, 89, 200},
+        other_colors = {},
+        padding  = 0,
+        bar_width = 36,
+        height = 36,
+        embed_text_in_bar = false,
+
+        bar =
+        {
+            base = {position = {68, 0}, corner_size = 8},
+            shadow = default_shadow
+        },
+        bar_background =
+        {
+            base = {position = {68, 0}, corner_size = 8},
+            shadow = default_shadow
+        },
+    },
     [constants.style.play_button_frame] =
     {
         type = "button_style",
-        parent = "button_with_shadow",
         vertical_align = "center",
         horizontal_align = "left",
         padding = 0,
@@ -100,6 +142,24 @@ add_styles({
         size = {28, 28},
         left_margin = 0,
         top_margin = 0,
+
+        default_graphical_set =
+        {
+            base = {position = {0, 17}, corner_size = 8},
+            glow = default_shadow           
+        },
+        hovered_graphical_set =
+        {
+            base = {position = {34, 17}, corner_size = 8},
+            glow = default_shadow
+         },
+        clicked_graphical_set =
+        {
+            base = {position = {51, 17}, corner_size = 8},
+            glow = default_shadow
+        },
+        left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
+
     },
     [constants.style.time_selection_node] =
     {
@@ -119,8 +179,11 @@ add_styles({
 
         default_graphical_set =
         {
-            base = {position = {68, 0}, corner_size = 8},
-            shadow = {position = {395, 86}, corner_size = 8, draw_type = "outer"}
+            base =
+            {
+                position = {68, 0},
+                corner_size = 8,
+            }
         },
         left_click_sound = {{ filename = "__core__/sound/gui-tool-button.ogg", volume = 1 }},
     },
@@ -156,8 +219,7 @@ add_styles({
       type = "label_style",
       vertical_align = "center",
       horizontally_squashable = "on",
-      top_margin = 4,
-      left_padding = 2,
+      font = "default-semibold",
       width = 110,
       font_color = {220, 220, 220},
       hovered_font_color = {249, 168, 56}

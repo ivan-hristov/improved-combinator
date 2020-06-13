@@ -122,8 +122,8 @@ function node.on_click_new_task_button(event, node_param)
 end
 
 function node.on_click_close_button(event, node_param)
-    node_param.parent:remove()
-    event.element.parent.destroy()
+    node_param.parent.parent:remove()
+    event.element.parent.parent.destroy()
 end
 
 function node.on_click_play_button(event, node_param)
@@ -154,13 +154,22 @@ function node.on_selection_repeatable_timer(event, node_param)
 
     local repeatable_time_node = scroll_pane_node:add_child()
     repeatable_time_node.gui = {
-        type = "frame",
-        direction = "horizontal",
+        type = "progressbar",
+        direction = "vertical",
         name = repeatable_time_node.id,
-        style = constants.style.conditional_frame
+        style = constants.style.conditional_progress_frame,
+        value = 1
     }
 
-    local play_button_node = repeatable_time_node:add_child()
+    local repeatable_time_flow_node = repeatable_time_node:add_child()
+    repeatable_time_flow_node.gui = {
+        type = "flow",
+        direction = "horizontal",
+        name = repeatable_time_flow_node.id,
+        style = constants.style.conditional_flow_frame,
+    }
+
+    local play_button_node = repeatable_time_flow_node:add_child()
     play_button_node.gui = {
         type = "sprite-button",
         direction = "vertical",
@@ -172,7 +181,8 @@ function node.on_selection_repeatable_timer(event, node_param)
     }
     play_button_node.events_id.on_click = "on_click_play_button"
 
-    local label_node = repeatable_time_node:add_child()
+
+    local label_node = repeatable_time_flow_node:add_child()
     label_node.gui = {
         type = "label",
         direction = "vertical",
@@ -181,7 +191,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         caption = "Repeatable Timer"
     }
 
-    local time_selection_node = repeatable_time_node:add_child()
+    local time_selection_node = repeatable_time_flow_node:add_child()
     time_selection_node.gui = {
         type = "button",
         direction = "vertical",
@@ -190,7 +200,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         caption = "600 s"
     }
 
-    local close_button_node = repeatable_time_node:add_child()
+    local close_button_node = repeatable_time_flow_node:add_child()
     close_button_node.gui = {
         type = "sprite-button",
         direction = "vertical",
