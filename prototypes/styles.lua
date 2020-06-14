@@ -34,6 +34,14 @@ local default_glow =
     draw_type = "outer"
 }
 
+local default_inner_shadow =
+{
+    position = {183, 128},
+    corner_size = 8,
+    tint = {0, 0, 0, 1},
+    scale = 0.5,
+    draw_type = "inner"
+}
 
 add_styles({
     [constants.style.main_frame] =
@@ -304,19 +312,18 @@ add_styles({
             
         },
     },
-    [constants.style.subtask_dropdown_frame] =
+    [constants.style.task_dropdown_frame] =
     {
         type = "dropdown_style",
+        horizontally_stretchable = "on",
+        height = 36,
 
         button_style =
         {
             type = "button_style",
             parent = "button_with_shadow",
             horizontal_align = "left",
-            horizontally_stretchable = "on",
-    
-            left_margin = 84,
-            height = 36
+            vertical_align = "center",
         },
         icon =
         {
@@ -328,7 +335,11 @@ add_styles({
         list_box_style =
         {
             type = "list_box_style",
+            vertical_align = "top",
+            horizontal_align = "left",
+            horizontally_stretchable = "off",
             maximal_height = 400,
+
             item_style =
             {
                 type = "button_style",
@@ -339,11 +350,36 @@ add_styles({
             scroll_pane_style =
             {
                 type = "scroll_pane_style",
-                padding = 0,
                 extra_padding_when_activated = 0,
-                graphical_set = {shadow = default_shadow}
+                graphical_set =
+                {
+                    base =
+                    {
+                        position = {17, 0},
+                        corner_size = 8,
+                        scale = 0.75,
+                        top_outer_border_shift = 4,
+                        bottom_outer_border_shift = -4,
+                        left_outer_border_shift = 4,
+                        right_outer_border_shift = -4,
+                    },
+                    shadow = 
+                    {
+                        position = {200, 128},
+                        corner_size = 8,
+                        tint = {0, 0, 0, 90},
+                        scale = 0.75,
+                        draw_type = "inner"
+                    },
+                }
             }
         }
+    },
+    [constants.style.subtask_dropdown_frame] =
+    {
+        type = "dropdown_style",
+        parent = constants.style.task_dropdown_frame,
+        left_margin = 84
     },
     [constants.style.condition_comparator_dropdown_frame] =
     {
@@ -412,5 +448,13 @@ add_styles({
                 graphical_set = {shadow = default_shadow}
             }
         }
+    },
+    [constants.style.dropdown_overlay_label_frame] =
+    {
+        type = "label_style",
+        font = "default-semibold",
+        top_padding = 5,
+        font_color = {0, 0, 0},
+        hovered_font_color = {249, 168, 56}
     },
 })

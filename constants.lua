@@ -54,7 +54,9 @@ constants.style.play_button_frame = constants.style.prefix_uuid.."play_button_fr
 constants.style.time_selection_frame = constants.style.prefix_uuid.."time_selection_frame"
 constants.style.close_button_frame = constants.style.prefix_uuid.."close_button_frame"
 constants.style.repeatable_end_label_frame = constants.style.prefix_uuid.."repeatable_end_label_frame"
+constants.style.task_dropdown_frame = constants.style.prefix_uuid.."task_dropdown_frame"
 constants.style.subtask_dropdown_frame = constants.style.prefix_uuid.."subtask_dropdown_frame"
 constants.style.condition_comparator_dropdown_frame = constants.style.prefix_uuid.."condition_comparator_dropdown_frame"
+constants.style.dropdown_overlay_label_frame = constants.style.prefix_uuid.."dropdown_overlay_label_frame"
 
 return constants

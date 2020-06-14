@@ -74,33 +74,25 @@ function game_node:create_main_gui(unit_number)
         style = constants.style.scroll_pane
     }
 
-    local new_task_button = scroll_pane:add_child()
-    new_task_button.gui = {
-        type = "button",
-        name = new_task_button.id,
-        style = constants.style.large_button_frame,
-        caption = "+ Add Task"
+    local new_task_dropdown_node = scroll_pane:add_child()
+    new_task_dropdown_node.gui = {
+        type = "drop-down",
+        direction = "horizontal",
+        name = new_task_dropdown_node.id,
+        style = constants.style.task_dropdown_frame,
+        items = { "Repeatable Timer", "Single Use Timer" }
     }
+    new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
-    local task_dropdown_frame = scroll_pane:add_child()
-    task_dropdown_frame.gui = {
-        type = "frame",
+    local overlay_node = new_task_dropdown_node:add_child()
+    overlay_node.gui = {
+        type = "label",
         direction = "vertical",
-        name = task_dropdown_frame.id,
-        style = constants.style.dropdown_options_frame,
-        visible = false
-    }
-    new_task_button.events_id.on_click = "on_click_new_task_button"
-    new_task_button.events_params = { task_dropdown_frame_id = task_dropdown_frame.id}
-
-    local task_dropdown_list = task_dropdown_frame:add_child()
-    task_dropdown_list.gui = {
-        type = "list-box",
-        name = task_dropdown_list.id,
-        style = constants.style.options_list,
-        items = {"Repeatable Timer", "Single Use Timer"}    
-    }
-    task_dropdown_list.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
+        name = overlay_node.id,
+        style = constants.style.dropdown_overlay_label_frame,
+        ignored_by_interaction = true,
+        caption = "+ Add Task"
+    } 
 
     root:recursive_setup_events()
     return root
@@ -110,9 +102,7 @@ function node:setup_events(node_param)
     if not node_param.events_id then
         return
     elseif node_param.events_id.on_click then
-        if node_param.events_id.on_click == "on_click_new_task_button" then
-            node_param.events.on_click = node.on_click_new_task_button
-        elseif node_param.events_id.on_click == "on_click_play_button" then
+        if node_param.events_id.on_click == "on_click_play_button" then
             node_param.events.on_click = node.on_click_play_button
         elseif node_param.events_id.on_click == "on_click_close_button" then
             node_param.events.on_click = node.on_click_close_button
@@ -133,14 +123,6 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator
             node_param.events.on_selection_state_changed[2] = node.on_selection_arithmetic_combinator
         end
-    end
-end
-
-function node.on_click_new_task_button(event, node_param)
-    if event.element.parent[node_param.events_params.task_dropdown_frame_id].visible then
-        event.element.parent[node_param.events_params.task_dropdown_frame_id].visible = false
-    else
-        event.element.parent[node_param.events_params.task_dropdown_frame_id].visible = true
     end
 end
 
@@ -203,12 +185,11 @@ function node.on_text_change_time(event, node_param)
 end
 
 function node.on_selection_repeatable_timer(event, node_param)
-    event.element.parent.visible = false
     event.element.selected_index = 0
 
     -- Setup Persistent Nodes --
-    local scroll_pane_node = node_param.parent.parent
-    local scroll_pane_gui = event.element.parent.parent
+    local scroll_pane_node = node_param.parent
+    local scroll_pane_gui = event.element.parent
 
     local vertical_flow_node = scroll_pane_node:add_child()
     vertical_flow_node.gui = {
@@ -309,37 +290,27 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.sub_group_vertical_flow_frame,
         visible = false
     }
-
     ------------------------------ Frame Area 3 ---------------------------------
-    local new_sub_task_button = vertical_flow_node:add_child()
-    new_sub_task_button.gui = {
-        type = "button",
-        name = new_sub_task_button.id,
-        style = constants.style.large_options_button_frame,
-        caption = "+ Add Sub-Task"
+    local new_task_dropdown_node = vertical_flow_node:add_child()
+    new_task_dropdown_node.gui = {
+        type = "drop-down",
+        direction = "horizontal",
+        name = new_task_dropdown_node.id,
+        style = constants.style.subtask_dropdown_frame,
+        items = {"Constant Combinator", "Arithmetic Combinator"}
     }
+    new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
+    new_task_dropdown_node.events_params = { repeatable_sub_tasks_flow_id = repeatable_sub_tasks_flow.id }
 
-    ------------------------------ Frame Area 4 ---------------------------------
-    local task_dropdown_frame = vertical_flow_node:add_child()
-    task_dropdown_frame.gui = {
-        type = "frame",
+    local overlay_node = new_task_dropdown_node:add_child()
+    overlay_node.gui = {
+        type = "label",
         direction = "vertical",
-        name = task_dropdown_frame.id,
-        style = constants.style.dropdown_subtask_options_frame,
-        visible = false
+        name = overlay_node.id,
+        style = constants.style.dropdown_overlay_label_frame,
+        ignored_by_interaction = true,
+        caption = "+ Add Subtask"
     }
-    new_sub_task_button.events_id.on_click = "on_click_new_task_button"
-    new_sub_task_button.events_params = { task_dropdown_frame_id = task_dropdown_frame.id}
-
-    local task_dropdown_list = task_dropdown_frame:add_child()
-    task_dropdown_list.gui = {
-        type = "list-box",
-        name = task_dropdown_list.id,
-        style = constants.style.options_list,
-        items = {"Constant Combinator", "Arithmetic Combinator"}    
-    }
-    task_dropdown_list.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
-    task_dropdown_list.events_params = { repeatable_sub_tasks_flow_id = repeatable_sub_tasks_flow.id }
     ------------------------------------------------------------------------------
 
     -- Setup Node Events --
@@ -350,17 +321,15 @@ function node.on_selection_repeatable_timer(event, node_param)
 end
 
 function node.on_selection_single_timer(event, node_param)
-    event.element.parent.visible = false
     event.element.selected_index = 0
 end
 
 function node.on_selection_constant_combinator(event, node_param)
-    event.element.parent.visible = false
     event.element.selected_index = 0
 
     -- Setup Persistent Nodes --
-    local vertical_flow_node = node_param.parent.parent.parent
-    local vertical_flow_gui = event.element.parent.parent.parent
+    local vertical_flow_node = node_param.parent
+    local vertical_flow_gui = event.element.parent
 
     local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
 
@@ -444,7 +413,6 @@ function node.on_selection_constant_combinator(event, node_param)
 end
 
 function node.on_selection_arithmetic_combinator(event, node_param)
-    event.element.parent.visible = false
     event.element.selected_index = 0
 
     -- Setup Persistent Nodes --
@@ -471,10 +439,19 @@ function node.on_selection_arithmetic_combinator(event, node_param)
         type = "drop-down",
         direction = "vertical",
         name = test_node.id,
-        style = constants.style.subtask_dropdown_frame,
-        caption = "Add Stuff",
+        style = constants.style.task_dropdown_frame,
         items = { "Combinator 1", "Combinator 2" }
     }
+
+    local overlay = test_node:add_child()
+    overlay.gui = {
+        type = "label",
+        direction = "vertical",
+        name = overlay.id,
+        style = constants.style.dropdown_overlay_label_frame,
+        ignored_by_interaction = true,
+        caption = "+ Button"
+    }    
 
     local close_button_node = repeatable_time_node:add_child()
     close_button_node.gui = {
@@ -494,6 +471,5 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     -- Setup Factorio GUI --
     game_node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end
-
 
 return game_node
