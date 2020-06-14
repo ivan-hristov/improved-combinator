@@ -188,7 +188,7 @@ add_styles({
         type = "progressbar_style",
         horizontally_stretchable = "on",
         vertically_stretchable = "off",
-        color = {255, 255, 255, 255},
+        color = {20, 255, 90, 210},
         other_colors = {},
         padding  = 0,
         bar_width = 36,
@@ -197,7 +197,7 @@ add_styles({
 
         bar =
         {
-            base = {position = {68, 0}, corner_size = 8, tint = {50, 255, 100, 230}},
+            base = {position = {68, 0}, corner_size = 8, tint = {100, 255, 100, 0}},
             shadow = default_shadow
         },
         bar_background =
