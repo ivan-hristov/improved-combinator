@@ -27,12 +27,23 @@ function game_node:safely_add_gui_child(parent, style)
     return parent.add(style)
 end
 
-function game_node:buildGuiNodes(parent, node_param)
+function game_node:build_gui_nodes(parent, node_param)
     local new_gui = game_node:safely_add_gui_child(parent, node_param.gui)
     node_param.gui_element = new_gui
 
+    -- Update Gui from persistent data
+    if node_param.logic then
+        if node_param.logic.enabled ~= nil then
+            node_param.gui_element.enabled = node_param.logic.enabled
+        end
+
+        if node_param.gui_element.type == "textfield" and node_param.logic.max_value ~= nil then
+            node_param.gui_element.text = tostring(node_param.logic.max_value / 60)
+        end
+    end
+
     for _, child in pairs(node_param.children) do
-        game_node:buildGuiNodes(new_gui, child)
+        game_node:build_gui_nodes(new_gui, child)
     end
     return new_gui
 end
@@ -108,6 +119,10 @@ function node:setup_events(node_param)
         elseif node_param.events_id.on_click == "on_click_close_sub_button" then
             node_param.events.on_click = node.on_click_close_sub_button
         end
+    elseif node_param.events_id.on_gui_text_changed then
+        if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
+            node_param.events.on_gui_text_changed = node.on_text_change_time
+        end
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
             node_param.events.on_selection_state_changed = {}
@@ -144,20 +159,46 @@ function node.on_click_close_sub_button(event, node_param)
 end
 
 function node.on_click_play_button(event, node_param)
-    if event.element.sprite == "utility/play" then
-        event.element.sprite = "utility/stop"
-        event.element.hovered_sprite = "utility/stop"
-        event.element.clicked_sprite = "utility/stop"
-        node_param.gui.sprite = "utility/stop"
-        node_param.gui.hovered_sprite = "utility/stop"
-        node_param.gui.clicked_sprite = "utility/stop"
+
+    local function set_sprites(element, sprite)
+        element.sprite = sprite
+        element.hovered_sprite = sprite
+        element.clicked_sprite = sprite
+    end
+
+    local progressbar_node = node_param.parent.parent
+    local progressbar_gui = event.element.parent.parent
+    local timebox_node = node_param.parent:recursive_find(node_param.events_params.time_selection_node_id)
+    local timebox_gui = event.element.parent[node_param.events_params.time_selection_node_id]
+    
+    progressbar_node.logic.value = 0
+    progressbar_gui.value = 0
+
+    if progressbar_node.logic.active then
+        progressbar_node.logic.active = false
+        timebox_gui.enabled = true
+        timebox_node.logic.enabled = true
+        set_sprites(event.element, "utility/play")
+        set_sprites(node_param.gui, "utility/play")
     else
-        event.element.sprite = "utility/play"
-        event.element.hovered_sprite = "utility/play"
-        event.element.clicked_sprite = "utility/play"
-        node_param.gui.sprite = "utility/play"
-        node_param.gui.hovered_sprite = "utility/play"
-        node_param.gui.clicked_sprite = "utility/play"
+        progressbar_node.logic.active = true
+        timebox_gui.enabled = false
+        timebox_node.logic.enabled = false
+        set_sprites(event.element, "utility/stop")
+        set_sprites(node_param.gui, "utility/stop")
+    end
+
+end
+
+function node.on_text_change_time(event, node_param)
+    local number = tonumber(event.element.text) 
+
+    if not number then
+        node_param.logic.max_value = 0
+        node_param.parent.parent.logic.max_value = 0
+    else
+        node_param.logic.max_value = number * 60
+        node_param.parent.parent.logic.max_value = node_param.logic.max_value
     end
 end
 
@@ -186,7 +227,13 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.conditional_progress_frame,
         value = 0
     }
-    repeatable_time_node.logic = { progressbar=true, value = 0 }
+    repeatable_time_node.logic = {
+        timer = true,
+        repeatable = true,
+        active = false,
+        max_value = 600,
+        value = 0
+    }
 
     local repeatable_time_flow_node = repeatable_time_node:add_child()
     repeatable_time_flow_node.gui = {
@@ -206,25 +253,41 @@ function node.on_selection_repeatable_timer(event, node_param)
         hovered_sprite = "utility/play",
         clicked_sprite = "utility/stop"
     }
-    play_button_node.events_id.on_click = "on_click_play_button"
 
     local label_node = repeatable_time_flow_node:add_child()
     label_node.gui = {
         type = "label",
         direction = "vertical",
         name = label_node.id,
-        style = constants.style.label_frame,
-        caption = "Repeatable Timer"
+        style = constants.style.repeatable_begining_label_frame,
+        caption = "Repeat every"
     }
 
     local time_selection_node = repeatable_time_flow_node:add_child()
     time_selection_node.gui = {
-        type = "button",
+        type = "textfield",
         direction = "vertical",
         name = time_selection_node.id,
-        style = constants.style.time_selection_node_frame,
-        caption = "600 s"
+        style = constants.style.time_selection_frame,
+        numeric = true,
+        allow_decimal = true,
+        allow_negative = false,
+        lose_focus_on_confirm = true,
+        text = "10"
     }
+    time_selection_node.events_id.on_gui_text_changed = "on_text_change_time"
+    time_selection_node.logic = { enabled = true, max_value = 600 }
+    play_button_node.events_id.on_click = "on_click_play_button"
+    play_button_node.events_params = { time_selection_node_id = time_selection_node.id }
+
+    local padding_node = repeatable_time_flow_node:add_child()
+    padding_node.gui = {
+        type = "label",
+        direction = "vertical",
+        name = padding_node.id,
+        style = constants.style.repeatable_end_label_frame,
+        caption = "seconds"
+    }    
 
     local close_button_node = repeatable_time_flow_node:add_child()
     close_button_node.gui = {
@@ -283,7 +346,7 @@ function node.on_selection_repeatable_timer(event, node_param)
     scroll_pane_node:recursive_setup_events()
 
     -- Setup Factorio GUI --
-    game_node:buildGuiNodes(scroll_pane_gui, vertical_flow_node)
+    game_node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)
 end
 
 function node.on_selection_single_timer(event, node_param)
@@ -314,6 +377,53 @@ function node.on_selection_constant_combinator(event, node_param)
         style = constants.style.sub_conditional_frame
     }
 
+
+    local signal_button_1_node = repeatable_time_node:add_child()
+    signal_button_1_node.gui = {
+        type = "choose-elem-button",
+        elem_type = "signal",
+        direction = "vertical",
+        name = signal_button_1_node.id,
+        style = constants.style.play_button_frame,
+    }
+
+    local constant_menu_node = repeatable_time_node:add_child()
+    constant_menu_node.gui = {
+        type = "drop-down",
+        direction = "vertical",
+        name = constant_menu_node.id,
+        style = constants.style.condition_comparator_dropdown_frame,
+        selected_index = 1,
+        items = { ">", "<", "=", "≥", "≤", "≠" }
+    }
+    -- "*" "/" "+" "-" "%" "^" "<<" ">>" "AND" "OR" "XOR"
+
+    local signal_button_2_node = repeatable_time_node:add_child()
+    signal_button_2_node.gui = {
+        type = "choose-elem-button",
+        elem_type = "signal",
+        direction = "vertical",
+        name = signal_button_2_node.id,
+        style = constants.style.play_button_frame,
+    }
+
+    local equals_sprite_node = repeatable_time_node:add_child()
+    equals_sprite_node.gui = {
+        type = "button",
+        direction = "vertical",
+        name = equals_sprite_node.id,
+        style = constants.style.play_button_frame,
+    }
+
+    local signal_result_node = repeatable_time_node:add_child()
+    signal_result_node.gui = {
+        type = "choose-elem-button",
+        elem_type = "signal",
+        direction = "vertical",
+        name = signal_result_node.id,
+        style = constants.style.play_button_frame,
+    }
+
     local close_button_node = repeatable_time_node:add_child()
     close_button_node.gui = {
         type = "sprite-button",
@@ -330,12 +440,59 @@ function node.on_selection_constant_combinator(event, node_param)
     repeatable_time_node:recursive_setup_events()
 
     -- Setup Factorio GUI --
-    game_node:buildGuiNodes(sub_tasks_flow.gui_element, repeatable_time_node)
+    game_node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end
 
 function node.on_selection_arithmetic_combinator(event, node_param)
     event.element.parent.visible = false
     event.element.selected_index = 0
+
+    -- Setup Persistent Nodes --
+    local vertical_flow_node = node_param.parent.parent.parent
+    local vertical_flow_gui = event.element.parent.parent.parent
+
+    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
+
+    if not sub_tasks_flow.gui_element.visible then
+        sub_tasks_flow.gui.visible = true
+        sub_tasks_flow.gui_element.visible = true
+    end
+
+    local repeatable_time_node = sub_tasks_flow:add_child()
+    repeatable_time_node.gui = {
+        type = "frame",
+        direction = "horizontal",
+        name = repeatable_time_node.id,
+        style = constants.style.sub_conditional_frame
+    }
+
+    local test_node = repeatable_time_node:add_child()
+    test_node.gui = {
+        type = "drop-down",
+        direction = "vertical",
+        name = test_node.id,
+        style = constants.style.subtask_dropdown_frame,
+        caption = "Add Stuff",
+        items = { "Combinator 1", "Combinator 2" }
+    }
+
+    local close_button_node = repeatable_time_node:add_child()
+    close_button_node.gui = {
+        type = "sprite-button",
+        direction = "vertical",
+        name = close_button_node.id,
+        style = constants.style.close_button_frame,
+        sprite = "utility/close_white",
+        hovered_sprite = "utility/close_black",
+        clicked_sprite = "utility/close_black"
+    }
+    close_button_node.events_id.on_click = "on_click_close_sub_button"
+    
+    -- Setup Node Events --
+    repeatable_time_node:recursive_setup_events()
+
+    -- Setup Factorio GUI --
+    game_node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end
 
 

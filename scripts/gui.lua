@@ -18,7 +18,7 @@ local function on_gui_opened(event)
             if not root_node.valid then
                 game_node:recursive_create_metatable(root_node)
             end
-            player.opened = game_node:buildGuiNodes(player.gui.screen, root_node)
+            player.opened = game_node:build_gui_nodes(player.gui.screen, root_node)
             player.opened.force_auto_center()
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil
@@ -61,6 +61,19 @@ local function on_gui_click(event)
     end
 end
 
+local function on_gui_text_changed(event)
+    logger.print("on_gui_text_changed name: "..event.element.name)
+
+    local name = event.element.name
+    local player = game.players[event.player_index]
+    local unit_number = global.opened_entity[event.player_index]
+
+    local node = global.entities[unit_number].node:recursive_find(name)
+    if node and node.events.on_gui_text_changed then
+        node.events.on_gui_text_changed(event, node)
+    end
+end
+
 local function on_gui_selection_state_changed(event)
     logger.print("on_gui_selection_state_changed name: "..event.element.name)
 
@@ -82,5 +95,6 @@ end
 script.on_event(defines.events.on_gui_opened, on_gui_opened)
 script.on_event(defines.events.on_gui_closed, on_gui_closed)
 script.on_event(defines.events.on_gui_click, on_gui_click)
+script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
 

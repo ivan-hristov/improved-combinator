@@ -11,10 +11,29 @@ local default_shadow =
 {
     position = {200, 128},
     corner_size = 8,
-    tint = {0, 0, 0, 0.35},
+    tint = {0, 0, 0, 90},
     scale = 0.5,
     draw_type = "outer"
 }   
+
+local default_dirt =
+{
+    position = {200, 128},
+    corner_size = 8,
+    tint = {15, 7, 3, 100},
+    scale = 0.5,
+    draw_type = "outer"
+}
+
+local default_glow =
+{
+    position = {200, 128},
+    corner_size = 8,
+    tint = {225, 177, 106, 255},
+    scale = 0.5,
+    draw_type = "outer"
+}
+
 
 add_styles({
     [constants.style.main_frame] =
@@ -208,11 +227,34 @@ add_styles({
         left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
 
     },
-    [constants.style.time_selection_node] =
+    [constants.style.time_selection_frame] =
     {
-      type = "button_style",
+      type = "textbox_style",
+      horizontal_align = "center",
+      font = "default-semibold",
       size = {84, 28},
       left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
+    },
+    [constants.style.repeatable_begining_label_frame] =
+    {
+      type = "label_style",
+      vertical_align = "center",
+      horizontal_align = "right",
+      horizontally_squashable = "on",
+      font = "default-semibold",
+      width = 110,
+      font_color = {220, 220, 220},
+      hovered_font_color = {249, 168, 56}
+    },
+    [constants.style.repeatable_end_label_frame] =
+    {
+        type = "label_style",
+        vertical_align = "center",
+        horizontal_align = "left",
+        font = "default-semibold",
+        width = 116,
+        font_color = {220, 220, 220},
+        hovered_font_color = {249, 168, 56}
     },
     [constants.style.close_button_frame] =
     {
@@ -221,7 +263,7 @@ add_styles({
         horizontal_align = "left",
         padding = 0,
         size = {16, 28},
-        left_margin = 96,
+        left_margin = 0,
         top_margin = 0,
 
         default_graphical_set =
@@ -262,14 +304,113 @@ add_styles({
             
         },
     },
-    [constants.style.label_frame] =
+    [constants.style.subtask_dropdown_frame] =
     {
-      type = "label_style",
-      vertical_align = "center",
-      horizontally_squashable = "on",
-      font = "default-semibold",
-      width = 110,
-      font_color = {220, 220, 220},
-      hovered_font_color = {249, 168, 56}
+        type = "dropdown_style",
+
+        button_style =
+        {
+            type = "button_style",
+            parent = "button_with_shadow",
+            horizontal_align = "left",
+            horizontally_stretchable = "on",
+    
+            left_margin = 84,
+            height = 36
+        },
+        icon =
+        {
+            filename = nil,
+            priority = nil,
+            size = 32,
+            tint = {0, 0, 0, 0}
+        },
+        list_box_style =
+        {
+            type = "list_box_style",
+            maximal_height = 400,
+            item_style =
+            {
+                type = "button_style",
+                parent = "list_box_item",
+                left_padding = 4,
+                right_padding = 4
+            },
+            scroll_pane_style =
+            {
+                type = "scroll_pane_style",
+                padding = 0,
+                extra_padding_when_activated = 0,
+                graphical_set = {shadow = default_shadow}
+            }
+        }
+    },
+    [constants.style.condition_comparator_dropdown_frame] =
+    {
+        type = "dropdown_style",
+        minimal_width = 0,
+        left_padding = 4,
+        right_padding = 0,
+
+        -- semi-hack redefining the graphical set to put shadow in to glow layer to be on top of the neighbour inset
+        button_style =
+        {
+            type = "button_style",
+            parent = "dropdown_button",
+            default_graphical_set =
+            {
+                base = {position = {0, 17}, corner_size = 8},
+                glow = default_dirt
+            },
+            hovered_graphical_set =
+            {
+                base = {position = {34, 17}, corner_size = 8},
+                glow = default_glow
+            },
+            clicked_graphical_set =
+            {
+                base = {position = {51, 17}, corner_size = 8},
+                glow = default_dirt
+            },
+            disabled_graphical_set =
+            {
+                base = {position = {17, 17}, corner_size = 8},
+                glow = default_dirt
+            },
+            selected_graphical_set =
+            {
+                base = {position = {225, 17}, corner_size = 8},
+                glow = default_dirt
+            },
+            selected_hovered_graphical_set =
+            {
+                base = {position = {369, 17}, corner_size = 8},
+                glow = default_dirt
+            },
+            selected_clicked_graphical_set =
+            {
+                base = {position = {352, 17}, corner_size = 8},
+                glow = default_dirt
+            }
+        },
+        list_box_style =
+        {
+            type = "list_box_style",
+            maximal_height = 400,
+            item_style =
+            {
+                type = "button_style",
+                parent = "list_box_item",
+                left_padding = 4,
+                right_padding = 4
+            },
+            scroll_pane_style =
+            {
+                type = "scroll_pane_style",
+                padding = 0,
+                extra_padding_when_activated = 0,
+                graphical_set = {shadow = default_shadow}
+            }
+        }
     },
 })

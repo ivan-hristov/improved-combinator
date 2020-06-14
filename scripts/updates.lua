@@ -37,7 +37,7 @@ local function read_input_signals()
 end
 
 local function fetch_logic(node, logic_array)
-    if node.logic and node.logic.progressbar then
+    if node.logic and node.logic.timer and node.logic.active then
         table.insert(logic_array, node)
     else
         for _, child in pairs(node.children) do
@@ -53,15 +53,16 @@ local function process_events()
     end
 
     for _, node in pairs(logic_array) do
-        if node.logic.value <= 1.0 then
-            node.logic.value = node.logic.value + 0.01
+        if node.logic.max_value >= node.logic.value then
+            node.logic.value = node.logic.value + 1
         else
             node.logic.value = 0
         end
 
-        if node.gui_element and node.gui_element.valid then
+        if node.gui_element and node.gui_element.valid and node.logic.max_value ~= 0 then
             --logger.print("Type: "..node.gui.type)
-            node.gui_element.value = node.logic.value
+            -- Convert the game ticks to a range of 0..1
+            node.gui_element.value = node.logic.value / node.logic.max_value
         end
     end
 end
