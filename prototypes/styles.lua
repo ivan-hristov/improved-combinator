@@ -226,7 +226,7 @@ add_styles({
         {
             base = {position = {34, 17}, corner_size = 8},
             glow = default_shadow
-         },
+        },
         clicked_graphical_set =
         {
             base = {position = {51, 17}, corner_size = 8},
@@ -387,12 +387,15 @@ add_styles({
         minimal_width = 0,
         left_padding = 4,
         right_padding = 0,
+        width = 56,
+        height = 28,
 
         -- semi-hack redefining the graphical set to put shadow in to glow layer to be on top of the neighbour inset
         button_style =
         {
             type = "button_style",
             parent = "dropdown_button",
+
             default_graphical_set =
             {
                 base = {position = {0, 17}, corner_size = 8},
@@ -432,6 +435,7 @@ add_styles({
         list_box_style =
         {
             type = "list_box_style",
+            
             maximal_height = 400,
             item_style =
             {
@@ -457,4 +461,50 @@ add_styles({
         font_color = {0, 0, 0},
         hovered_font_color = {249, 168, 56}
     },
+    [constants.style.dark_button_frame] =
+    {
+        type = "button_style",
+        parent = "train_schedule_item_select_button",
+        width = 28,
+        height = 28
+    },
+    [constants.style.invisible_frame] =
+    {
+        type = "button_style",
+        padding = 0,
+        margin = 0,
+        width = 28,
+        height = 28,
+        default_graphical_set = {},
+
+        horizontal_flow_style =
+        {
+          type = "horizontal_flow_style",
+          horizontal_spacing = 0
+        },
+        vertical_flow_style =
+        {
+          type = "vertical_flow_style",
+          vertical_spacing = 0
+        }
+    },
+    [constants.style.radio_vertical_flow_frame] =
+    {
+        type = "vertical_flow_style",
+        vertical_align = "center",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "off",
+        vertical_spacing = -4,
+        top_margin = -5,
+        padding = 0,
+        height = 0
+    },
+    [constants.style.radiobutton_frame] =
+    {
+        type = "radiobutton_style",
+        parent = "radiobutton",
+        padding = 0,
+        text_padding = 0
+    }
 })

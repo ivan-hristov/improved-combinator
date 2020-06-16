@@ -108,6 +108,8 @@ function node:setup_events(node_param)
             node_param.events.on_click = node.on_click_close_button
         elseif node_param.events_id.on_click == "on_click_close_sub_button" then
             node_param.events.on_click = node.on_click_close_sub_button
+        elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator" then
+            node_param.events.on_click = node.on_click_radiobutton_constant_combinator
         end
     elseif node_param.events_id.on_gui_text_changed then
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
@@ -158,13 +160,13 @@ function node.on_click_play_button(event, node_param)
 
     if progressbar_node.logic.active then
         progressbar_node.logic.active = false
-        timebox_gui.enabled = true
+        timebox_gui.ignored_by_interaction = false
         timebox_node.logic.enabled = true
         set_sprites(event.element, "utility/play")
         set_sprites(node_param.gui, "utility/play")
     else
         progressbar_node.logic.active = true
-        timebox_gui.enabled = false
+        timebox_gui.ignored_by_interaction = true
         timebox_node.logic.enabled = false
         set_sprites(event.element, "utility/stop")
         set_sprites(node_param.gui, "utility/stop")
@@ -346,14 +348,13 @@ function node.on_selection_constant_combinator(event, node_param)
         style = constants.style.sub_conditional_frame
     }
 
-
     local signal_button_1_node = repeatable_time_node:add_child()
     signal_button_1_node.gui = {
         type = "choose-elem-button",
         elem_type = "signal",
         direction = "vertical",
         name = signal_button_1_node.id,
-        style = constants.style.play_button_frame,
+        style = constants.style.dark_button_frame,
     }
 
     local constant_menu_node = repeatable_time_node:add_child()
@@ -373,15 +374,19 @@ function node.on_selection_constant_combinator(event, node_param)
         elem_type = "signal",
         direction = "vertical",
         name = signal_button_2_node.id,
-        style = constants.style.play_button_frame,
+        style = constants.style.dark_button_frame,
     }
 
     local equals_sprite_node = repeatable_time_node:add_child()
     equals_sprite_node.gui = {
-        type = "button",
+        type = "sprite-button",
         direction = "vertical",
         name = equals_sprite_node.id,
-        style = constants.style.play_button_frame,
+        sprite = "advanced-combinator-sprites-equals-white",
+        hovered_sprite = "advanced-combinator-sprites-equals-white",
+        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        style = constants.style.invisible_frame,
+        ignored_by_interaction = true
     }
 
     local signal_result_node = repeatable_time_node:add_child()
@@ -390,9 +395,41 @@ function node.on_selection_constant_combinator(event, node_param)
         elem_type = "signal",
         direction = "vertical",
         name = signal_result_node.id,
-        style = constants.style.play_button_frame,
+        style = constants.style.dark_button_frame,
     }
 
+    --------------------------------------------------------
+    local radio_group_node = repeatable_time_node:add_child()
+    radio_group_node.gui = {
+        type = "flow",
+        direction = "vertical",
+        name = radio_group_node.id,
+        style = constants.style.radio_vertical_flow_frame
+    }
+
+    local radio_button_1 = radio_group_node:add_child()
+    radio_button_1.gui = {
+        type = "radiobutton",
+        name = radio_button_1.id,
+        style = constants.style.radiobutton_frame,
+        caption = "1",
+        state = true
+    }
+    radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator"
+
+    local radio_button_2 = radio_group_node:add_child()
+    radio_button_2.gui = {
+        type = "radiobutton",
+        name = radio_button_2.id,
+        style = constants.style.radiobutton_frame,
+        caption = "Input count",
+        state = false
+    }
+    radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator"
+
+    radio_button_1.events_params = { other_radio_button = radio_button_2.id }
+    radio_button_2.events_params = { other_radio_button = radio_button_1.id }
+    --------------------------------------------------------
     local close_button_node = repeatable_time_node:add_child()
     close_button_node.gui = {
         type = "sprite-button",
@@ -401,7 +438,7 @@ function node.on_selection_constant_combinator(event, node_param)
         style = constants.style.close_button_frame,
         sprite = "utility/close_white",
         hovered_sprite = "utility/close_black",
-        clicked_sprite = "utility/close_black"
+        clicked_sprite = "utility/close_black",
     }
     close_button_node.events_id.on_click = "on_click_close_sub_button"
     
@@ -470,6 +507,17 @@ function node.on_selection_arithmetic_combinator(event, node_param)
 
     -- Setup Factorio GUI --
     game_node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
+end
+
+function node.on_click_radiobutton_constant_combinator(event, node_param)
+
+    local radio_parent = event.element.parent
+
+    if event.element.state then
+        radio_parent[node_param.events_params.other_radio_button].state = false
+    else
+        radio_parent[node_param.events_params.other_radio_button].state = true
+    end
 end
 
 return game_node

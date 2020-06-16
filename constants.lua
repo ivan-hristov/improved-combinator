@@ -58,5 +58,10 @@ constants.style.task_dropdown_frame = constants.style.prefix_uuid.."task_dropdow
 constants.style.subtask_dropdown_frame = constants.style.prefix_uuid.."subtask_dropdown_frame"
 constants.style.condition_comparator_dropdown_frame = constants.style.prefix_uuid.."condition_comparator_dropdown_frame"
 constants.style.dropdown_overlay_label_frame = constants.style.prefix_uuid.."dropdown_overlay_label_frame"
+constants.style.dark_button_frame = constants.style.prefix_uuid.."dark_button_frame"
+constants.style.invisible_frame = constants.style.prefix_uuid.."invisible_frame"
+constants.style.radiobutton_frame = constants.style.prefix_uuid.."radiobutton_frame"
+constants.style.radio_vertical_flow_frame = constants.style.prefix_uuid.."radio_vertical_flow_frame"
+
 
 return constants
