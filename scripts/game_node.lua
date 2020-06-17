@@ -2,23 +2,7 @@ local node = require("node")
 local constants = require("constants")
 local logger = require("logger")
 
-local game_node = {}
-
-function game_node:new(entity_id)
-    local new_node = node:new(entity_id)
-    return new_node
-end
-
-function game_node:create_metatable(node_param)
-    setmetatable(node_param, node)
-    node_param.__index = node_param
-end
-
-function game_node:recursive_create_metatable(node_param)
-    node:recursive_create_metatable(node_param)
-end
-
-function game_node:safely_add_gui_child(parent, style)
+function node:safely_add_gui_child(parent, style)
     for _, child in pairs(parent.children) do
         if child == name then
             return child
@@ -27,18 +11,18 @@ function game_node:safely_add_gui_child(parent, style)
     return parent.add(style)
 end
 
-function game_node:build_gui_nodes(parent, node_param)
-    local new_gui = game_node:safely_add_gui_child(parent, node_param.gui)
+function node:build_gui_nodes(parent, node_param)
+    local new_gui = node:safely_add_gui_child(parent, node_param.gui)
     node_param.gui_element = new_gui
 
     for _, child in pairs(node_param.children) do
-        game_node:build_gui_nodes(new_gui, child)
+        node:build_gui_nodes(new_gui, child)
     end
     return new_gui
 end
 
-function game_node:create_main_gui(unit_number)
-    local root = game_node:new(unit_number)
+function node:create_main_gui(unit_number)
+    local root = node:new(unit_number)
     root.gui = {
         type = "frame",
         direction = "vertical",
@@ -136,11 +120,11 @@ end
 
 
 function node.on_click_close_button(event, node_param)
+    local entity_id_copy = node_param.entity_id
     node_param.parent.parent.parent:remove()
     event.element.parent.parent.parent.destroy()
-
     -- Consider replacing
-    node.update_logic(node_param.entity_id)
+    node.update_logic(entity_id_copy)
 end
 
 function node.on_click_close_sub_button(event, node_param)
@@ -332,7 +316,7 @@ function node.on_selection_repeatable_timer(event, node_param)
     node.update_logic(scroll_pane_node.entity_id)
 
     -- Setup Factorio GUI --
-    game_node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)
+    node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)
 end
 
 function node.on_selection_single_timer(event, node_param)
@@ -459,7 +443,7 @@ function node.on_selection_constant_combinator(event, node_param)
     repeatable_time_node:recursive_setup_events()
 
     -- Setup Factorio GUI --
-    game_node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
+    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end
 
 function node.on_selection_arithmetic_combinator(event, node_param)
@@ -519,7 +503,7 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     repeatable_time_node:recursive_setup_events()
 
     -- Setup Factorio GUI --
-    game_node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
+    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end
 
 function node.on_click_radiobutton_constant_combinator(event, node_param)
@@ -533,4 +517,4 @@ function node.on_click_radiobutton_constant_combinator(event, node_param)
     end
 end
 
-return game_node
+return node
