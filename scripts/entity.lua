@@ -39,26 +39,27 @@ local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
     end
 end
 
-local function onInit()
+local function on_init()
     logger.print("function.onInit")
     global.opened_entity = global.opened_entity or {}
     global.entities = global.entities or {}
 end
 
-local function onBuiltEntity(event)
+local function on_built_entity(event)
     local entity = event.created_entity
     if entity.name == constants.entity.name then
         main_entity = {}
         main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
         main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
         main_entity.node = game_node:create_main_gui(entity.unit_number)
+        main_entity.update_list = {}
         global.entities[entity.unit_number] = main_entity
 
-        logger.print("function.onBuiltEntity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
+        logger.print("function.on_built_entity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
-local function onEntityDied(event)   
+local function on_entity_died(event)   
     local entity = event.entity
     if entity.name == constants.entity.name then
         main_entity = global.entities[entity.unit_number]
@@ -75,19 +76,21 @@ local function onEntityDied(event)
         if not main_entity.node.valid then
             game_node:recursive_create_metatable(main_entity.node)
         end
+
+        main_entity.update_list = {}
         main_entity.node:remove()
         main_entity.node = nil
         
         global.entities[entity.unit_number] = nil
 
-        logger.print("function.onEntityDied Entity Destroyed "..entity.unit_number.." ("..table_size(global.entities)..")")
+        logger.print("function.on_entity_died Entity Destroyed "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
-script.on_init(onInit)
-script.on_event(defines.events.on_built_entity, onBuiltEntity)
-script.on_event(defines.events.on_robot_built_entity, onBuiltEntity)
+script.on_init(on_init)
+script.on_event(defines.events.on_built_entity, on_built_entity)
+script.on_event(defines.events.on_robot_built_entity, on_built_entity)
 
-script.on_event(defines.events.on_pre_player_mined_item, onEntityDied)
-script.on_event(defines.events.on_robot_pre_mined, onEntityDied)
-script.on_event(defines.events.on_entity_died, onEntityDied)
+script.on_event(defines.events.on_pre_player_mined_item, on_entity_died)
+script.on_event(defines.events.on_robot_pre_mined, on_entity_died)
+script.on_event(defines.events.on_entity_died, on_entity_died)
