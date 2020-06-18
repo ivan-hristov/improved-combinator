@@ -15,6 +15,10 @@ function node:build_gui_nodes(parent, node_param)
     local new_gui = node:safely_add_gui_child(parent, node_param.gui)
     node_param.gui_element = new_gui
 
+    if node_param.gui.elem_value then
+        new_gui.elem_value = node_param.gui.elem_value
+    end
+
     for _, child in pairs(node_param.children) do
         node:build_gui_nodes(new_gui, child)
     end
@@ -88,6 +92,10 @@ function node:setup_events(node_param)
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
             node_param.events.on_gui_text_changed = node.on_text_change_time
         end
+    elseif node_param.events_id.on_gui_elem_changed then
+        if node_param.events_id.on_gui_elem_changed == "on_signal_changed" then
+            node_param.events.on_gui_elem_changed = node.on_signal_changed
+        end
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
             node_param.events.on_selection_state_changed = {}
@@ -158,6 +166,10 @@ function node.on_text_change_time(event, node_param)
         node_param.gui.text = event.element.text
         node_param.parent.parent.update_logic.max_value = number * 60
     end
+end
+
+function node.on_signal_changed(event, node_param)
+    node_param.gui.elem_value = event.element.elem_value    
 end
 
 function node.on_selection_repeatable_timer(event, node_param)
@@ -325,11 +337,13 @@ function node.on_selection_constant_combinator(event, node_param)
     local signal_button_1_node = repeatable_time_node:add_child()
     signal_button_1_node.gui = {
         type = "choose-elem-button",
-        elem_type = "signal",
-        direction = "vertical",
+        direction = "vertical",        
         name = signal_button_1_node.id,
         style = constants.style.dark_button_frame,
+        elem_type = "signal",
     }
+    signal_button_1_node.events_id.on_gui_elem_changed = "on_signal_changed"
+    
 
     local constant_menu_node = repeatable_time_node:add_child()
     constant_menu_node.gui = {
@@ -345,11 +359,12 @@ function node.on_selection_constant_combinator(event, node_param)
     local signal_button_2_node = repeatable_time_node:add_child()
     signal_button_2_node.gui = {
         type = "choose-elem-button",
-        elem_type = "signal",
         direction = "vertical",
         name = signal_button_2_node.id,
         style = constants.style.dark_button_frame,
+        elem_type = "signal",
     }
+    signal_button_2_node.events_id.on_gui_elem_changed = "on_signal_changed"
 
     local equals_sprite_node = repeatable_time_node:add_child()
     equals_sprite_node.gui = {
@@ -366,11 +381,12 @@ function node.on_selection_constant_combinator(event, node_param)
     local signal_result_node = repeatable_time_node:add_child()
     signal_result_node.gui = {
         type = "choose-elem-button",
-        elem_type = "signal",
         direction = "vertical",
         name = signal_result_node.id,
         style = constants.style.dark_button_frame,
+        elem_type = "signal",
     }
+    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed"
 
     --------------------------------------------------------
     local radio_group_node = repeatable_time_node:add_child()
