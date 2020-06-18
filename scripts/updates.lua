@@ -71,7 +71,7 @@ local function write_output_signals()
             for _, signal in pairs(signals) do
                 if signal and signal.signal and signal.count then
                     index = index + 1
-                    parameters[index] = { index = index, signal = signal.signal, count = math.floor(signal.count)}
+                    parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
                 end
             end
             entity_output.get_control_behavior().parameters = {parameters = parameters}
