@@ -1,8 +1,10 @@
 local constants = require("constants")
-local uid = require("scripts.uid")
-local logger = require("scripts.logger")
+local uid = require("uid")
+local list = require("list")
+local logger = require("logger")
 
 local node = {}
+local recreate_metatables = false
 
 function node:new(entity_id)
     new_node = {}
@@ -17,8 +19,20 @@ function node:new(entity_id)
     new_node.gui = {}
     new_node.gui_element = nil  -- Non-persistent Factorio element
     new_node.children = {}
-    new_node.logic = nil
+    new_node.update_logic = nil
+    new_node.updatable = false
     return new_node
+end
+
+function node.recreate_metatables()
+    if not recreate_metatables then
+        for _, entity in pairs(global.entities) do
+            if not entity.node.valid then
+                node:recursive_create_metatable(entity.node)
+            end
+        end
+        recreate_metatables = true
+    end
 end
 
 function node:create_metatable(node_param)
@@ -73,6 +87,7 @@ function node:clear_children()
 end
 
 function node:clear()
+    self:update_lish_clear()
     self.id = nil
     self.entity_id = nil
     self.parent = nil
@@ -82,7 +97,8 @@ function node:clear()
     self.gui = {}
     self.gui_element = nil
     self.children = {}
-    self.logic = nil
+    self.update_logic = nil
+    self.updatable = false
 end
 
 function node:recursive_find(id)
@@ -102,6 +118,20 @@ end
 
 function node:valid()
     return true
+end
+
+function node:update_lish_push()
+    if not self.updatable then
+        global.entities[self.entity_id].update_list:push_back({ id = self.id, node_element = self, children = list:new() })
+        self.updatable = true
+    end
+end
+
+function node:update_lish_clear()
+    if self.updatable then
+        global.entities[self.entity_id].update_list:remove(self.id)
+        self.updatable = false
+    end
 end
 
 function node:debug_print(index)

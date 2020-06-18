@@ -101,30 +101,10 @@ function node:setup_events(node_param)
     end
 end
 
--- Consider replacing
-function node.update_logic(entity_id)
-
-    local function recursive_update(list, node)
-        if node.logic and node.logic.timer and node.logic.active then
-            table.insert(list, node)
-        else
-            for _, child in pairs(node.children) do
-                recursive_update(list, child)
-            end
-        end
-    end
-
-    global.entities[entity_id].update_list = {}
-    recursive_update(global.entities[entity_id].update_list, global.entities[entity_id].node)
-end
-
-
 function node.on_click_close_button(event, node_param)
     local entity_id_copy = node_param.entity_id
     node_param.parent.parent.parent:remove()
     event.element.parent.parent.parent.destroy()
-    -- Consider replacing
-    node.update_logic(entity_id_copy)
 end
 
 function node.on_click_close_sub_button(event, node_param)
@@ -149,25 +129,23 @@ function node.on_click_play_button(event, node_param)
     local timebox_node = node_param.parent:recursive_find(node_param.events_params.time_selection_node_id)
     local timebox_gui = event.element.parent[node_param.events_params.time_selection_node_id]
     
-    progressbar_node.logic.value = 0
+    progressbar_node.update_logic.value = 0
     progressbar_gui.value = 0
 
-    if progressbar_node.logic.active then
-        progressbar_node.logic.active = false
+    if progressbar_node.update_logic.active then
+        progressbar_node.update_logic.active = false
         timebox_gui.ignored_by_interaction = false
         timebox_node.gui.ignored_by_interaction = false
         set_sprites(event.element, "utility/play")
         set_sprites(node_param.gui, "utility/play")
     else
-        progressbar_node.logic.active = true
+        progressbar_node.update_logic.active = true
         timebox_gui.ignored_by_interaction = true
         timebox_node.gui.ignored_by_interaction = true
         set_sprites(event.element, "utility/stop")
         set_sprites(node_param.gui, "utility/stop")
     end
 
-    -- Consider replacing
-    node.update_logic(node_param.entity_id)
 end
 
 function node.on_text_change_time(event, node_param)
@@ -175,10 +153,10 @@ function node.on_text_change_time(event, node_param)
 
     if not number then
         node_param.gui.text = nil
-        node_param.parent.parent.logic.max_value = 0
+        node_param.parent.parent.update_logic.max_value = 0
     else
         node_param.gui.text = event.element.text
-        node_param.parent.parent.logic.max_value = number * 60
+        node_param.parent.parent.update_logic.max_value = number * 60
     end
 end
 
@@ -206,13 +184,14 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.conditional_progress_frame,
         value = 0
     }
-    repeatable_time_node.logic = {
+    repeatable_time_node.update_logic = {
         timer = true,
         repeatable = true,
         active = false,
         max_value = 600,
         value = 0
     }
+    repeatable_time_node:update_lish_push()
 
     local repeatable_time_flow_node = repeatable_time_node:add_child()
     repeatable_time_flow_node.gui = {
@@ -312,8 +291,6 @@ function node.on_selection_repeatable_timer(event, node_param)
 
     -- Setup Node Events --
     scroll_pane_node:recursive_setup_events()
-    -- Consider replacing
-    node.update_logic(scroll_pane_node.entity_id)
 
     -- Setup Factorio GUI --
     node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)

@@ -1,5 +1,6 @@
-local game_node = require("game_node")
 local constants = require("constants")
+local game_node = require("game_node")
+local list = require("list")
 local logger = require("logger")
 
 local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
@@ -52,7 +53,7 @@ local function on_built_entity(event)
         main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
         main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
         main_entity.node = game_node:create_main_gui(entity.unit_number)
-        main_entity.update_list = {}
+        main_entity.update_list = list:new()
         global.entities[entity.unit_number] = main_entity
 
         logger.print("function.on_built_entity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
@@ -73,11 +74,8 @@ local function on_entity_died(event)
             main_entity.entity_output = nil
         end
 
-        if not main_entity.node.valid then
-            game_node:recursive_create_metatable(main_entity.node)
-        end
-
-        main_entity.update_list = {}
+        main_entity.update_list:clear()
+        main_entity.update_list = nil
         main_entity.node:remove()
         main_entity.node = nil
         

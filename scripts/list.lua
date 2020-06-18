@@ -2,6 +2,7 @@ local function list_node(data)
     return {data = data}
 end
 
+local recreate_metatables = false
 local list = {}
 list.__index = list
 
@@ -12,6 +13,22 @@ function list:new()
     new_list.front = nil
     new_list.back = nil
    return new_list
+end
+
+function list.recreate_metatables()
+    if not recreate_metatables then
+        for _, entity in pairs(global.entities) do
+            if not entity.update_list.valid then
+                list:create_metatable(entity.update_list)
+            end
+        end
+        recreate_metatables = true
+    end
+end
+
+function list:create_metatable(existing_list)
+    setmetatable(existing_list, self)
+    self.__index = self
 end
 
 function list:push_front(value)
@@ -43,36 +60,75 @@ end
 function list:remove(id)
     for element in self:iterator() do
         if element.data.id == id then
-            local prev = element.prev
-            local next = element.next
-            prev.next = next
-            next.prev = prev
-            element = nil
+
+            if element == self.back then
+                if self.back.prev then
+                    self.back = self.back.prev
+                    self.back.next = nil
+                    element = nil
+                else
+                    self.front = nil
+                    self.back = nil
+                end
+            elseif element == self.front then
+                if self.front.next then
+                    self.front = self.front.next
+                    self.back.prev = nil
+                    element = nil
+                else
+                    self.front = nil
+                    self.back = nil
+                end
+            else
+                local prev = element.prev
+                local next = element.next
+                
+                prev.next = next
+                next.prev = prev
+                element = nil
+            end
+
             self.length = self.length - 1
         end
     end
 end
 
 function list:iterator()
-    local element = self.front     
+    local element = self.front
     return function ()
         if element then
             local result = element
             element = element.next
             return result
         end
-    end     
+    end
 end
 
 function list:reverse_iterator()
-    local element = self.back     
+    local element = self.back
     return function ()
         if element then
             local result = element
             element = element.prev
             return result
         end
-    end     
- end
+    end
+end
+
+function list:clear()
+    local element = self.front
+    while element do
+        local next = element.next
+        element = nil
+        element = next
+    end
+    self.front = nil
+    self.back = nil
+    self.length = 0
+end
+
+function list:valid()
+    return true
+end
 
 return list

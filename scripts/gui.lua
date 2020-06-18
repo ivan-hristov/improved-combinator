@@ -14,11 +14,7 @@ local function on_gui_opened(event)
     if player.selected then        
         if player.selected.name == constants.entity.name then
             global.opened_entity[event.player_index] = event.entity.unit_number
-            local root_node = global.entities[event.entity.unit_number].node
-            if not root_node.valid then
-                game_node:recursive_create_metatable(root_node)
-            end
-            player.opened = game_node:build_gui_nodes(player.gui.screen, root_node)
+            player.opened = game_node:build_gui_nodes(player.gui.screen, global.entities[event.entity.unit_number].node)
             player.opened.force_auto_center()
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil
@@ -51,10 +47,6 @@ local function on_gui_click(event)
     local player = game.players[event.player_index]
     local unit_number = global.opened_entity[event.player_index]
 
-    if not global.entities[unit_number].node.valid then
-        game_node:recursive_create_metatable(global.entities[unit_number].node)
-    end
-
     local node = global.entities[unit_number].node:recursive_find(name)
     if node and node.events.on_click then
         node.events.on_click(event, node)
@@ -81,10 +73,6 @@ local function on_gui_selection_state_changed(event)
     local player = game.players[event.player_index]
     local unit_number = global.opened_entity[event.player_index]
     local selected_index = event.element.selected_index
-
-    if not global.entities[unit_number].node.valid then
-        game_node:recursive_create_metatable(global.entities[unit_number].node)
-    end
 
     local node = global.entities[unit_number].node:recursive_find(name)
     if node and node.events.on_selection_state_changed then
