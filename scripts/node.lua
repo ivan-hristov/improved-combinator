@@ -87,7 +87,7 @@ function node:clear_children()
 end
 
 function node:clear()
-    self:update_lish_clear()
+    self:update_list_remove()
     self.id = nil
     self.entity_id = nil
     self.parent = nil
@@ -120,19 +120,36 @@ function node:valid()
     return true
 end
 
-function node:update_lish_push()
+function node:update_list_push()
     if not self.updatable then
         global.entities[self.entity_id].update_list:push_back({ id = self.id, node_element = self, children = list:new() })
         self.updatable = true
     end
 end
 
-function node:update_lish_clear()
+function node:update_list_remove()
     if self.updatable then
+        local list_element = global.entities[self.entity_id].update_list:get_element(self.id)
+        list_element.children:clear()
         global.entities[self.entity_id].update_list:remove(self.id)
         self.updatable = false
     end
 end
+
+function node:update_list_child_push(parent_node)
+    if parent_node.updatable then
+        local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
+        list_element.children:push_back({ id = self.id, node_element = self })
+    end
+end
+
+function node:update_list_child_remove(parent_node)
+    if parent_node.updatable then
+        local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
+        list_element.children:remove(self.id)
+    end
+end
+
 
 function node:debug_print(index)
 

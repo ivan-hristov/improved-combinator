@@ -74,10 +74,14 @@ local function on_entity_died(event)
             main_entity.entity_output = nil
         end
 
-        main_entity.update_list:clear()
-        main_entity.update_list = nil
         main_entity.node:remove()
         main_entity.node = nil
+
+        for element in main_entity.update_list:iterator() do
+            element.data.children:clear()
+        end
+        main_entity.update_list:clear()
+        main_entity.update_list = nil
         
         global.entities[entity.unit_number] = nil
 

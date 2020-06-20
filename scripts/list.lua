@@ -1,3 +1,5 @@
+local logger = require("logger")
+
 local function list_node(data)
     return {data = data}
 end
@@ -20,6 +22,10 @@ function list.recreate_metatables()
         for _, entity in pairs(global.entities) do
             if not entity.update_list.valid then
                 list:create_metatable(entity.update_list)
+
+                for element in entity.update_list:iterator() do
+                    list:create_metatable(element.data.children)
+                end
             end
         end
         recreate_metatables = true
@@ -57,6 +63,16 @@ function list:push_back(value)
     self.length = self.length + 1
 end
 
+function list:get_element(id)
+    for element in self:iterator() do
+        if element.data.id == id then
+            return element.data
+        end
+    end
+
+    return nil
+end
+
 function list:remove(id)
     for element in self:iterator() do
         if element.data.id == id then
@@ -85,7 +101,7 @@ function list:remove(id)
                 
                 prev.next = next
                 next.prev = prev
-                element = nil
+                element = nil                
             end
 
             self.length = self.length - 1

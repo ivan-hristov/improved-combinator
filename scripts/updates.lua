@@ -1,9 +1,10 @@
 local constants = require("constants")
 local game_node = require("game_node")
 local list = require("list")
-local logger = require("scripts.logger")
+local logger = require("logger")
 
 local input_signals = {}
+local output_signals = {}
 local current_index = 0
 
 local function read_input_signals()
@@ -22,11 +23,11 @@ local function read_input_signals()
         end
     end
 
-    for key, entity in pairs(global.entities) do
+    for entity_id, entity in pairs(global.entities) do
         local input_entity = entity.entity_input
         if input_entity and input_entity.valid then
-            input_signals[key] = {}
-            local signals = input_signals[key]
+            input_signals[entity_id] = {}
+            local signals = input_signals[entity_id]
 
             local red_network = input_entity.get_circuit_network(defines.wire_type.red, defines.circuit_connector_id.combinator_input)
             local green_network = input_entity.get_circuit_network(defines.wire_type.green, defines.circuit_connector_id.combinator_input)
@@ -38,22 +39,114 @@ local function read_input_signals()
 
 end
 
+local function update_timer_and_progress_bar(gui_element, update_logic)
+    local timer_finished = false
+
+    if update_logic and update_logic.active then
+        if update_logic.max_value >= update_logic.value then
+            update_logic.value = update_logic.value + 1
+        else
+            update_logic.value = 0
+            timer_finished = true
+        end
+
+        if gui_element and gui_element.valid and update_logic.max_value ~= 0 then
+            -- Convert the game ticks to a range of 0..1
+            gui_element.value = update_logic.value / update_logic.max_value
+        end
+    end
+
+    return timer_finished
+end
+
+local function update_constant_combinator(input_signal, entity_id, update_logic)
+
+    if update_logic.signal_slot_1 == nil or update_logic.signal_slot_2 == nil or update_logic.signal_result == nil then
+        return
+    end
+
+    local input_signal_count_1 = input_signal[update_logic.signal_slot_1.name]
+    local input_signal_count_2 = input_signal[update_logic.signal_slot_2.name]
+
+    if input_signal_count_1 == nil then
+        return
+    end
+
+    if input_signal_count_2 == nil then
+        input_signal_count_2 = {}
+        input_signal_count_2.count = 0
+    end
+
+    local combinator_result = nil
+
+    if update_logic.sign_index == 1 then
+        --- ">" ---
+        if input_signal_count_1.count > input_signal_count_2.count then
+            combinator_result = input_signal_count_1.count
+        end
+    elseif update_logic.sign_index == 2 then
+        --- "<" ---
+        if input_signal_count_1.count < input_signal_count_2.count then
+            combinator_result = input_signal_count_1.count
+        end
+    elseif update_logic.sign_index == 3 then
+        --- "=" ---
+        if input_signal_count_1.count == input_signal_count_2.count then
+            combinator_result = input_signal_count_1.count
+        end
+    elseif update_logic.sign_index == 4 then
+        --- "≥" ---
+        if input_signal_count_1.count >= input_signal_count_2.count then
+            combinator_result = input_signal_count_1.count
+        end
+    elseif update_logic.sign_index == 5 then
+        --- "≤" ---
+        if input_signal_count_1.count <= input_signal_count_2.count then
+            combinator_result = input_signal_count_1.count
+        end
+    elseif update_logic.sign_index == 6 then
+        --- "≠" ---
+        if input_signal_count_1.count ~= input_signal_count_2.count then
+            combinator_result = input_signal_count_1.count
+        end
+    end
+
+    if combinator_result ~= nil then
+        if not update_logic.output_value then
+            combinator_result =  1
+        end
+        
+        if output_signals[entity_id] == nil then
+            output_signals[entity_id] = {}
+        end
+
+        if output_signals[entity_id][update_logic.signal_result.name] ~= nil then
+            combinator_result = output_signals[entity_id][update_logic.signal_result.name].count + combinator_result
+        end
+        
+        output_signals[entity_id][update_logic.signal_result.name] = { signal = update_logic.signal_result, count = combinator_result }
+    end
+
+end
+
 local function process_events()
-    for _, entity in pairs(global.entities) do
-        for iter in entity.update_list:iterator() do
-            local node_gui_element = iter.data.node_element.gui_element
-            local node_update_logic = iter.data.node_element.update_logic
+    for entity_id, entity in pairs(global.entities) do
 
-            if node_update_logic and node_update_logic.active then
-                if node_update_logic.max_value >= node_update_logic.value then
-                    node_update_logic.value = node_update_logic.value + 1
-                else
-                    node_update_logic.value = 0
-                end
+        local input_signal = input_signals[entity_id]
 
-                if node_gui_element and node_gui_element.valid and node_update_logic.max_value ~= 0 then
-                    -- Convert the game ticks to a range of 0..1
-                    node_gui_element.value = node_update_logic.value / node_update_logic.max_value
+        if input_signal then
+            for iter in entity.update_list:iterator() do
+                local timer_finished = update_timer_and_progress_bar(
+                    iter.data.node_element.gui_element,
+                    iter.data.node_element.update_logic)
+
+                if timer_finished then
+                    for child_iter in iter.data.children:iterator() do
+                        local update_logic = child_iter.data.node_element.update_logic
+                        if update_logic.constant_combinator then
+                            update_constant_combinator(input_signal, entity_id, update_logic)
+                        end
+                    end
                 end
             end
         end
@@ -61,20 +154,25 @@ local function process_events()
 end
 
 local function write_output_signals()
-    for key, entity in pairs(global.entities) do
+    for entity_id, entity in pairs(global.entities) do
         local entity_output = entity.entity_output
 
         if entity_output and entity_output.valid then
             local parameters = {}
             local index = 0
-            local signals = input_signals[key]
-            for _, signal in pairs(signals) do
-                if signal and signal.signal and signal.count then
-                    index = index + 1
-                    parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
+            local signals = output_signals[entity_id]
+
+            if signals then
+                for _, signal in pairs(signals) do
+                    if signal and signal.signal and signal.count then
+                        index = index + 1
+                        parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
+                    end
                 end
+                entity_output.get_control_behavior().parameters = {parameters = parameters}
+            else
+                entity_output.get_control_behavior().parameters = {parameters = nil}
             end
-            entity_output.get_control_behavior().parameters = {parameters = parameters}
         end
     end
 end
@@ -83,6 +181,9 @@ local function onTick(event)
     -- We must recreate all metatables once after a game is loaded
     game_node.recreate_metatables()
     list.recreate_metatables()
+
+    input_signals = {}
+    output_signals = {}
 
     read_input_signals()
     process_events()
