@@ -10,7 +10,7 @@ local blank_image =
     shift = {0, 0}
 }
 
-local function mainItem()
+local function main_item()
     local item =
     {
         type = "item",
@@ -25,7 +25,7 @@ local function mainItem()
     return item
 end
 
-local function inputItem()
+local function input_item()
     local combinator_input =
     {
         type = "item",
@@ -41,7 +41,7 @@ local function inputItem()
     return combinator_input
 end
 
-local function inputOutput()
+local function output_item()
     local combinator_output =
     {
         type = "item",
@@ -57,7 +57,7 @@ local function inputOutput()
     return combinator_output
 end
 
-local function mainEntity()
+local function main_entity()
     local container =
     {
         type = "container",
@@ -124,7 +124,7 @@ local function mainEntity()
     return container
 end
 
-local function inputEntity()
+local function input_entity()
     local combinator_input_connection_points =
     {
         red = {0.05, 0.08},
@@ -197,7 +197,7 @@ local function inputEntity()
     return combinator_input
 end
 
-local function outputEntity()
+local function output_entity()
     local combinator_output_connection_points =
     {
         red = {0.05, -0.45},
@@ -284,4 +284,4 @@ local function recipe()
     return recipe
 end
 
-data:extend({mainItem(), inputItem(), inputOutput(), mainEntity(), inputEntity(), outputEntity(), recipe()})
+data:extend({main_item(), input_item(), output_item(), main_entity(), input_entity(), output_entity(), recipe()})

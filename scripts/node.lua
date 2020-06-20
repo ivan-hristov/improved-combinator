@@ -24,6 +24,39 @@ function node:new(entity_id)
     return new_node
 end
 
+local function simple_deep_copy(object)
+    if type(object) ~= 'table' then
+        return object
+    end
+    local result = {}
+    for k, v in pairs(object) do
+        result[simple_deep_copy(k)] = simple_deep_copy(v)
+    end
+    return result
+end
+
+function node.deep_copy(entity_id, parent_node, other_node)
+    local new_node = node:new(entity_id)
+
+    new_node.id = other_node.id
+    new_node.parent = parent_node
+    new_node.events_id = simple_deep_copy(other_node.events_id)
+    new_node.events_params = simple_deep_copy(other_node.events_params)
+    new_node.events = simple_deep_copy(other_node.events)
+    new_node.gui = simple_deep_copy(other_node.gui)
+    new_node.update_logic = simple_deep_copy(other_node.update_logic)
+    new_node.updatable = other_node.updatable
+
+    node:setup_events(new_node)
+
+    for _, children in pairs(other_node.children) do
+        local new_child = node.deep_copy(entity_id, new_node, children)
+        new_node.children[new_child.id] = new_child
+    end
+
+    return new_node
+end
+
 function node.recreate_metatables()
     if not recreate_metatables then
         for _, entity in pairs(global.entities) do

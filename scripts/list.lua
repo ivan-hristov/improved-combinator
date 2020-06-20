@@ -17,6 +17,26 @@ function list:new()
    return new_list
 end
 
+function list.deep_copy(root_node, other_list)
+    local new_list = list:new()
+
+    for other_element in other_list:iterator() do
+        local id = other_element.data.id
+        local node_element = root_node:recursive_find(id)
+        local children = list:new()
+
+        for other_child in other_element.data.children:iterator() do
+            local child_id = other_child.data.id
+            local child_node_element = root_node:recursive_find(child_id)
+            children:push_back({id = child_id, node_element = child_node_element})
+        end
+
+        new_list:push_back({id = id, node_element = node_element, children = children})
+    end
+
+    return new_list
+end
+
 function list.recreate_metatables()
     if not recreate_metatables then
         for _, entity in pairs(global.entities) do

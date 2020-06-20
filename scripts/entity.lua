@@ -3,7 +3,7 @@ local game_node = require("game_node")
 local list = require("list")
 local logger = require("logger")
 
-local function createSubentity(mainEntity, subEntityType, xOffset, yOffset)
+local function create_subentity(mainEntity, subEntityType, xOffset, yOffset)
     position = {x = mainEntity.position.x + xOffset,y = mainEntity.position.y + yOffset}
     local area = {
         {position.x - 1.5, position.y - 1.5}, 
@@ -49,9 +49,9 @@ end
 local function on_built_entity(event)
     local entity = event.created_entity
     if entity.name == constants.entity.name then
-        main_entity = {}
-        main_entity.entity_input = createSubentity(entity, constants.entity.input.name, -0.9, 0.0)
-        main_entity.entity_output = createSubentity(entity, constants.entity.output.name, 1.0, 0.0)
+        local main_entity = {}
+        main_entity.entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
+        main_entity.entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
         main_entity.node = game_node:create_main_gui(entity.unit_number)
         main_entity.update_list = list:new()
         global.entities[entity.unit_number] = main_entity
@@ -63,7 +63,7 @@ end
 local function on_entity_died(event)   
     local entity = event.entity
     if entity.name == constants.entity.name then
-        main_entity = global.entities[entity.unit_number]
+        local main_entity = global.entities[entity.unit_number]
 
         if main_entity.entity_input then
             main_entity.entity_input.destroy()
@@ -89,6 +89,31 @@ local function on_entity_died(event)
     end
 end
 
+local function on_entity_settings_pasted(event)
+    logger.print("copying settings from "..event.source.unit_number.." to "..event.destination.unit_number)
+
+
+    local src_entity = global.entities[event.source.unit_number]
+    local dest_entity = global.entities[event.destination.unit_number]
+
+    -- Clear existing entity settings --
+    dest_entity.node:remove()
+    dest_entity.node = nil
+
+    for element in dest_entity.update_list:iterator() do
+        element.data.children:clear()
+    end
+    dest_entity.update_list:clear()
+    dest_entity.update_list = nil
+
+    -- Copy new settings --
+    dest_entity.node = game_node.deep_copy(event.destination.unit_number, nil, src_entity.node)
+    dest_entity.update_list = list.deep_copy(dest_entity.node, src_entity.update_list)
+
+    global.entities[event.destination.unit_number] = dest_entity
+
+end
+
 script.on_init(on_init)
 script.on_event(defines.events.on_built_entity, on_built_entity)
 script.on_event(defines.events.on_robot_built_entity, on_built_entity)
@@ -96,3 +121,5 @@ script.on_event(defines.events.on_robot_built_entity, on_built_entity)
 script.on_event(defines.events.on_pre_player_mined_item, on_entity_died)
 script.on_event(defines.events.on_robot_pre_mined, on_entity_died)
 script.on_event(defines.events.on_entity_died, on_entity_died)
+
+script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
