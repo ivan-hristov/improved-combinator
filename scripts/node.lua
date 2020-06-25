@@ -183,7 +183,6 @@ function node:update_list_child_remove(parent_node)
     end
 end
 
-
 function node:debug_print(index)
 
     local debug_string = ""

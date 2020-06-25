@@ -61,53 +61,58 @@ end
 
 local function update_constant_combinator(input_signal, entity_id, update_logic)
 
-    if update_logic.signal_slot_1 == nil or update_logic.signal_slot_2 == nil or update_logic.signal_result == nil then
+    if update_logic.signal_slot_1 == nil or update_logic.signal_result == nil then
+        return
+    elseif update_logic.signal_slot_2 == nil and update_logic.value_slot_2 == nil then
         return
     end
 
     local input_signal_count_1 = input_signal[update_logic.signal_slot_1.name]
-    local input_signal_count_2 = input_signal[update_logic.signal_slot_2.name]
+    local left_count = 0
 
-    if input_signal_count_1 == nil then
-        return
+    if input_signal_count_1 then
+        left_count =  input_signal_count_1.count
     end
 
-    if input_signal_count_2 == nil then
-        input_signal_count_2 = {}
-        input_signal_count_2.count = 0
+    local right_count = 0
+
+    if update_logic.value_slot_2 then
+        right_count = update_logic.value_slot_2
+    elseif update_logic.signal_slot_2 and input_signal[update_logic.signal_slot_2.name] then
+        right_count = input_signal[update_logic.signal_slot_2.name].count
     end
 
     local combinator_result = nil
 
     if update_logic.sign_index == 1 then
         --- ">" ---
-        if input_signal_count_1.count > input_signal_count_2.count then
-            combinator_result = input_signal_count_1.count
+        if left_count > right_count then
+            combinator_result = left_count
         end
     elseif update_logic.sign_index == 2 then
         --- "<" ---
-        if input_signal_count_1.count < input_signal_count_2.count then
-            combinator_result = input_signal_count_1.count
+        if left_count < right_count then
+            combinator_result = left_count
         end
     elseif update_logic.sign_index == 3 then
         --- "=" ---
-        if input_signal_count_1.count == input_signal_count_2.count then
-            combinator_result = input_signal_count_1.count
+        if left_count == right_count then
+            combinator_result = left_count
         end
     elseif update_logic.sign_index == 4 then
         --- "≥" ---
-        if input_signal_count_1.count >= input_signal_count_2.count then
-            combinator_result = input_signal_count_1.count
+        if left_count >= right_count then
+            combinator_result = left_count
         end
     elseif update_logic.sign_index == 5 then
         --- "≤" ---
-        if input_signal_count_1.count <= input_signal_count_2.count then
-            combinator_result = input_signal_count_1.count
+        if left_count <= right_count then
+            combinator_result = left_count
         end
     elseif update_logic.sign_index == 6 then
         --- "≠" ---
-        if input_signal_count_1.count ~= input_signal_count_2.count then
-            combinator_result = input_signal_count_1.count
+        if left_count ~= right_count then
+            combinator_result = left_count
         end
     end
 

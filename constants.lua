@@ -34,6 +34,7 @@ constants.entity.output.circuit_wire_max_distance = 15
 
 -- Style Names --
 constants.style.prefix_uuid = "ac_"
+constants.style.dialogue_frame = constants.style.prefix_uuid.."dialogue_frame"
 constants.style.main_frame = constants.style.prefix_uuid.."main_frame"
 constants.style.tasks_frame = constants.style.prefix_uuid.."tasks_frame"
 constants.style.large_button_frame = constants.style.prefix_uuid.."large_button_frame"
@@ -62,6 +63,6 @@ constants.style.dark_button_frame = constants.style.prefix_uuid.."dark_button_fr
 constants.style.invisible_frame = constants.style.prefix_uuid.."invisible_frame"
 constants.style.radiobutton_frame = constants.style.prefix_uuid.."radiobutton_frame"
 constants.style.radio_vertical_flow_frame = constants.style.prefix_uuid.."radio_vertical_flow_frame"
-
-
+constants.style.dark_textfield_frame = constants.style.prefix_uuid.."dark_textfield_frame"
+constants.style.combinator_padding_frame = constants.style.prefix_uuid.."combinator_padding_frame"
 return constants

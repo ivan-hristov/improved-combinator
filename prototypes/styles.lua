@@ -44,14 +44,53 @@ local default_inner_shadow =
 }
 
 add_styles({
+    [constants.style.dialogue_frame] =
+    {
+        type = "frame_style",
+        title_style =
+        {
+            type = "label_style",
+            parent = "frame_title",
+        },
+        -- padding of the content area of the frame
+        top_padding  = 4,
+        right_padding = 8,
+        bottom_padding = 4,
+        left_padding = 8,
+        graphical_set =
+        {
+            base = {position = {0, 0}, corner_size = 8},
+            shadow = default_shadow
+        },
+        flow_style = { type = "flow_style" },
+        horizontal_flow_style = { type = "horizontal_flow_style" }, -- content in Gui::Direction::Horizontal
+        vertical_flow_style = { type = "vertical_flow_style" }, -- content in Gui::Direction::Vertical
+        header_flow_style =
+        {
+            type = "horizontal_flow_style",
+            horizontally_stretchable = "on",
+            bottom_padding = 4
+        },
+        header_filler_style =
+        {
+            type = "empty_widget_style",
+            parent = "draggable_space_header",
+            horizontally_stretchable = "on",
+            vertically_stretchable = "on",
+            height = 24
+        },
+        use_header_filler = true,
+        drag_by_title = true,
+        border = {}
+    },
     [constants.style.main_frame] =
     {
         type = "frame_style",
-        parent = "dialog_frame",
+        parent = constants.style.dialogue_frame,
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
 
-        top_padding  = 5,
+         top_padding  = 5,
         right_padding = 5,
         bottom_padding = 5,
         left_padding = 5,
@@ -95,7 +134,7 @@ add_styles({
         horizontal_align = "left",
         horizontally_stretchable = "on",
 
-        left_margin = 84,
+        left_margin = 42,
         
         top_padding  = 7,
         right_padding = 7,
@@ -130,7 +169,7 @@ add_styles({
         horizontal_align = "left",
         horizontally_stretchable = "on",
 
-        left_margin = 84,
+        left_margin = 42,
         height = 36
     },
     [constants.style.conditional_frame] =
@@ -153,7 +192,7 @@ add_styles({
     {
         type = "frame_style",
         parent = constants.style.conditional_frame,
-        left_margin = 84
+        left_margin = 42
     },
     [constants.style.group_vertical_flow_frame] =
     {
@@ -240,7 +279,7 @@ add_styles({
       type = "textbox_style",
       horizontal_align = "center",
       font = "default-semibold",
-      size = {84, 28},
+      size = {62, 28},
       left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
     },
     [constants.style.repeatable_begining_label_frame] =
@@ -250,7 +289,7 @@ add_styles({
       horizontal_align = "right",
       horizontally_squashable = "on",
       font = "default-semibold",
-      width = 110,
+      width = 120,
       font_color = {220, 220, 220},
       hovered_font_color = {249, 168, 56}
     },
@@ -260,7 +299,7 @@ add_styles({
         vertical_align = "center",
         horizontal_align = "left",
         font = "default-semibold",
-        width = 116,
+        width = 128,
         font_color = {220, 220, 220},
         hovered_font_color = {249, 168, 56}
     },
@@ -268,7 +307,7 @@ add_styles({
     {
         type = "button_style",
         vertical_align = "center",
-        horizontal_align = "left",
+        horizontal_align = "right",
         padding = 0,
         size = {16, 28},
         left_margin = 0,
@@ -379,7 +418,7 @@ add_styles({
     {
         type = "dropdown_style",
         parent = constants.style.task_dropdown_frame,
-        left_margin = 84
+        left_margin = 42
     },
     [constants.style.condition_comparator_dropdown_frame] =
     {
@@ -468,6 +507,44 @@ add_styles({
         width = 28,
         height = 28
     },
+    [constants.style.dark_textfield_frame] =
+    {
+        type = "textbox_style",
+        horizontal_align = "center",
+        font = "default-semibold",
+
+        width = 64,
+        height = 28,
+        font_color = {225, 225, 225},
+        default_background =
+        {
+            base = {border = 4, position = {2, 738}, size = 76},
+            shadow =
+            {
+                position = {378, 103},
+                corner_size = 16,
+                top_outer_border_shift = 4,
+                bottom_outer_border_shift = -4,
+                left_outer_border_shift = 4,
+                right_outer_border_shift = -4,
+                draw_type = "outer"
+            }
+        },
+        active_background =
+        {
+            base = {border = 4, position = {162, 738}, size = 76},
+            shadow =
+            {
+                position = {378, 103},
+                corner_size = 16,
+                top_outer_border_shift = 4,
+                bottom_outer_border_shift = -4,
+                left_outer_border_shift = 4,
+                right_outer_border_shift = -4,
+                draw_type = "outer"
+            }
+        }
+    },
     [constants.style.invisible_frame] =
     {
         type = "button_style",
@@ -479,13 +556,13 @@ add_styles({
 
         horizontal_flow_style =
         {
-          type = "horizontal_flow_style",
-          horizontal_spacing = 0
+            type = "horizontal_flow_style",
+            horizontal_spacing = 0
         },
         vertical_flow_style =
         {
-          type = "vertical_flow_style",
-          vertical_spacing = 0
+            type = "vertical_flow_style",
+            vertical_spacing = 0
         }
     },
     [constants.style.radio_vertical_flow_frame] =
@@ -506,5 +583,10 @@ add_styles({
         parent = "radiobutton",
         padding = 0,
         text_padding = 0
+    },
+    [constants.style.combinator_padding_frame] =
+    {
+        type = "empty_widget_style",
+        width = 32
     }
 })

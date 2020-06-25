@@ -53,7 +53,9 @@ local function on_gui_click(event)
 end
 
 local function on_gui_elem_changed(event)
-    logger.print("on_gui_elem_changed name: "..event.element.name..", type: "..event.element.elem_value.type.." name: "..event.element.elem_value.name)
+    if event.element.elem_value then
+        logger.print("on_gui_elem_changed name: "..event.element.name..", type: "..event.element.elem_value.type.." name: "..event.element.elem_value.name)
+    end
 
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
@@ -95,4 +97,3 @@ script.on_event(defines.events.on_gui_click, on_gui_click)
 script.on_event(defines.events.on_gui_elem_changed, on_gui_elem_changed)
 script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
-
