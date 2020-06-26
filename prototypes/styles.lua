@@ -513,7 +513,7 @@ add_styles({
         horizontal_align = "center",
         font = "default-semibold",
 
-        width = 64,
+        width = 68,
         height = 28,
         font_color = {225, 225, 225},
         default_background =
@@ -587,6 +587,6 @@ add_styles({
     [constants.style.combinator_padding_frame] =
     {
         type = "empty_widget_style",
-        width = 32
+        width = 16
     }
 })

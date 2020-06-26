@@ -61,26 +61,30 @@ end
 
 local function update_constant_combinator(input_signal, entity_id, update_logic)
 
-    if update_logic.signal_slot_1 == nil or update_logic.signal_result == nil then
+    logger.print("line 64")
+    if update_logic.signal_result == nil or
+       (update_logic.signal_slot_1 == nil and update_logic.value_slot_1 == nil) or
+       (update_logic.signal_slot_2 == nil and update_logic.value_slot_2 == nil) then
         return
-    elseif update_logic.signal_slot_2 == nil and update_logic.value_slot_2 == nil then
-        return
     end
 
-    local input_signal_count_1 = input_signal[update_logic.signal_slot_1.name]
-    local left_count = 0
-
-    if input_signal_count_1 then
-        left_count =  input_signal_count_1.count
+    logger.print("line 71")
+    local function get_value(signal, value)
+        local result = 0
+        if value then
+            result = value
+        elseif signal and input_signal[signal.name] then
+            result = input_signal[signal.name].count
+        end
+        return result
     end
 
-    local right_count = 0
+    logger.print("line 82")
+    local left_count = get_value(update_logic.signal_slot_1, update_logic.value_slot_1)
+    local right_count = get_value(update_logic.signal_slot_2, update_logic.value_slot_2)
 
-    if update_logic.value_slot_2 then
-        right_count = update_logic.value_slot_2
-    elseif update_logic.signal_slot_2 and input_signal[update_logic.signal_slot_2.name] then
-        right_count = input_signal[update_logic.signal_slot_2.name].count
-    end
+    logger.print("left_count: "..left_count)
+    logger.print("right_count: "..right_count)
 
     local combinator_result = nil
 
