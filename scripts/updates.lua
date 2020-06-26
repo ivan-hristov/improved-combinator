@@ -2,6 +2,7 @@ local constants = require("constants")
 local game_node = require("game_node")
 local list = require("list")
 local logger = require("logger")
+local bitwise_math = require("bitwise_math")
 
 local input_signals = {}
 local output_signals = {}
@@ -59,32 +60,41 @@ local function update_timer_and_progress_bar(gui_element, update_logic)
     return timer_finished
 end
 
-local function update_constant_combinator(input_signal, entity_id, update_logic)
+local function is_invalid(update_logic)
+    return update_logic.signal_result == nil or
+    (update_logic.signal_slot_1 == nil and update_logic.value_slot_1 == nil) or
+    (update_logic.signal_slot_2 == nil and update_logic.value_slot_2 == nil)
+end
 
-    logger.print("line 64")
-    if update_logic.signal_result == nil or
-       (update_logic.signal_slot_1 == nil and update_logic.value_slot_1 == nil) or
-       (update_logic.signal_slot_2 == nil and update_logic.value_slot_2 == nil) then
+local function get_value(input_signal, signal, value)
+    local result = 0
+    if value then
+        result = value
+    elseif signal and input_signal[signal.name] then
+        result = input_signal[signal.name].count
+    end
+    return result
+end
+
+local function set_output_signal(signal, entity_id, result)
+    if output_signals[entity_id] == nil then
+        output_signals[entity_id] = {}
+    end
+
+    if output_signals[entity_id][signal.name] ~= nil then
+        result = output_signals[entity_id][signal.name].count + result
+    end
+    
+    output_signals[entity_id][signal.name] = { signal = signal, count = result }
+end
+
+local function update_constant_combinator(input_signal, entity_id, update_logic)
+    if is_invalid(update_logic) then
         return
     end
 
-    logger.print("line 71")
-    local function get_value(signal, value)
-        local result = 0
-        if value then
-            result = value
-        elseif signal and input_signal[signal.name] then
-            result = input_signal[signal.name].count
-        end
-        return result
-    end
-
-    logger.print("line 82")
-    local left_count = get_value(update_logic.signal_slot_1, update_logic.value_slot_1)
-    local right_count = get_value(update_logic.signal_slot_2, update_logic.value_slot_2)
-
-    logger.print("left_count: "..left_count)
-    logger.print("right_count: "..right_count)
+    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+    local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
 
     local combinator_result = nil
 
@@ -124,16 +134,70 @@ local function update_constant_combinator(input_signal, entity_id, update_logic)
         if not update_logic.output_value then
             combinator_result =  1
         end
-        
-        if output_signals[entity_id] == nil then
-            output_signals[entity_id] = {}
+        set_output_signal(update_logic.signal_result, entity_id, combinator_result)
+    end
+
+end
+
+local function update_arithmetic_combinator(input_signal, entity_id, update_logic)
+    if is_invalid(update_logic) then
+        return
+    end
+
+    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+    local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
+
+    local arithmetic_result = nil
+
+    if update_logic.sign_index == 1 then
+        --- * ---
+        arithmetic_result = left_count * right_count
+
+    elseif update_logic.sign_index == 2 then
+        --- / ---
+        if right_count ~= 0 then
+            arithmetic_result = left_count / right_count
         end
 
-        if output_signals[entity_id][update_logic.signal_result.name] ~= nil then
-            combinator_result = output_signals[entity_id][update_logic.signal_result.name].count + combinator_result
-        end
+    elseif update_logic.sign_index == 3 then
+        --- + ---
+        arithmetic_result = left_count + right_count
+
+    elseif update_logic.sign_index == 4 then
+        --- - ---
+        arithmetic_result = left_count - right_count
+
+    elseif update_logic.sign_index == 5 then
+        --- % ---
+        arithmetic_result = left_count % right_count
+
+    elseif update_logic.sign_index == 6 then
+        --- ^ ---
+        arithmetic_result = left_count ^ right_count
+
+    elseif update_logic.sign_index == 7 then
+        --- << ---
+        arithmetic_result = bitwise_math.left_shift(left_count, right_count)
         
-        output_signals[entity_id][update_logic.signal_result.name] = { signal = update_logic.signal_result, count = combinator_result }
+    elseif update_logic.sign_index == 8 then
+        --- >> ---
+        arithmetic_result = bitwise_math.right_shift(left_count, right_count)
+
+    elseif update_logic.sign_index == 9 then
+        --- AND ---
+        arithmetic_result = bitwise_math.bitwise_and(left_count, right_count)
+
+    elseif update_logic.sign_index == 10 then
+        --- OR ---
+        arithmetic_result = bitwise_math.bitwise_or(left_count, right_count)
+
+    elseif update_logic.sign_index == 11 then
+        --- XOR ---
+        arithmetic_result = bitwise_math.bitwise_xor(left_count, right_count)
+    end
+
+    if arithmetic_result ~= nil then
+        set_output_signal(update_logic.signal_result, entity_id, arithmetic_result)
     end
 
 end
@@ -154,6 +218,8 @@ local function process_events()
                         local update_logic = child_iter.data.node_element.update_logic
                         if update_logic.constant_combinator then
                             update_constant_combinator(input_signal, entity_id, update_logic)
+                        elseif update_logic.arithmetic_combinator then
+                            update_arithmetic_combinator(input_signal, entity_id, update_logic)
                         end
                     end
                 end

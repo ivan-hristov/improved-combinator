@@ -492,6 +492,12 @@ add_styles({
             }
         }
     },
+    [constants.style.condition_arithmetic_comparator_dropdown_frame] =
+    {
+        type = "dropdown_style",
+        parent = constants.style.condition_comparator_dropdown_frame,
+        width = 64
+    },
     [constants.style.dropdown_overlay_label_frame] =
     {
         type = "label_style",
@@ -506,6 +512,20 @@ add_styles({
         parent = "train_schedule_item_select_button",
         width = 28,
         height = 28
+    },
+    [constants.style.dark_button_arithmetic_frame] =
+    {
+        type = "button_style",
+        parent = constants.style.dark_button_frame,
+        left_margin = 8,
+        right_margin = 8
+    },
+    [constants.style.dark_button_constant_frame] =
+    {
+        type = "button_style",
+        parent = constants.style.dark_button_frame,
+        left_margin = 10,
+        right_margin = 10
     },
     [constants.style.dark_textfield_frame] =
     {
@@ -544,6 +564,12 @@ add_styles({
                 draw_type = "outer"
             }
         }
+    },
+    [constants.style.dark_arithmetic_textfield_frame] =
+    {
+        type = "textbox_style",
+        parent = constants.style.dark_textfield_frame,
+        width = 60
     },
     [constants.style.invisible_frame] =
     {
@@ -584,9 +610,9 @@ add_styles({
         padding = 0,
         text_padding = 0
     },
-    [constants.style.combinator_padding_frame] =
+    [constants.style.combinator_horizontal_padding_frame] =
     {
         type = "empty_widget_style",
-        width = 16
+        horizontally_stretchable = "on",
     }
 })

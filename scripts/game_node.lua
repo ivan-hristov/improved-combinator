@@ -40,6 +40,18 @@ function node:setup_constant_combinator()
     }
 end
 
+function node:setup_arithmetic_combinator()
+    self.update_logic =
+    {
+        arithmetic_combinator = true,
+        signal_slot_1 = nil,
+        sign_index = 1,
+        signal_slot_2 = nil,
+        value_slot_2 = nil,
+        signal_result = nil
+    }
+end
+
 function node:safely_add_gui_child(parent, style)
     for _, child in pairs(parent.children) do
         if child == name then
@@ -151,9 +163,12 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed[2] = node.on_selection_single_timer
         elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_subtask_dropdown" then
             node_param.events.on_selection_state_changed = {}
-            node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator_signal_signal
-            node_param.events.on_selection_state_changed[2] = node.on_selection_constant_combinator_signal_constant
-            node_param.events.on_selection_state_changed[3] = node.on_selection_constant_combinator_constant_signal
+            node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator
+            node_param.events.on_selection_state_changed[2] = node.on_selection_constant_combinator
+            node_param.events.on_selection_state_changed[3] = node.on_selection_constant_combinator
+            node_param.events.on_selection_state_changed[4] = node.on_selection_arithmetic_combinator
+            node_param.events.on_selection_state_changed[5] = node.on_selection_arithmetic_combinator
+            node_param.events.on_selection_state_changed[6] = node.on_selection_arithmetic_combinator
         elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
@@ -162,6 +177,19 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed[4] = node.on_selection_combinator_changed
             node_param.events.on_selection_state_changed[5] = node.on_selection_combinator_changed
             node_param.events.on_selection_state_changed[6] = node.on_selection_combinator_changed
+        elseif node_param.events_id.on_selection_state_changed == "on_selection_arithmetic_changed" then
+            node_param.events.on_selection_state_changed = {}
+            node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[2] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[3] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[4] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[5] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[6] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[7] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[8] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[9] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[10] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed[11] = node.on_selection_combinator_changed
         end
     end
 end
@@ -415,7 +443,10 @@ function node.on_selection_repeatable_timer(event, node_param)
         {
             "Constant Combinator - Signal <=> Signal",
             "Constant Combinator - Signal <=> Constant",
-            "Constant Combinator - Constant <=> Signal"
+            "Constant Combinator - Constant <=> Signal",
+            "Arithmetic Combinator - Signal <=> Signal",
+            "Arithmetic Combinator - Signal <=> Constant",
+            "Arithmetic Combinator - Constant <=> Signal",
         }
     }
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -442,7 +473,6 @@ function node.on_selection_repeatable_timer(event, node_param)
     }
     ------------------------------------------------------------------------------
     
-
     -- Setup Node Events --
     scroll_pane_node:recursive_setup_events()
 
@@ -454,8 +484,7 @@ function node.on_selection_single_timer(event, node_param)
     event.element.selected_index = 0
 end
 
-function node.on_selection_constant_combinator_signal_signal(event, node_param)
-    event.element.selected_index = 0
+function node.on_selection_constant_combinator(event, node_param)
 
     -- Setup Persistent Nodes --
     local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
@@ -469,6 +498,7 @@ function node.on_selection_constant_combinator_signal_signal(event, node_param)
         sub_tasks_flow.gui_element.visible = true
     end
 
+    --------------------------------------------------------
     local repeatable_time_node = sub_tasks_flow:add_child()
     repeatable_time_node.gui = {
         type = "frame",
@@ -478,110 +508,271 @@ function node.on_selection_constant_combinator_signal_signal(event, node_param)
     }
     repeatable_time_node:setup_constant_combinator()
     repeatable_time_node:update_list_child_push(progressbar_node)
+    --------------------------------------------------------
 
-    local padding_node_1 = repeatable_time_node:add_child()
-    padding_node_1.gui = {
+    local left_button_node = repeatable_time_node:add_child()
+    if event.element.selected_index == 3 then
+        left_button_node.gui = {
+            type = "textfield",
+            direction = "vertical",
+            name = left_button_node.id,
+            style = constants.style.dark_textfield_frame,
+            numeric = true,
+            allow_decimal = false,
+            allow_negative = false,
+            lose_focus_on_confirm = true
+        }
+        left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
+    else
+        left_button_node.gui = {
+            type = "choose-elem-button",
+            direction = "vertical",        
+            name = left_button_node.id,
+            style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
+            elem_type = "signal",
+        }
+        left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
+    end
+    --------------------------------------------------------
+
+    local constant_menu_node = repeatable_time_node:add_child()
+    constant_menu_node.gui = {
+        type = "drop-down",
+        direction = "vertical",
+        name = constant_menu_node.id,
+        style = constants.style.condition_comparator_dropdown_frame,
+        selected_index = 1,
+        items = { ">", "<", "=", "≥", "≤", "≠" }
+    }
+    constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
+
+    --------------------------------------------------------
+    local right_button_node = repeatable_time_node:add_child()
+    if event.element.selected_index == 2 then        
+        right_button_node.gui = {
+            type = "textfield",
+            direction = "vertical",
+            name = right_button_node.id,
+            style = constants.style.dark_textfield_frame,
+            numeric = true,
+            allow_decimal = false,
+            allow_negative = false,
+            lose_focus_on_confirm = true
+        }
+        right_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
+    else
+        right_button_node.gui = {
+            type = "choose-elem-button",
+            direction = "vertical",
+            name = right_button_node.id,
+            style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
+            elem_type = "signal",
+        }
+        right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
+    end
+
+    --------------------------------------------------------
+
+    local equals_sprite_node = repeatable_time_node:add_child()
+    equals_sprite_node.gui = {
+        type = "sprite-button",
+        direction = "vertical",
+        name = equals_sprite_node.id,
+        sprite = "advanced-combinator-sprites-equals-white",
+        hovered_sprite = "advanced-combinator-sprites-equals-white",
+        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        style = constants.style.invisible_frame,
+        ignored_by_interaction = true
+    }
+
+    local signal_result_node = repeatable_time_node:add_child()
+    signal_result_node.gui = {
+        type = "choose-elem-button",
+        direction = "vertical",
+        name = signal_result_node.id,
+        style = constants.style.dark_button_frame,
+        elem_type = "signal",
+    }
+    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
+
+    --------------------------------------------------------
+    local radio_group_node = repeatable_time_node:add_child()
+    radio_group_node.gui = {
+        type = "flow",
+        direction = "vertical",
+        name = radio_group_node.id,
+        style = constants.style.radio_vertical_flow_frame
+    }
+
+    local radio_button_1 = radio_group_node:add_child()
+    radio_button_1.gui = {
+        type = "radiobutton",
+        name = radio_button_1.id,
+        style = constants.style.radiobutton_frame,
+        caption = "1",
+        state = true
+    }
+    radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator_one"
+
+    local radio_button_2 = radio_group_node:add_child()
+    radio_button_2.gui = {
+        type = "radiobutton",
+        name = radio_button_2.id,
+        style = constants.style.radiobutton_frame,
+        caption = "Input count",
+        state = false
+    }
+    radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator_all"
+
+    radio_button_1.events_params = { other_radio_button = radio_button_2.id }
+    radio_button_2.events_params = { other_radio_button = radio_button_1.id }
+    --------------------------------------------------------
+    local close_button_node = repeatable_time_node:add_child()
+    close_button_node.gui = {
+        type = "sprite-button",
+        direction = "vertical",
+        name = close_button_node.id,
+        style = constants.style.close_button_frame,
+        sprite = "utility/close_white",
+        hovered_sprite = "utility/close_black",
+        clicked_sprite = "utility/close_black",
+    }
+    close_button_node.events_id.on_click = "on_click_close_sub_button"
+    close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
+    --------------------------------------------------------
+
+    -- Reset dropdown selection index --
+    event.element.selected_index = 0
+    
+    -- Setup Node Events --
+    repeatable_time_node:recursive_setup_events()
+
+    -- Setup Factorio GUI --
+    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
+end
+
+function node.on_selection_arithmetic_combinator(event, node_param)
+
+    -- Setup Persistent Nodes --
+    local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
+    local vertical_flow_node = node_param.parent
+    local vertical_flow_gui = event.element.parent
+
+    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
+
+    if not sub_tasks_flow.gui_element.visible then
+        sub_tasks_flow.gui.visible = true
+        sub_tasks_flow.gui_element.visible = true
+    end
+
+    --------------------------------------------------------
+    local repeatable_time_node = sub_tasks_flow:add_child()
+    repeatable_time_node.gui = {
+        type = "frame",
+        direction = "horizontal",
+        name = repeatable_time_node.id,
+        style = constants.style.sub_conditional_frame
+    }
+    repeatable_time_node:setup_arithmetic_combinator()
+    repeatable_time_node:update_list_child_push(progressbar_node)
+    --------------------------------------------------------
+
+    local left_button_node = repeatable_time_node:add_child()
+    if event.element.selected_index == 6 then
+        left_button_node.gui = {
+            type = "textfield",
+            direction = "vertical",
+            name = left_button_node.id,
+            style = constants.style.dark_arithmetic_textfield_frame,
+            numeric = true,
+            allow_decimal = false,
+            allow_negative = false,
+            lose_focus_on_confirm = true
+        }
+        left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
+    else
+        left_button_node.gui = {
+            type = "choose-elem-button",
+            direction = "vertical",        
+            name = left_button_node.id,
+            style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
+            elem_type = "signal"
+        }
+        left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
+    end
+
+    --------------------------------------------------------
+
+    local arithmetic_menu_node = repeatable_time_node:add_child()
+    arithmetic_menu_node.gui = {
+        type = "drop-down",
+        direction = "vertical",
+        name = arithmetic_menu_node.id,
+        style = constants.style.condition_arithmetic_comparator_dropdown_frame,
+        selected_index = 1,
+        items = { "*", "/", "+", "-", "%", "^", "<<", ">>", "AND", "OR", "XOR" }
+    }
+    arithmetic_menu_node.events_id.on_selection_state_changed = "on_selection_arithmetic_changed"
+
+    --------------------------------------------------------
+
+    local right_button_node = repeatable_time_node:add_child()
+    if event.element.selected_index == 5 then        
+        right_button_node.gui = {
+            type = "textfield",
+            direction = "vertical",
+            name = right_button_node.id,
+            style = constants.style.dark_arithmetic_textfield_frame,
+            numeric = true,
+            allow_decimal = false,
+            allow_negative = false,
+            lose_focus_on_confirm = true
+        }
+        right_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
+    else
+        right_button_node.gui = {
+            type = "choose-elem-button",
+            direction = "vertical",
+            name = right_button_node.id,
+            style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
+            elem_type = "signal",
+        }
+        right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
+    end
+
+    --------------------------------------------------------
+
+    local equals_sprite_node = repeatable_time_node:add_child()
+    equals_sprite_node.gui = {
+        type = "sprite-button",
+        direction = "vertical",
+        name = equals_sprite_node.id,
+        sprite = "advanced-combinator-sprites-equals-white",
+        hovered_sprite = "advanced-combinator-sprites-equals-white",
+        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        style = constants.style.invisible_frame,
+        ignored_by_interaction = true
+    }
+
+    local signal_result_node = repeatable_time_node:add_child()
+    signal_result_node.gui = {
+        type = "choose-elem-button",
+        direction = "vertical",
+        name = signal_result_node.id,
+        style = constants.style.dark_button_frame,
+        elem_type = "signal",
+    }
+    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
+
+    --------------------------------------------------------
+    local close_padding_node = repeatable_time_node:add_child()
+    close_padding_node.gui = {
         type = "empty-widget",
         direction = "vertical",
-        name = padding_node_1.id,
-        style = constants.style.combinator_padding_frame,
+        name = close_padding_node.id,
+        style = constants.style.combinator_horizontal_padding_frame
     }
 
-    local signal_button_1_node = repeatable_time_node:add_child()
-    signal_button_1_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",        
-        name = signal_button_1_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_button_1_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
-    
-
-    local constant_menu_node = repeatable_time_node:add_child()
-    constant_menu_node.gui = {
-        type = "drop-down",
-        direction = "vertical",
-        name = constant_menu_node.id,
-        style = constants.style.condition_comparator_dropdown_frame,
-        selected_index = 1,
-        items = { ">", "<", "=", "≥", "≤", "≠" }
-    }
-    constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
-    -- "*" "/" "+" "-" "%" "^" "<<" ">>" "AND" "OR" "XOR"
-
-    local signal_button_2_node = repeatable_time_node:add_child()
-    signal_button_2_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",
-        name = signal_button_2_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_button_2_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
-
-    local padding_node_2 = repeatable_time_node:add_child()
-    padding_node_2.gui = {
-        type = "empty-widget",
-        direction = "vertical",
-        name = padding_node_2.id,
-        style = constants.style.combinator_padding_frame,
-    }
-
-    local equals_sprite_node = repeatable_time_node:add_child()
-    equals_sprite_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = equals_sprite_node.id,
-        sprite = "advanced-combinator-sprites-equals-white",
-        hovered_sprite = "advanced-combinator-sprites-equals-white",
-        clicked_sprite = "advanced-combinator-sprites-equals-white",
-        style = constants.style.invisible_frame,
-        ignored_by_interaction = true
-    }
-
-    local signal_result_node = repeatable_time_node:add_child()
-    signal_result_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",
-        name = signal_result_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
-
-    --------------------------------------------------------
-    local radio_group_node = repeatable_time_node:add_child()
-    radio_group_node.gui = {
-        type = "flow",
-        direction = "vertical",
-        name = radio_group_node.id,
-        style = constants.style.radio_vertical_flow_frame
-    }
-
-    local radio_button_1 = radio_group_node:add_child()
-    radio_button_1.gui = {
-        type = "radiobutton",
-        name = radio_button_1.id,
-        style = constants.style.radiobutton_frame,
-        caption = "1",
-        state = true
-    }
-    radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator_one"
-
-    local radio_button_2 = radio_group_node:add_child()
-    radio_button_2.gui = {
-        type = "radiobutton",
-        name = radio_button_2.id,
-        style = constants.style.radiobutton_frame,
-        caption = "Input count",
-        state = false
-    }
-    radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator_all"
-
-    radio_button_1.events_params = { other_radio_button = radio_button_2.id }
-    radio_button_2.events_params = { other_radio_button = radio_button_1.id }
-    --------------------------------------------------------
     local close_button_node = repeatable_time_node:add_child()
     close_button_node.gui = {
         type = "sprite-button",
@@ -594,280 +785,16 @@ function node.on_selection_constant_combinator_signal_signal(event, node_param)
     }
     close_button_node.events_id.on_click = "on_click_close_sub_button"
     close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
-    
-    -- Setup Node Events --
-    repeatable_time_node:recursive_setup_events()
+    --------------------------------------------------------
 
-    -- Setup Factorio GUI --
-    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
-end
-
-function node.on_selection_constant_combinator_signal_constant(event, node_param)
+    -- Reset dropdown selection index --
     event.element.selected_index = 0
-
-    -- Setup Persistent Nodes --
-    local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
-    local vertical_flow_node = node_param.parent
-    local vertical_flow_gui = event.element.parent
-
-    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
-
-    if not sub_tasks_flow.gui_element.visible then
-        sub_tasks_flow.gui.visible = true
-        sub_tasks_flow.gui_element.visible = true
-    end
-
-    local repeatable_time_node = sub_tasks_flow:add_child()
-    repeatable_time_node.gui = {
-        type = "frame",
-        direction = "horizontal",
-        name = repeatable_time_node.id,
-        style = constants.style.sub_conditional_frame
-    }
-    repeatable_time_node:setup_constant_combinator()
-    repeatable_time_node:update_list_child_push(progressbar_node)
-
-    local signal_button_1_node = repeatable_time_node:add_child()
-    signal_button_1_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",        
-        name = signal_button_1_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_button_1_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
-    
-
-    local constant_menu_node = repeatable_time_node:add_child()
-    constant_menu_node.gui = {
-        type = "drop-down",
-        direction = "vertical",
-        name = constant_menu_node.id,
-        style = constants.style.condition_comparator_dropdown_frame,
-        selected_index = 1,
-        items = { ">", "<", "=", "≥", "≤", "≠" }
-    }
-    constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
-
-    local signal_button_2_node = repeatable_time_node:add_child()
-    signal_button_2_node.gui = {
-        type = "textfield",
-        direction = "vertical",
-        name = signal_button_2_node.id,
-        style = constants.style.dark_textfield_frame,
-        numeric = true,
-        allow_decimal = false,
-        allow_negative = false,
-        lose_focus_on_confirm = true
-    }
-    signal_button_2_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
-
-
-    local equals_sprite_node = repeatable_time_node:add_child()
-    equals_sprite_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = equals_sprite_node.id,
-        sprite = "advanced-combinator-sprites-equals-white",
-        hovered_sprite = "advanced-combinator-sprites-equals-white",
-        clicked_sprite = "advanced-combinator-sprites-equals-white",
-        style = constants.style.invisible_frame,
-        ignored_by_interaction = true
-    }
-
-    local signal_result_node = repeatable_time_node:add_child()
-    signal_result_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",
-        name = signal_result_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
-
-    --------------------------------------------------------
-    local radio_group_node = repeatable_time_node:add_child()
-    radio_group_node.gui = {
-        type = "flow",
-        direction = "vertical",
-        name = radio_group_node.id,
-        style = constants.style.radio_vertical_flow_frame
-    }
-
-    local radio_button_1 = radio_group_node:add_child()
-    radio_button_1.gui = {
-        type = "radiobutton",
-        name = radio_button_1.id,
-        style = constants.style.radiobutton_frame,
-        caption = "1",
-        state = true
-    }
-    radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator_one"
-
-    local radio_button_2 = radio_group_node:add_child()
-    radio_button_2.gui = {
-        type = "radiobutton",
-        name = radio_button_2.id,
-        style = constants.style.radiobutton_frame,
-        caption = "Input count",
-        state = false
-    }
-    radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator_all"
-
-    radio_button_1.events_params = { other_radio_button = radio_button_2.id }
-    radio_button_2.events_params = { other_radio_button = radio_button_1.id }
-    --------------------------------------------------------
-    local close_button_node = repeatable_time_node:add_child()
-    close_button_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = close_button_node.id,
-        style = constants.style.close_button_frame,
-        sprite = "utility/close_white",
-        hovered_sprite = "utility/close_black",
-        clicked_sprite = "utility/close_black",
-    }
-    close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
     
     -- Setup Node Events --
     repeatable_time_node:recursive_setup_events()
 
     -- Setup Factorio GUI --
     node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
-end
-
-function node.on_selection_constant_combinator_constant_signal(event, node_param)
-    event.element.selected_index = 0
-
-    -- Setup Persistent Nodes --
-    local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
-    local vertical_flow_node = node_param.parent
-    local vertical_flow_gui = event.element.parent
-
-    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
-
-    if not sub_tasks_flow.gui_element.visible then
-        sub_tasks_flow.gui.visible = true
-        sub_tasks_flow.gui_element.visible = true
-    end
-
-    local repeatable_time_node = sub_tasks_flow:add_child()
-    repeatable_time_node.gui = {
-        type = "frame",
-        direction = "horizontal",
-        name = repeatable_time_node.id,
-        style = constants.style.sub_conditional_frame
-    }
-    repeatable_time_node:setup_constant_combinator()
-    repeatable_time_node:update_list_child_push(progressbar_node)
-
-    local signal_button_1_node = repeatable_time_node:add_child()
-    signal_button_1_node.gui = {
-        type = "textfield",
-        direction = "vertical",
-        name = signal_button_1_node.id,
-        style = constants.style.dark_textfield_frame,
-        numeric = true,
-        allow_decimal = false,
-        allow_negative = false,
-        lose_focus_on_confirm = true
-    }
-    signal_button_1_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
-
-    local constant_menu_node = repeatable_time_node:add_child()
-    constant_menu_node.gui = {
-        type = "drop-down",
-        direction = "vertical",
-        name = constant_menu_node.id,
-        style = constants.style.condition_comparator_dropdown_frame,
-        selected_index = 1,
-        items = { ">", "<", "=", "≥", "≤", "≠" }
-    }
-    constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
-
-    local signal_button_2_node = repeatable_time_node:add_child()
-    signal_button_2_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",        
-        name = signal_button_2_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_button_2_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
-
-    local equals_sprite_node = repeatable_time_node:add_child()
-    equals_sprite_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = equals_sprite_node.id,
-        sprite = "advanced-combinator-sprites-equals-white",
-        hovered_sprite = "advanced-combinator-sprites-equals-white",
-        clicked_sprite = "advanced-combinator-sprites-equals-white",
-        style = constants.style.invisible_frame,
-        ignored_by_interaction = true
-    }
-
-    local signal_result_node = repeatable_time_node:add_child()
-    signal_result_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",
-        name = signal_result_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-    }
-    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
-
-    --------------------------------------------------------
-    local radio_group_node = repeatable_time_node:add_child()
-    radio_group_node.gui = {
-        type = "flow",
-        direction = "vertical",
-        name = radio_group_node.id,
-        style = constants.style.radio_vertical_flow_frame
-    }
-
-    local radio_button_1 = radio_group_node:add_child()
-    radio_button_1.gui = {
-        type = "radiobutton",
-        name = radio_button_1.id,
-        style = constants.style.radiobutton_frame,
-        caption = "1",
-        state = true
-    }
-    radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator_one"
-
-    local radio_button_2 = radio_group_node:add_child()
-    radio_button_2.gui = {
-        type = "radiobutton",
-        name = radio_button_2.id,
-        style = constants.style.radiobutton_frame,
-        caption = "Input count",
-        state = false
-    }
-    radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator_all"
-
-    radio_button_1.events_params = { other_radio_button = radio_button_2.id }
-    radio_button_2.events_params = { other_radio_button = radio_button_1.id }
-    --------------------------------------------------------
-    local close_button_node = repeatable_time_node:add_child()
-    close_button_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = close_button_node.id,
-        style = constants.style.close_button_frame,
-        sprite = "utility/close_white",
-        hovered_sprite = "utility/close_black",
-        clicked_sprite = "utility/close_black",
-    }
-    close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
-    
-    -- Setup Node Events --
-    repeatable_time_node:recursive_setup_events()
-
-    -- Setup Factorio GUI --
-    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
-end
+end  
 
 return node

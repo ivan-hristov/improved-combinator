@@ -58,11 +58,16 @@ constants.style.repeatable_end_label_frame = constants.style.prefix_uuid.."repea
 constants.style.task_dropdown_frame = constants.style.prefix_uuid.."task_dropdown_frame"
 constants.style.subtask_dropdown_frame = constants.style.prefix_uuid.."subtask_dropdown_frame"
 constants.style.condition_comparator_dropdown_frame = constants.style.prefix_uuid.."condition_comparator_dropdown_frame"
+constants.style.condition_arithmetic_comparator_dropdown_frame = constants.style.prefix_uuid.."condition_arithmetic_comparator_dropdown_frame"
 constants.style.dropdown_overlay_label_frame = constants.style.prefix_uuid.."dropdown_overlay_label_frame"
 constants.style.dark_button_frame = constants.style.prefix_uuid.."dark_button_frame"
+constants.style.dark_button_arithmetic_frame = constants.style.prefix_uuid.."dark_button_arithmetic_frame"
+constants.style.dark_button_constant_frame = constants.style.prefix_uuid.."dark_button_constant_frame"
+constants.style.dark_arithmetic_textfield_frame = constants.style.prefix_uuid.."dark_arithmetic_textfield_frame"
 constants.style.invisible_frame = constants.style.prefix_uuid.."invisible_frame"
 constants.style.radiobutton_frame = constants.style.prefix_uuid.."radiobutton_frame"
 constants.style.radio_vertical_flow_frame = constants.style.prefix_uuid.."radio_vertical_flow_frame"
 constants.style.dark_textfield_frame = constants.style.prefix_uuid.."dark_textfield_frame"
-constants.style.combinator_padding_frame = constants.style.prefix_uuid.."combinator_padding_frame"
+constants.style.combinator_horizontal_padding_frame = constants.style.prefix_uuid.."combinator_horizontal_padding_frame"
+
 return constants
