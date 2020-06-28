@@ -6,7 +6,6 @@ local bitwise_math = require("bitwise_math")
 
 local input_signals = {}
 local output_signals = {}
-local current_index = 0
 
 local function read_input_signals()
 
@@ -44,7 +43,7 @@ local function update_timer_and_progress_bar(gui_element, update_logic)
     local timer_finished = false
 
     if update_logic and update_logic.active then
-        if update_logic.max_value >= update_logic.value then
+        if update_logic.max_value > update_logic.value then
             update_logic.value = update_logic.value + 1
         else
             update_logic.value = 0
@@ -204,9 +203,7 @@ end
 
 local function process_events()
     for entity_id, entity in pairs(global.entities) do
-
         local input_signal = input_signals[entity_id]
-
         if input_signal then
             for iter in entity.update_list:iterator() do
                 local timer_finished = update_timer_and_progress_bar(
@@ -252,7 +249,7 @@ local function write_output_signals()
     end
 end
 
-local function onTick(event)
+local function on_tick(event)
     -- We must recreate all metatables once after a game is loaded
     game_node.recreate_metatables()
     list.recreate_metatables()
@@ -266,5 +263,4 @@ local function onTick(event)
 end
 
 
-
-script.on_event(defines.events.on_tick, onTick)
+script.on_event(defines.events.on_tick, on_tick)
