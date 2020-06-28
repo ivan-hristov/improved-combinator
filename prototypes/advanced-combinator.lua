@@ -1,5 +1,43 @@
 local constants = require("constants")
 
+-- Core Factorio Function --
+function make_rotated_animation_variations_from_sheet(variation_count, sheet) --makes remnants work with more than 1 variation
+    local result = {}
+
+    local function set_y_offset(variation, i)
+        local frame_count = variation.frame_count or 1
+        local line_length = variation.line_length or frame_count
+        if (line_length < 1) then
+            line_length = frame_count
+        end
+
+        local height_in_frames = math.floor((frame_count * variation.direction_count + line_length - 1) / line_length)
+        variation.y = variation.height * (i - 1) * height_in_frames
+    end
+
+    for i = 1,variation_count do
+        local variation = util.table.deepcopy(sheet)
+
+        if variation.layers then
+            for _, layer in pairs(variation.layers) do
+                set_y_offset(layer, i)
+                if (layer.hr_version) then
+                set_y_offset(layer.hr_version, i)
+                end
+            end
+        else
+            set_y_offset(variation, i)
+            if (variation.hr_version) then
+                set_y_offset(variation.hr_version, i)
+            end
+        end
+
+        table.insert(result, variation)
+    end
+    return result
+end
+
+
 local blank_image =
 {
     filename = constants.blank_image,
@@ -58,6 +96,53 @@ local function output_item()
     return combinator_output
 end
 
+local function main_remnants()
+    local main_remnants =
+    {
+        type = "corpse",
+        name = constants.entity.remnants,
+        icon = constants.entity.graphics.icon,
+        icon_size = 64,
+        icon_mipmaps = 4,
+        scale_info_icons = true,
+        scale_entity_info_icon = true,
+        flags = {"placeable-neutral", "not-on-map"},
+        selection_box = {{-0.75, -0.5}, {0.95, 0.5}},
+        tile_width = 1,
+        tile_height = 2,
+        selectable_in_game = false,
+        time_before_removed = 60 * 60 * 15, -- 15 minutes
+        final_render_layer = "remnants",
+        remove_on_tile_placement = false,
+        animation = make_rotated_animation_variations_from_sheet (1,
+        {
+            filename = constants.entity.graphics.remnants,
+            line_length = 1,
+            width = 83,
+            height = 59,
+            frame_count = 1,
+            variation_count = 1,
+            axially_symmetrical = false,
+            direction_count = 1,
+            shift = util.by_pixel(0, 0),
+            hr_version =
+            {
+                filename = constants.entity.graphics.hr_remnants,
+                line_length = 1,
+                width = 166,
+                height = 118,
+                frame_count = 1,
+                variation_count = 1,
+                axially_symmetrical = false,
+                direction_count = 1,
+                shift = util.by_pixel(0, 0),
+                scale = 0.5,
+            },
+        })
+    }
+    return main_remnants
+end
+
 local function main_entity()
     local container =
     {
@@ -71,7 +156,7 @@ local function main_entity()
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
         minable = {hardness = 0.2, mining_time = 1, result = constants.entity.name},
         max_health = 250,
-        corpse = "1x2-remnants",
+        corpse = constants.entity.remnants,
         dying_explosion = "medium-explosion",
 		open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
 		close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
@@ -287,4 +372,4 @@ local function recipe()
     return recipe
 end
 
-data:extend({main_item(), input_item(), output_item(), main_entity(), input_entity(), output_entity(), recipe()})
+data:extend({main_item(), input_item(), output_item(), main_remnants(), main_entity(), input_entity(), output_entity(), recipe()})

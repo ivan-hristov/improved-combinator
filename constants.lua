@@ -16,11 +16,15 @@ constants.blank_image = constants.base_path.."/graphics/blank.png"
 constants.blank_image_4x4 = constants.base_path.."/graphics/blank_4x4.png"
 
 constants.entity.name = "advanced-combinator"
+constants.entity.remnants = "advanced-combinbator-remnants"
 constants.entity.graphics.icon = constants.base_path.."/graphics/icons/advanced-combinator.png"
 constants.entity.graphics.image = constants.base_path.."/graphics/entity/advanced-combinator.png"
 constants.entity.graphics.hr_image = constants.base_path.."/graphics/entity/hr-advanced-combinator.png"
 constants.entity.graphics.image_shadow = constants.base_path.."/graphics/entity/advanced-combinator-shadow.png"
 constants.entity.graphics.hr_image_shadow = constants.base_path.."/graphics/entity/hr-advanced-combinator-shadow.png"
+constants.entity.graphics.remnants = constants.base_path.."/graphics/entity/remnants/constant-combinator-remnants.png"
+constants.entity.graphics.hr_remnants = constants.base_path.."/graphics/entity/remnants/hr-constant-combinator-remnants.png"
+
 
 constants.entity.input.name = "advanced-combinator-input"
 constants.entity.input.icon = constants.base_path.."/graphics/blank.png"
