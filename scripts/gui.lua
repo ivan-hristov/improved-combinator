@@ -46,9 +46,11 @@ local function on_gui_click(event)
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
-    local node = global.entities[unit_number].node:recursive_find(name)
-    if node and node.events.on_click then
-        node.events.on_click(event, node)
+    if global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_click then
+            node.events.on_click(event, node)
+        end
     end
 end
 
@@ -60,9 +62,11 @@ local function on_gui_elem_changed(event)
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
-    local node = global.entities[unit_number].node:recursive_find(name)
-    if node and node.events.on_gui_elem_changed then
-        node.events.on_gui_elem_changed(event, node)
+    if global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_gui_elem_changed then
+            node.events.on_gui_elem_changed(event, node)
+        end
     end
 end
 
@@ -72,9 +76,11 @@ local function on_gui_text_changed(event)
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
-    local node = global.entities[unit_number].node:recursive_find(name)
-    if node and node.events.on_gui_text_changed then
-        node.events.on_gui_text_changed(event, node)
+    if global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_gui_text_changed then
+            node.events.on_gui_text_changed(event, node)
+        end
     end
 end
 
@@ -85,9 +91,11 @@ local function on_gui_selection_state_changed(event)
     local unit_number = global.opened_entity[event.player_index]
     local selected_index = event.element.selected_index
 
-    local node = global.entities[unit_number].node:recursive_find(name)
-    if node and node.events.on_selection_state_changed then
-        node.events.on_selection_state_changed[selected_index](event, node)
+    if global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_selection_state_changed then
+            node.events.on_selection_state_changed[selected_index](event, node)
+        end
     end
 end
 
