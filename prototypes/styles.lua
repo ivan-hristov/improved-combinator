@@ -90,13 +90,78 @@ add_styles({
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
 
-         top_padding  = 5,
+        top_padding  = 5,
         right_padding = 5,
         bottom_padding = 5,
         left_padding = 5,
 
         width = 700,
         height = 650
+    },
+    [constants.style.signal_frame] =
+    {
+        type = "frame_style",
+        parent = constants.style.main_frame,
+        padding  = 8,
+        width = 450,
+        height = 500
+    },
+    [constants.style.signal_inner_frame] =
+    {
+        type = "frame_style",
+        parent = "inside_deep_frame_for_tabs",
+        vertical_align = "top",
+        horizontal_align = "left",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        padding  = 0
+    },
+    [constants.style.signal_group_scroll_frame] =
+    {
+        type = "table_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        horizontally_squashable = "off",
+        vertically_squashable = "on",
+        vertical_spacing = 1,
+        horizontal_spacing = 1,
+        padding  = 0,
+        width = 432,
+        height = 144,
+        graphical_set =
+        {
+            base =
+            {
+                position = {17, 0},
+                corner_size = 8,
+                center = {position = {42, 8}, size = 1},
+                top = {},
+                left_top = {},
+                right_top = {},
+                draw_type = "outer"
+            },
+            shadow = default_inner_shadow
+        },
+        background_graphical_set =
+        {
+            position = {282, 17},
+            corner_size = 8,
+            overall_tiling_vertical_size = 48,
+            overall_tiling_vertical_spacing = 24,
+            overall_tiling_vertical_padding = 12,
+            overall_tiling_horizontal_size = 48,
+            overall_tiling_horizontal_spacing = 23,
+            overall_tiling_horizontal_padding = 12,
+        },
+    },
+    [constants.style.signal_group_button_frame] =
+    {
+        type = "button_style",
+        parent = "button_with_shadow",
+        horizontal_align = "left",
+        padding  = 0,
+        width = 70,
+        height = 70
     },
     [constants.style.tasks_frame] =
     {
@@ -332,7 +397,7 @@ add_styles({
         bottom_padding = 5,
         left_padding = 5,
         width = 400,
-        height = 600,        
+        height = 600,
         background_graphical_set =
         {
             position = {282, 17},
