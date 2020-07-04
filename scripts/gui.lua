@@ -3,6 +3,10 @@ local game_node = require("game_node")
 local logger = require("scripts.logger")
 
 
+local opened_signal_node = nil
+local opened_signal_frame = nil
+
+
 local function on_gui_opened(event)
     logger.print("on_gui_opened")
 
@@ -16,6 +20,15 @@ local function on_gui_opened(event)
             global.opened_entity[event.player_index] = event.entity.unit_number
             player.opened = game_node:build_gui_nodes(player.gui.screen, global.entities[event.entity.unit_number].node)
             player.opened.force_auto_center()
+
+            -- Open the Signal frame
+            if not opened_signal_node then
+                opened_signal_node = game_node:create_signal_gui(event.entity.unit_number)
+            end
+
+            opened_signal_frame = game_node:build_gui_nodes(player.gui.screen, opened_signal_node)            
+            opened_signal_frame.force_auto_center()
+
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil
         end
@@ -25,9 +38,14 @@ end
 local function on_gui_closed(event)
     logger.print("on_gui_closed")
 
+    if opened_signal_frame then
+        opened_signal_frame.destroy()
+        opened_signal_frame = nil
+    end
+
     if event.element then
         local player = game.players[event.player_index]
-        if player.opened then        
+        if player.opened then
             player.opened = nil
         end
     

@@ -7,14 +7,25 @@ local function add_styles(styles)
     end
 end
 
+local default_shadow_color = {0, 0, 0, 90}
+
 local default_shadow =
 {
     position = {200, 128},
     corner_size = 8,
-    tint = {0, 0, 0, 90},
+    tint = default_shadow_color,
     scale = 0.5,
     draw_type = "outer"
-}   
+}
+
+local top_shadow =
+{
+    top = {position = {208, 128}, size = {1, 8}},
+    center = {position = {208, 136}, size = {1, 1}},
+    tint = default_shadow_color,
+    scale = 0.5,
+    draw_type = "outer"
+}
 
 local default_dirt =
 {
@@ -38,7 +49,7 @@ local default_inner_shadow =
 {
     position = {183, 128},
     corner_size = 8,
-    tint = {0, 0, 0, 1},
+    tint = {0, 0, 0, 255},
     scale = 0.5,
     draw_type = "inner"
 }
@@ -104,7 +115,7 @@ add_styles({
         parent = constants.style.main_frame,
         padding  = 8,
         width = 450,
-        height = 500
+        height = 660
     },
     [constants.style.signal_inner_frame] =
     {
@@ -116,7 +127,7 @@ add_styles({
         vertically_stretchable = "on",
         padding  = 0
     },
-    [constants.style.signal_group_scroll_frame] =
+    [constants.style.signal_group_frame] =
     {
         type = "table_style",
         horizontally_stretchable = "on",
@@ -127,7 +138,6 @@ add_styles({
         horizontal_spacing = 1,
         padding  = 0,
         width = 432,
-        height = 144,
         graphical_set =
         {
             base =
@@ -159,9 +169,122 @@ add_styles({
         type = "button_style",
         parent = "button_with_shadow",
         horizontal_align = "left",
-        padding  = 0,
+        padding  = 6,
         width = 70,
         height = 70
+    },
+    [constants.style.scroll_pane_with_dark_background] =
+    {
+        type = "scroll_pane_style",
+        extra_padding_when_activated = 0,
+        padding = 4,
+        graphical_set =
+        {
+            base =
+            {
+                position = {17, 0},
+                corner_size = 8,
+                center = {position = {42, 8}, size = 1},
+                top = {},
+                left_top = {},
+                right_top = {},
+                draw_type = "outer"
+            },
+            shadow = default_inner_shadow
+        }
+    },
+    [constants.style.signal_subgroup_frame] =
+    {
+        type = "table_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        vertical_spacing = 0,
+        horizontal_spacing = 0,
+        padding  = 0,
+        left_padding = 1
+    },
+    [constants.style.signal_subgroup_scroll_frame] =
+    {
+        type = "scroll_pane_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        horizontally_squashable = "off",
+        vertically_squashable = "off",
+        vertical_spacing = 0,
+        horizontal_spacing = 0,
+        top_margin = 12,
+        left_margin = 12,
+        padding  = 0,
+        top_padding = -3,
+        left_padding = -5,
+        width = 412,
+        height = 440,
+        graphical_set =
+        {
+            base =
+            {
+                top =
+                {
+                    filename = constants.gui_image,
+                    position = {12, 0}, size = {1, 24}
+                },
+                bottom =
+                {
+                    filename = constants.gui_image,
+                    position = {12, 0}, size = {1, 24}
+                },
+                left =
+                {
+                    filename = constants.gui_image,
+                    position = {0, 12}, size = {24, 1}
+                },
+                left_top =
+                {
+                    filename = constants.gui_image,
+                    position = {24, 0}, size = 24
+                },
+                left_bottom =
+                {
+                    filename = constants.gui_image,
+                    position = {24, 0}, size = 24
+                },
+                right_top =
+                {
+                    filename = constants.gui_image,
+                    position = {24, 0}, size = 24
+                },
+                right_bottom =
+                {
+                    filename = constants.gui_image,
+                    position = {24, 0}, size = 24
+                },
+                draw_type = "outer"
+            },
+            shadow = default_inner_shadow
+        },
+        background_graphical_set =
+        {
+            position = {282, 17},
+            corner_size = 8,
+            overall_tiling_vertical_size = 32,
+            overall_tiling_vertical_spacing = 8,
+            overall_tiling_vertical_padding = 4,
+            overall_tiling_horizontal_size = 32,
+            overall_tiling_horizontal_spacing = 8,
+            overall_tiling_horizontal_padding = 4,
+        },
+        vertical_flow_style =
+        {
+            type = "vertical_flow_style",
+            horizontally_stretchable = "off",
+            width = 400,            
+        },
+    },
+    [constants.style.signal_subgroup_button_frame] =
+    {
+        type = "button_style",
+        parent = "slot_button",
+        padding = 0
     },
     [constants.style.tasks_frame] =
     {
@@ -356,7 +479,6 @@ add_styles({
       font = "default-semibold",
       width = 120,
       font_color = {220, 220, 220},
-      hovered_font_color = {249, 168, 56}
     },
     [constants.style.repeatable_end_label_frame] =
     {
@@ -366,7 +488,6 @@ add_styles({
         font = "default-semibold",
         width = 128,
         font_color = {220, 220, 220},
-        hovered_font_color = {249, 168, 56}
     },
     [constants.style.close_button_frame] =
     {
@@ -391,7 +512,7 @@ add_styles({
     [constants.style.scroll_pane] =
     {
         type = "scroll_pane_style",
-        parent = "scroll_pane_with_dark_background_under_subheader",
+        parent = constants.style.scroll_pane_with_dark_background,
         top_padding  = 5,
         right_padding = 5,
         bottom_padding = 5,
