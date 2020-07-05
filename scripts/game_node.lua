@@ -67,16 +67,11 @@ function node:build_gui_nodes(parent, node_param)
 
     if node_param.gui.elem_value then
         new_gui.elem_value = node_param.gui.elem_value
-
-        if node_param.gui.locked then
-            new_gui.locked = true
-        end
     end
 
     for _, child in pairs(node_param.children) do
         node:build_gui_nodes(new_gui, child)
     end
-
     return new_gui
 end
 
@@ -130,108 +125,6 @@ function node:create_main_gui(unit_number)
     return root
 end
 
-function node:create_signal_gui(unit_number)
-    local root = node:new(unit_number)
-    root.gui = {
-        type = "frame",
-        direction = "vertical",
-        name = root.id,
-        style = constants.style.signal_frame,
-        caption = "Select a signal"
-    }
-
-    local tasks_area = root:add_child()
-    tasks_area.gui = {
-        type = "frame",
-        direction = "vertical",
-        name = tasks_area.id,
-        style = constants.style.signal_inner_frame
-    }
-
-    local scroll_pane = tasks_area:add_child()
-    scroll_pane.gui = {
-        type = "table",
-        direction = "horizontal",
-        column_count = 6,
-        vertical_centering = true,
-        name = scroll_pane.id,
-        style = constants.style.signal_group_frame
-    }
-
-    for _, item_group in pairs(game.item_group_prototypes) do
-        local sprite = "advanced-combinator-item-group-"..item_group.name
-        local group_button = scroll_pane:add_child()
-        group_button.gui = {
-            type = "sprite-button",
-            direction = "vertical",
-            name = group_button.id,
-            style = constants.style.signal_group_button_frame,
-            sprite = sprite,
-            hovered_sprite = sprite,
-            clicked_sprite = sprite
-        }
-    end
-
-    local signals_scroll_pane = tasks_area:add_child()
-    signals_scroll_pane.gui = {
-        type = "scroll-pane",
-        direction = "vertical",
-        name = signals_scroll_pane.id,
-        style = constants.style.signal_subgroup_scroll_frame,
-        vertical_scroll_policy = "always"
-    }
-
-    local signals_table = signals_scroll_pane:add_child()
-    signals_table.gui = {
-        type = "table",
-        direction = "vertical",
-        column_count = 10,
-        vertical_centering = true,
-        name = signals_table.id,
-        style = constants.style.signal_subgroup_frame
-    }
-
-    for _, item_group in pairs(game.item_group_prototypes) do
-        if item_group.name == "logistics" then
-            for _, sub_group in pairs(item_group.subgroups) do
-                local item_prototypes = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = sub_group.name}})
-
-                local row_items = 1
-                for _, items in pairs(item_prototypes) do
-                    if items.has_flag("hidden") == false then
-                        local button_node = signals_table:add_child()
-                        button_node.gui = {
-                            type = "choose-elem-button",
-                            direction = "vertical",     
-                            name = button_node.id,
-                            style = constants.style.signal_subgroup_button_frame,
-                            elem_type = "item",
-                            elem_value = items.name,
-                            locked = true
-                        }
-                        row_items = row_items + 1
-                    end
-                end
-
-                local maximum_row_items = row_items + 10 - (row_items % 10)
-   
-                for i = row_items, maximum_row_items do
-                    local empty_node = signals_table:add_child()
-                    empty_node.gui = {
-                        type = "empty-widget",
-                        direction = "vertical",
-                        name = empty_node.id
-                    }
-                end
-            end
-        end
-    end
-
-
-    root:recursive_setup_events()
-    return root
-end
-
 function node:setup_events(node_param)
     if not node_param.events_id then
         return
@@ -246,8 +139,6 @@ function node:setup_events(node_param)
             node_param.events.on_click = node.on_click_radiobutton_constant_combinator_one
         elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator_all" then
             node_param.events.on_click = node.on_click_radiobutton_constant_combinator_all
-        elseif node_param.events_id.on_click == "on_click_test" then
-            node_param.events.on_click = node.on_click_testing
         end
     elseif node_param.events_id.on_gui_text_changed then
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
@@ -264,8 +155,6 @@ function node:setup_events(node_param)
             node_param.events.on_gui_elem_changed = node.on_signal_changed_2
         elseif node_param.events_id.on_gui_elem_changed == "on_signal_changed_result" then
             node_param.events.on_gui_elem_changed = node.on_signal_changed_result
-        elseif node_param.events_id.on_gui_elem_changed == "on_signal_changed_test" then
-            node_param.events.on_gui_elem_changed = node.on_selection_changed_testing
         end
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
@@ -280,7 +169,6 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed[4] = node.on_selection_arithmetic_combinator
             node_param.events.on_selection_state_changed[5] = node.on_selection_arithmetic_combinator
             node_param.events.on_selection_state_changed[6] = node.on_selection_arithmetic_combinator
-            node_param.events.on_selection_state_changed[7] = node.on_selection_testing
         elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
@@ -559,7 +447,6 @@ function node.on_selection_repeatable_timer(event, node_param)
             "Arithmetic Combinator - Signal <=> Signal",
             "Arithmetic Combinator - Signal <=> Constant",
             "Arithmetic Combinator - Constant <=> Signal",
-            "Testing"
         }
     }
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -705,7 +592,6 @@ function node.on_selection_constant_combinator(event, node_param)
         name = signal_result_node.id,
         style = constants.style.dark_button_frame,
         elem_type = "signal",
-
     }
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
@@ -910,159 +796,5 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     -- Setup Factorio GUI --
     node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end  
-
-
-
-
-
-function node.on_click_testing(event, node_param)
-
-    local str = ""
-
-
-    str = ""
-    for k, item in pairs(game.item_prototypes ) do
-        if item.group.name == "logistics" then
-            str = str..item.name..", "..item.subgroup.name.."; "
-        end 
-    end
-
-    logger.print("Logistics Prototypes")
-    logger.print(str)
-
-    str = ""
-    for k, item in pairs(game.item_prototypes ) do
-        if item.group.name == "production" then
-            str = str..item.name..", "
-        end
-    end
-
-    --logger.print("Production Prototypes")
-    --logger.print(str)
-
-    str = ""
-    for k, item in pairs(game.item_prototypes ) do
-        if item.group.name == "intermediate-product" then
-            str = str..item.name..", "
-        end
-    end
-
-    --logger.print("Intermediate Prototypes")
-    --logger.print(str)
-
-    str = ""
-    for k, item in pairs(game.item_prototypes ) do
-        if item.group.name == "combat" then
-            str = str..item.name..", "
-        end
-    end
-
-    --logger.print("Combat Prototypes")
-    --logger.print(str)
-
-    str = ""
-    for k, fluid in pairs(game.fluid_prototypes) do
-        str = str..fluid.name..", "
-    end
-
-    --logger.print("Fluid Prototypes")
-    --logger.print(str)
-
-
-    str = ""
-    for k, signal in pairs(game.virtual_signal_prototypes) do
-        str = str..signal.name..", "
-    end
-
-    --logger.print("Virtual Prototypes")
-    --logger.print(str)
-end
-
-function node.on_selection_changed_testing(event, node_param)
-
-end
-
-function node.on_selection_testing(event, node_param)
-
-    -- Setup Persistent Nodes --
-    local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
-    local vertical_flow_node = node_param.parent
-    local vertical_flow_gui = event.element.parent
-
-    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
-
-    if not sub_tasks_flow.gui_element.visible then
-        sub_tasks_flow.gui.visible = true
-        sub_tasks_flow.gui_element.visible = true
-    end
-
-    --------------------------------------------------------
-    local repeatable_time_node = sub_tasks_flow:add_child()
-    repeatable_time_node.gui = {
-        type = "frame",
-        direction = "horizontal",
-        name = repeatable_time_node.id,
-        style = constants.style.sub_conditional_frame
-    }
-    --------------------------------------------------------
-
-
-    local button_node = repeatable_time_node:add_child()
-    button_node.gui = {
-        type = "button",
-        direction = "vertical",
-        name = button_node.id,
-        style = constants.style.dark_button_frame
-    }
-    button_node.events_id.on_click = "on_click_test"
-
-
-    local signal_test_node = repeatable_time_node:add_child()
-    signal_test_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = signal_test_node.id,
-        style = constants.style.dark_button_frame,
-        sprite = "advanced-combinator-virtual-signal-water",
-        hovered_sprite = "advanced-combinator-virtual-signal-water",
-        clicked_sprite = "advanced-combinator-virtual-signal-water",
-    }
-    
-
-    local signal_node = repeatable_time_node:add_child()
-    signal_node.gui = {
-        type = "choose-elem-button",
-        direction = "vertical",
-        name = signal_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-        elem_filters = {{filter="fuel-value", comparison=">", value="0"}},
-    }
-    signal_node.events_id.on_gui_elem_changed = "on_signal_changed_test"
-    button_node.node_param = { signal_node_id = signal_node.id }
-
-    --------------------------------------------------------
-    local close_button_node = repeatable_time_node:add_child()
-    close_button_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = close_button_node.id,
-        style = constants.style.close_button_frame,
-        sprite = "utility/close_white",
-        hovered_sprite = "utility/close_black",
-        clicked_sprite = "utility/close_black",
-    }
-    close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
-    --------------------------------------------------------
-    -- Reset dropdown selection index --
-    event.element.selected_index = 0
-    
-    -- Setup Node Events --
-    repeatable_time_node:recursive_setup_events()
-
-    -- Setup Factorio GUI --
-    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
-end
 
 return node
