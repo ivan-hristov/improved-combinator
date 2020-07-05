@@ -696,8 +696,6 @@ add_styles({
     {
         type = "button_style",
         parent = "train_schedule_item_select_button",
-        font = "default-semibold",
-        font_color = {225, 225, 225},
         width = 28,
         height = 28
     },

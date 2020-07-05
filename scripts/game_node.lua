@@ -56,7 +56,7 @@ function node:has_opened_signals_node()
     return global.screen_node and global.top_node
 end
 
-function node:safely_destory_top_nodes(unit_number)
+function node:safely_destory_signals_node(unit_number)
     if global.screen_node and global.screen_node.entity_id == unit_number then
         if global.screen_node.gui_element then
             global.screen_node.gui_element.destroy()
@@ -75,7 +75,7 @@ function node:safely_destory_top_nodes(unit_number)
     end
 end
 
-function node:destory_top_nodes_and_unselect(player_index, entity_id)
+function node:destory_signals_and_unselect(player_index, entity_id)
     if global.screen_node then
         if global.screen_node.gui_element then
             global.screen_node.gui_element.destroy()
@@ -143,9 +143,10 @@ function node:build_gui_nodes(parent, node_param)
 
     if node_param.gui.elem_value then
         new_gui.elem_value = node_param.gui.elem_value
-    end
-    if node_param.gui.locked then
-        new_gui.locked = true
+
+        if node_param.gui.locked then
+            new_gui.locked = true
+        end
     end
 
     for _, child in pairs(node_param.children) do
@@ -294,8 +295,8 @@ function node:create_signal_gui(unit_number)
                             direction = "vertical",     
                             name = button_node.id,
                             style = constants.style.signal_subgroup_button_frame,
-                            elem_type = "signal",
-                            elem_value = {type ="item", name = items.name},
+                            elem_type = "item",
+                            elem_value = items.name,
                             locked = true
                         }
                         button_node.events_id.on_click = "on_click_select_signal"
@@ -735,9 +736,7 @@ function node.on_selection_constant_combinator(event, node_param)
             name = left_button_node.id,
             style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
             elem_type = "signal",
-            locked = true
         }
-        left_button_node.events_id.on_click = "on_click_open_signal"
         left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
     end
     --------------------------------------------------------
@@ -774,9 +773,7 @@ function node.on_selection_constant_combinator(event, node_param)
             name = right_button_node.id,
             style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
             elem_type = "signal",
-            locked = true
         }
-        right_button_node.events_id.on_click = "on_click_open_signal"
         right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
     end
 
@@ -801,9 +798,8 @@ function node.on_selection_constant_combinator(event, node_param)
         name = signal_result_node.id,
         style = constants.style.dark_button_frame,
         elem_type = "signal",
-        locked = true
+
     }
-    signal_result_node.events_id.on_click = "on_click_open_signal"
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
     --------------------------------------------------------
@@ -907,10 +903,8 @@ function node.on_selection_arithmetic_combinator(event, node_param)
             direction = "vertical",        
             name = left_button_node.id,
             style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
-            elem_type = "signal",
-            locked = true
+            elem_type = "signal"
         }
-        left_button_node.events_id.on_click = "on_click_open_signal"
         left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
     end
 
@@ -949,9 +943,7 @@ function node.on_selection_arithmetic_combinator(event, node_param)
             name = right_button_node.id,
             style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
             elem_type = "signal",
-            locked = true
         }
-        right_button_node.events_id.on_click = "on_click_open_signal"
         right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
     end
 
@@ -976,9 +968,7 @@ function node.on_selection_arithmetic_combinator(event, node_param)
         name = signal_result_node.id,
         style = constants.style.dark_button_frame,
         elem_type = "signal",
-        locked = true
     }
-    signal_result_node.events_id.on_click = "on_click_open_signal"
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
     --------------------------------------------------------
@@ -1015,60 +1005,28 @@ function node.on_selection_arithmetic_combinator(event, node_param)
 end  
 
 function node.on_click_signal_frame_holder(event, node_param)
-    node:destory_top_nodes_and_unselect(event.player_index, node_param.entity_id)
+    node:destory_signals_and_unselect(event.player_index, node_param.entity_id)
 end
 
 function node.on_click_open_signal(event, node_param)
-    if event.button == defines.mouse_button_type.left then 
-        if not node:has_opened_signals_node() then
-            global.screen_node = node:create_signal_fill_gui(node_param.entity_id)
-            global.top_node = node:create_signal_gui(node_param.entity_id)
-            global.top_node.events_params = { parent_node_id = node_param.id }
+    if not node:has_opened_signals_node() then
+        global.screen_node = node:create_signal_fill_gui(node_param.entity_id)
+        global.top_node = node:create_signal_gui(node_param.entity_id)
 
-            local player = game.players[event.player_index]
-            local screen_gui = node:build_gui_nodes(player.gui.screen, global.screen_node)
-            local signal_gui = node:build_gui_nodes(player.gui.screen, global.top_node)
-            signal_gui.focus()
-
-            local root_node = global.entities[node_param.entity_id].node
-            if root_node.gui_element.location then
-                signal_gui.location =
-                {
-                    x = root_node.gui_element.location.x + 410, 
-                    y = root_node.gui_element.location.y
-                }
-            end
-        end
-    elseif event.button == defines.mouse_button_type.right then
-        node_param.gui.elem_value = nil
-        event.element.elem_value = nil
+        local player = game.players[event.player_index]
+        local screen_gui = node:build_gui_nodes(player.gui.screen, global.screen_node)
+        local signal_gui = node:build_gui_nodes(player.gui.screen, global.top_node)
+        signal_gui.force_auto_center()
+        signal_gui.focus()
     end
 end
 
 function node.on_click_select_signal(event, node_param)
-    if event.button == defines.mouse_button_type.left and event.element.elem_type and event.element.elem_value then
-        local root_node = node_param:root_parent()
-        if root_node and global.entities[root_node.entity_id] then
-            local node = global.entities[root_node.entity_id].node:recursive_find(root_node.events_params.parent_node_id)
-            if node and node.gui.type == "choose-elem-button" then
-                node.gui.elem_value = event.element.elem_value
-                node.gui_element.elem_value = event.element.elem_value
 
-                node.destory_top_nodes_and_unselect(event.player_index, root_node.entity_id)
-
-                if node.events_id.on_gui_elem_changed then
-                    local new_event = { element = node.gui_element }
-                    if node.events_id.on_gui_elem_changed == "on_signal_changed_1" then
-                        node.on_signal_changed_1(new_event, node)
-                    elseif node.events_id.on_gui_elem_changed == "on_signal_changed_2" then
-                        node.on_signal_changed_2(new_event, node)
-                    elseif node.events_id.on_gui_elem_changed == "on_signal_changed_result" then
-                        node.on_signal_changed_result(new_event, node)
-                    end
-                end
-            end
-        end
+    if event.element.elem_type and event.element.elem_value then
+        logger.print("Selected: "..event.element.elem_type.." - "..event.element.elem_value)
     end
+
 end
 
 function node.on_selection_testing(event, node_param)
@@ -1097,13 +1055,12 @@ function node.on_selection_testing(event, node_param)
 
     local button_node = repeatable_time_node:add_child()
     button_node.gui = {
-        --type = "choose-elem-button",
-        type = "sprite-button",
+        type = "button",
         direction = "vertical",
         name = button_node.id,
-        style = constants.style.dark_button_frame,
-        caption = "2G"
+        style = constants.style.dark_button_frame
     }
+    button_node.events_id.on_click = "on_click_open_signal"
 
     --------------------------------------------------------
     local close_button_node = repeatable_time_node:add_child()

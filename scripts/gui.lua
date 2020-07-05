@@ -37,7 +37,7 @@ local function on_gui_closed(event)
     -- TODO add option to minimise dropdown options instead of closing the main GUI
     if event.element and global.opened_entity then
         if game_node:has_opened_signals_node() then
-            game_node:destory_top_nodes_and_unselect(event.player_index, global.opened_entity[event.player_index])
+            game_node:destory_signals_and_unselect(event.player_index, global.opened_entity[event.player_index])
         else
             event.element.destroy()
             event.element = nil
