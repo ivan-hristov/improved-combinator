@@ -800,5 +800,18 @@ add_styles({
     {
         type = "empty_widget_style",
         horizontally_stretchable = "on",
+    },
+    [constants.style.screen_strech_frame] =
+    {
+        type = "button_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        default_graphical_set = {},
+        hovered_graphical_set = {},
+        clicked_graphical_set = {},
+        left_click_sound = {},
+        width = 4000, -- ?
+        height = 2400, -- ?
+        padding = 0
     }
 })

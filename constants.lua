@@ -6,9 +6,7 @@ local constants = {
         input = {},
         output = {}
     },
-    style = {},
-    actions = {},
-    container = {}
+    style = {}
 }
 
 constants.base_path = "__AdvancedCombinator__"
@@ -83,5 +81,6 @@ constants.style.radiobutton_frame = constants.style.prefix_uuid.."radiobutton_fr
 constants.style.radio_vertical_flow_frame = constants.style.prefix_uuid.."radio_vertical_flow_frame"
 constants.style.dark_textfield_frame = constants.style.prefix_uuid.."dark_textfield_frame"
 constants.style.combinator_horizontal_padding_frame = constants.style.prefix_uuid.."combinator_horizontal_padding_frame"
+constants.style.screen_strech_frame = constants.style.prefix_uuid.."screen_strech_frame"
 
 return constants
