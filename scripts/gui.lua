@@ -23,7 +23,11 @@ local function on_gui_opened(event)
 end
 
 local function on_gui_closed(event)
-    logger.print("on_gui_closed")
+    if event.element then
+        logger.print("on_gui_closed: "..event.element.name.." type: "..event.element.type)
+    else
+        logger.print("on_gui_closed")
+    end
 
     if event.element then
         local player = game.players[event.player_index]

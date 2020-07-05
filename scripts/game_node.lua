@@ -119,7 +119,7 @@ function node:create_main_gui(unit_number)
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
         caption = "+ Add Task"
-    } 
+    }
 
     root:recursive_setup_events()
     return root
