@@ -140,6 +140,14 @@ function node:clear()
     self.updatable = false
 end
 
+function node:root_parent()
+    if self.parent then
+        return self.parent:root_parent()
+    else
+        return self
+    end
+end
+
 function node:recursive_find(id)
     if self.id == id then
         return self
