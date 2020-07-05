@@ -3,6 +3,7 @@ local game_node = require("game_node")
 local logger = require("scripts.logger")
 
 
+local opened_signal_node = nil
 local opened_signal_frame = nil
 
 
@@ -16,10 +17,18 @@ local function on_gui_opened(event)
     local player = game.players[event.player_index]
     if player.selected then        
         if player.selected.name == constants.entity.name then
-            local entity = global.entities[event.entity.unit_number]
             global.opened_entity[event.player_index] = event.entity.unit_number
-            player.opened = game_node:build_gui_nodes(player.gui.screen, entity.node)
+            player.opened = game_node:build_gui_nodes(player.gui.screen, global.entities[event.entity.unit_number].node)
             player.opened.force_auto_center()
+
+            -- Open the Signal frame
+            if not opened_signal_node then
+                opened_signal_node = game_node:create_signal_gui(event.entity.unit_number)
+            end
+
+            opened_signal_frame = game_node:build_gui_nodes(player.gui.screen, opened_signal_node)            
+            opened_signal_frame.force_auto_center()
+
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil
         end
@@ -27,31 +36,40 @@ local function on_gui_opened(event)
 end
 
 local function on_gui_closed(event)
+    logger.print("on_gui_closed")
 
-    if event.element then
-        logger.print("on_gui_closed: "..event.element.name..", type: "..event.element.type)
-    else
-        logger.print("on_gui_closed - Other")
+    if opened_signal_frame then
+        opened_signal_frame.destroy()
+        opened_signal_frame = nil
     end
 
-    -- TODO add option to minimise dropdown options instead of closing the main GUI
-    if event.element and global.opened_entity then
-        if game_node:has_opened_signals_node() then
-            game_node:destory_signals_and_unselect(event.player_index, global.opened_entity[event.player_index])
-        else
-            event.element.destroy()
-            event.element = nil
-            game.players[event.player_index].opened = nil
+    if event.element then
+        local player = game.players[event.player_index]
+        if player.opened then
+            player.opened = nil
+        end
+    
+        if global.opened_entity then
             global.opened_entity[event.player_index] = nil
         end
+
+        event.element.destroy()
+        event.element = nil
     end
 end
 
 local function on_gui_click(event)
     logger.print("on_gui_click name: "..event.element.name)
 
+    local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
-    game_node.on_click(event, unit_number)
+
+    if global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_click then
+            node.events.on_click(event, node)
+        end
+    end
 end
 
 local function on_gui_elem_changed(event)

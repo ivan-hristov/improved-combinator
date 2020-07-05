@@ -52,82 +52,6 @@ function node:setup_arithmetic_combinator()
     }
 end
 
-function node:has_opened_signals_node()
-    return global.screen_node and global.top_node
-end
-
-function node:safely_destory_signals_node(unit_number)
-    if global.screen_node and global.screen_node.entity_id == unit_number then
-        if global.screen_node.gui_element then
-            global.screen_node.gui_element.destroy()
-            global.screen_node.gui_element = nil
-        end
-        global.screen_node:remove()
-        global.screen_node = nil
-    end
-    if global.top_node and global.top_node.entity_id == unit_number then
-        if global.top_node.gui_element then
-            global.top_node.gui_element.destroy()
-            global.top_node.gui_element = nil
-        end
-        global.top_node:remove()
-        global.top_node = nil
-    end
-end
-
-function node:destory_signals_and_unselect(player_index, entity_id)
-    if global.screen_node then
-        if global.screen_node.gui_element then
-            global.screen_node.gui_element.destroy()
-            global.screen_node.gui_element = nil
-        end
-        global.screen_node:remove()
-        global.screen_node = nil
-    end
-    if global.top_node then
-        if global.top_node.gui_element then
-            global.top_node.gui_element.destroy()
-            global.top_node.gui_element = nil
-        end
-        global.top_node:remove()
-        global.top_node = nil
-    end
-
-    local entity = global.entities[entity_id]
-    if entity then
-        game.players[player_index].opened = entity.node.gui_element
-    end
-end
-
-function node.on_click(event, unit_number)
-
-    local name = event.element.name
-    local clicked_on_signal = false
-
-    if global.screen_node then
-        local node = global.screen_node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-            clicked_on_signal = true
-        end
-    end
-    
-    if global.top_node then
-        local node = global.top_node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-            clicked_on_signal = true
-        end
-    end
-
-    if clicked_on_signal == false and global.entities[unit_number] then
-        local node = global.entities[unit_number].node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-        end
-    end
-end
-
 function node:safely_add_gui_child(parent, style)
     for _, child in pairs(parent.children) do
         if child == name then
@@ -201,20 +125,6 @@ function node:create_main_gui(unit_number)
         ignored_by_interaction = true,
         caption = "+ Add Task"
     } 
-
-    root:recursive_setup_events()
-    return root
-end
-
-function node:create_signal_fill_gui(unit_number)
-    local root = node:new(unit_number)
-    root.gui = {
-        type = "button",
-        direction = "vertical",
-        name = root.id,
-        style = constants.style.screen_strech_frame,
-    }
-    root.events_id.on_click = "on_click_signal_frame_holder"
 
     root:recursive_setup_events()
     return root
@@ -299,25 +209,24 @@ function node:create_signal_gui(unit_number)
                             elem_value = items.name,
                             locked = true
                         }
-                        button_node.events_id.on_click = "on_click_select_signal"
                         row_items = row_items + 1
                     end
                 end
 
-                if row_items ~= 1 then
-                    local maximum_row_items = row_items + 10 - (row_items % 10)
-                    for i = row_items, maximum_row_items do
-                        local empty_node = signals_table:add_child()
-                        empty_node.gui = {
-                            type = "empty-widget",
-                            direction = "vertical",
-                            name = empty_node.id
-                        }
-                    end
+                local maximum_row_items = row_items + 10 - (row_items % 10)
+   
+                for i = row_items, maximum_row_items do
+                    local empty_node = signals_table:add_child()
+                    empty_node.gui = {
+                        type = "empty-widget",
+                        direction = "vertical",
+                        name = empty_node.id
+                    }
                 end
             end
         end
     end
+
 
     root:recursive_setup_events()
     return root
@@ -337,12 +246,8 @@ function node:setup_events(node_param)
             node_param.events.on_click = node.on_click_radiobutton_constant_combinator_one
         elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator_all" then
             node_param.events.on_click = node.on_click_radiobutton_constant_combinator_all
-        elseif node_param.events_id.on_click == "on_click_open_signal" then
-            node_param.events.on_click = node.on_click_open_signal
-        elseif node_param.events_id.on_click == "on_click_signal_frame_holder" then
-            node_param.events.on_click = node.on_click_signal_frame_holder
-        elseif node_param.events_id.on_click == "on_click_select_signal" then
-            node_param.events.on_click = node.on_click_select_signal
+        elseif node_param.events_id.on_click == "on_click_test" then
+            node_param.events.on_click = node.on_click_testing
         end
     elseif node_param.events_id.on_gui_text_changed then
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
@@ -359,6 +264,8 @@ function node:setup_events(node_param)
             node_param.events.on_gui_elem_changed = node.on_signal_changed_2
         elseif node_param.events_id.on_gui_elem_changed == "on_signal_changed_result" then
             node_param.events.on_gui_elem_changed = node.on_signal_changed_result
+        elseif node_param.events_id.on_gui_elem_changed == "on_signal_changed_test" then
+            node_param.events.on_gui_elem_changed = node.on_selection_changed_testing
         end
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
@@ -1004,28 +911,74 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end  
 
-function node.on_click_signal_frame_holder(event, node_param)
-    node:destory_signals_and_unselect(event.player_index, node_param.entity_id)
+
+
+
+
+function node.on_click_testing(event, node_param)
+
+    local str = ""
+
+
+    str = ""
+    for k, item in pairs(game.item_prototypes ) do
+        if item.group.name == "logistics" then
+            str = str..item.name..", "..item.subgroup.name.."; "
+        end 
+    end
+
+    logger.print("Logistics Prototypes")
+    logger.print(str)
+
+    str = ""
+    for k, item in pairs(game.item_prototypes ) do
+        if item.group.name == "production" then
+            str = str..item.name..", "
+        end
+    end
+
+    --logger.print("Production Prototypes")
+    --logger.print(str)
+
+    str = ""
+    for k, item in pairs(game.item_prototypes ) do
+        if item.group.name == "intermediate-product" then
+            str = str..item.name..", "
+        end
+    end
+
+    --logger.print("Intermediate Prototypes")
+    --logger.print(str)
+
+    str = ""
+    for k, item in pairs(game.item_prototypes ) do
+        if item.group.name == "combat" then
+            str = str..item.name..", "
+        end
+    end
+
+    --logger.print("Combat Prototypes")
+    --logger.print(str)
+
+    str = ""
+    for k, fluid in pairs(game.fluid_prototypes) do
+        str = str..fluid.name..", "
+    end
+
+    --logger.print("Fluid Prototypes")
+    --logger.print(str)
+
+
+    str = ""
+    for k, signal in pairs(game.virtual_signal_prototypes) do
+        str = str..signal.name..", "
+    end
+
+    --logger.print("Virtual Prototypes")
+    --logger.print(str)
 end
 
-function node.on_click_open_signal(event, node_param)
-    if not node:has_opened_signals_node() then
-        global.screen_node = node:create_signal_fill_gui(node_param.entity_id)
-        global.top_node = node:create_signal_gui(node_param.entity_id)
-
-        local player = game.players[event.player_index]
-        local screen_gui = node:build_gui_nodes(player.gui.screen, global.screen_node)
-        local signal_gui = node:build_gui_nodes(player.gui.screen, global.top_node)
-        signal_gui.force_auto_center()
-        signal_gui.focus()
-    end
-end
-
-function node.on_click_select_signal(event, node_param)
-
-    if event.element.elem_type and event.element.elem_value then
-        logger.print("Selected: "..event.element.elem_type.." - "..event.element.elem_value)
-    end
+function node.on_selection_changed_testing(event, node_param)
 
 end
 
@@ -1053,6 +1006,7 @@ function node.on_selection_testing(event, node_param)
     }
     --------------------------------------------------------
 
+
     local button_node = repeatable_time_node:add_child()
     button_node.gui = {
         type = "button",
@@ -1060,7 +1014,32 @@ function node.on_selection_testing(event, node_param)
         name = button_node.id,
         style = constants.style.dark_button_frame
     }
-    button_node.events_id.on_click = "on_click_open_signal"
+    button_node.events_id.on_click = "on_click_test"
+
+
+    local signal_test_node = repeatable_time_node:add_child()
+    signal_test_node.gui = {
+        type = "sprite-button",
+        direction = "vertical",
+        name = signal_test_node.id,
+        style = constants.style.dark_button_frame,
+        sprite = "advanced-combinator-virtual-signal-water",
+        hovered_sprite = "advanced-combinator-virtual-signal-water",
+        clicked_sprite = "advanced-combinator-virtual-signal-water",
+    }
+    
+
+    local signal_node = repeatable_time_node:add_child()
+    signal_node.gui = {
+        type = "choose-elem-button",
+        direction = "vertical",
+        name = signal_node.id,
+        style = constants.style.dark_button_frame,
+        elem_type = "signal",
+        elem_filters = {{filter="fuel-value", comparison=">", value="0"}},
+    }
+    signal_node.events_id.on_gui_elem_changed = "on_signal_changed_test"
+    button_node.node_param = { signal_node_id = signal_node.id }
 
     --------------------------------------------------------
     local close_button_node = repeatable_time_node:add_child()

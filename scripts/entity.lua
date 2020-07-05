@@ -63,9 +63,6 @@ end
 local function on_entity_died(event)   
     local entity = event.entity
     if entity.name == constants.entity.name then
-        -- Delete overlay signals if the entity was destroyed
-        game_node:safely_destory_signals_node(entity.unit_number)
-
         local main_entity = global.entities[entity.unit_number]
 
         if main_entity.entity_input then
@@ -77,9 +74,6 @@ local function on_entity_died(event)
             main_entity.entity_output = nil
         end
 
-        if main_entity.node.gui_element then
-            main_entity.node.gui_element.destroy()
-        end
         main_entity.node:remove()
         main_entity.node = nil
 
