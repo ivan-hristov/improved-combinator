@@ -6,14 +6,13 @@ local constants = {
         input = {},
         output = {}
     },
-    style = {},
-    actions = {},
-    container = {}
+    style = {}
 }
 
 constants.base_path = "__AdvancedCombinator__"
 constants.blank_image = constants.base_path.."/graphics/blank.png"
 constants.blank_image_4x4 = constants.base_path.."/graphics/blank_4x4.png"
+constants.gui_image = constants.base_path.."/graphics/gui.png"
 
 constants.entity.name = "advanced-combinator"
 constants.entity.remnants = "advanced-combinbator-remnants"
@@ -42,8 +41,13 @@ constants.style.dialogue_frame = constants.style.prefix_uuid.."dialogue_frame"
 constants.style.main_frame = constants.style.prefix_uuid.."main_frame"
 constants.style.signal_frame = constants.style.prefix_uuid.."signal_frame"
 constants.style.signal_inner_frame = constants.style.prefix_uuid.."signal_inner_frame"
+constants.style.signal_group_frame = constants.style.prefix_uuid.."signal_group_frame"
+constants.style.signal_subgroup_frame = constants.style.prefix_uuid.."signal_subgroup_frame"
 constants.style.signal_group_scroll_frame = constants.style.prefix_uuid.."signal_group_scroll_frame"
 constants.style.signal_group_button_frame = constants.style.prefix_uuid.."signal_group_button_frame"
+constants.style.signal_subgroup_scroll_frame = constants.style.prefix_uuid.."signal_subgroup_scroll_frame"
+constants.style.signal_subgroup_button_frame = constants.style.prefix_uuid.."signal_subgroup_button_frame"
+constants.style.signal_subgroup_background_frame = constants.style.prefix_uuid.."signal_subgroup_background_frame"
 constants.style.tasks_frame = constants.style.prefix_uuid.."tasks_frame"
 constants.style.large_button_frame = constants.style.prefix_uuid.."large_button_frame"
 constants.style.large_options_button_frame = constants.style.prefix_uuid.."large_options_button_frame"
@@ -57,6 +61,7 @@ constants.style.group_vertical_flow_frame = constants.style.prefix_uuid.."group_
 constants.style.sub_group_vertical_flow_frame = constants.style.prefix_uuid.."sub_group_vertical_flow_frame"
 constants.style.conditional_progress_frame = constants.style.prefix_uuid.."conditional_progress_frame" 
 constants.style.options_list = constants.style.prefix_uuid.."options_list"
+constants.style.scroll_pane_with_dark_background = constants.style.prefix_uuid.."scroll_pane_with_dark_background"
 constants.style.scroll_pane = constants.style.prefix_uuid.."scroll_pane"
 constants.style.repeatable_begining_label_frame = constants.style.prefix_uuid.."repeatable_begining_label_frame"
 constants.style.play_button_frame = constants.style.prefix_uuid.."play_button_frame"
@@ -77,5 +82,6 @@ constants.style.radiobutton_frame = constants.style.prefix_uuid.."radiobutton_fr
 constants.style.radio_vertical_flow_frame = constants.style.prefix_uuid.."radio_vertical_flow_frame"
 constants.style.dark_textfield_frame = constants.style.prefix_uuid.."dark_textfield_frame"
 constants.style.combinator_horizontal_padding_frame = constants.style.prefix_uuid.."combinator_horizontal_padding_frame"
+constants.style.screen_strech_frame = constants.style.prefix_uuid.."screen_strech_frame"
 
 return constants

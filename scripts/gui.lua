@@ -2,6 +2,7 @@ local constants = require("constants")
 local game_node = require("game_node")
 local logger = require("scripts.logger")
 
+local opened_signal_frame = nil
 
 local function on_gui_opened(event)
     logger.print("on_gui_opened")
@@ -29,33 +30,24 @@ local function on_gui_closed(event)
         logger.print("on_gui_closed")
     end
 
-    if event.element then
-        local player = game.players[event.player_index]
-        if player.opened then        
-            player.opened = nil
-        end
-    
-        if global.opened_entity then
+    -- TODO add option to minimise dropdown options instead of closing the main GUI
+    if event.element and global.opened_entity then
+        if game_node:has_opened_signals_node() then
+            game_node:destory_top_nodes_and_unselect(event.player_index, global.opened_entity[event.player_index])
+        else
+            event.element.destroy()
+            event.element = nil
+            game.players[event.player_index].opened = nil
             global.opened_entity[event.player_index] = nil
         end
-
-        event.element.destroy()
-        event.element = nil
     end
 end
 
 local function on_gui_click(event)
     logger.print("on_gui_click name: "..event.element.name)
 
-    local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
-
-    if global.entities[unit_number] then
-        local node = global.entities[unit_number].node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-        end
-    end
+    game_node.on_click(event, unit_number)
 end
 
 local function on_gui_elem_changed(event)

@@ -71,6 +71,12 @@ function node.recreate_metatables()
                 node:recursive_create_metatable(entity.node)
             end
         end
+        if global.screen_node and not global.screen_node.valid then
+            node:recursive_create_metatable(global.screen_node)
+        end
+        if global.top_node and not global.top_node.valid then
+            node:recursive_create_metatable(global.top_node)
+        end
         recreate_metatables = true
     end
 end
@@ -170,6 +176,15 @@ function node:update_list_push()
         self.updatable = true
     end
 end
+
+function node:root_parent()
+    if self.parent then
+        return self.parent:root_parent()
+    else
+        return self
+    end
+end
+    
 
 function node:update_list_remove()
     if self.updatable then
