@@ -6,7 +6,7 @@ local logger = require("logger")
 local node = {}
 local recreate_metatables = false
 
-function node:new(entity_id)
+function node:new(entity_id, gui)
     new_node = {}
     setmetatable(new_node, self)
     self.__index = self
@@ -16,7 +16,12 @@ function node:new(entity_id)
     new_node.events_id = {}
     new_node.events_params = {}
     new_node.events = {}
-    new_node.gui = {}
+    if gui then
+        new_node.gui = gui
+        new_node.gui.name = new_node.id
+    else
+        new_node.gui = {}
+    end
     new_node.gui_element = nil  -- Non-persistent Factorio element
     new_node.children = {}
     new_node.update_logic = nil
@@ -88,9 +93,13 @@ function node:recursive_setup_events()
     end
 end
 
-function node:add_child()
+function node:add_child(gui)
     new_node = self:new(self.entity_id)
     new_node.parent = self
+    if gui then
+        new_node.gui = gui
+        new_node.gui.name = new_node.id
+    end
     self.children[new_node.id] = new_node
     return new_node
 end

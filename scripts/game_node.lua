@@ -76,50 +76,40 @@ function node:build_gui_nodes(parent, node_param)
 end
 
 function node:create_main_gui(unit_number)
-    local root = node:new(unit_number)
-    root.gui = {
+    local root = node:new(unit_number, {
         type = "frame",
         direction = "vertical",
-        name = root.id,
         style = constants.style.main_frame,
         caption = "MAIN FRAME "..unit_number
-    }
+    })
 
-    local tasks_area = root:add_child()
-    tasks_area.gui = {
+    local tasks_area = root:add_child({
         type = "frame",
         direction = "vertical",
-        name = tasks_area.id,
         style = constants.style.tasks_frame
-    }
+    })
 
-    local scroll_pane = tasks_area:add_child()
-    scroll_pane.gui = {
+    local scroll_pane = tasks_area:add_child({
         type = "scroll-pane",
         direction = "vertical",
-        name = scroll_pane.id,
         style = constants.style.scroll_pane
-    }
+    })
 
-    local new_task_dropdown_node = scroll_pane:add_child()
-    new_task_dropdown_node.gui = {
+    local new_task_dropdown_node = scroll_pane:add_child({
         type = "drop-down",
         direction = "horizontal",
-        name = new_task_dropdown_node.id,
         style = constants.style.task_dropdown_frame,
         items = { "Repeatable Timer", "Single Use Timer" }
-    }
+    })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
-    local overlay_node = new_task_dropdown_node:add_child()
-    overlay_node.gui = {
+    local overlay_node = new_task_dropdown_node:add_child({
         type = "label",
         direction = "vertical",
-        name = overlay_node.id,
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
         caption = "+ Add Task"
-    }
+    })
 
     root:recursive_setup_events()
     return root
@@ -340,104 +330,84 @@ function node.on_selection_repeatable_timer(event, node_param)
     local scroll_pane_node = node_param.parent
     local scroll_pane_gui = event.element.parent
 
-    local vertical_flow_node = scroll_pane_node:add_child()
-    vertical_flow_node.gui = {
+    local vertical_flow_node = scroll_pane_node:add_child({
         type = "flow",
         direction = "vertical",
-        name = vertical_flow_node.id,
         style = constants.style.group_vertical_flow_frame,
-    }
+    })
 
     ------------------------------ Frame Area 1 ---------------------------------
-    local repeatable_time_node = vertical_flow_node:add_child()
-    repeatable_time_node.gui = {
+    local repeatable_time_node = vertical_flow_node:add_child({
         type = "progressbar",
         direction = "vertical",
-        name = repeatable_time_node.id,
         style = constants.style.conditional_progress_frame,
         value = 0
-    }
+    })
     repeatable_time_node:setup_timer(true, false, 600)
     repeatable_time_node:update_list_push()
 
-    local repeatable_time_flow_node = repeatable_time_node:add_child()
-    repeatable_time_flow_node.gui = {
+    local repeatable_time_flow_node = repeatable_time_node:add_child({
         type = "flow",
         direction = "horizontal",
-        name = repeatable_time_flow_node.id,
         style = constants.style.conditional_flow_frame,
-    }
+    })
 
-    local play_button_node = repeatable_time_flow_node:add_child()
-    play_button_node.gui = {
+    local play_button_node = repeatable_time_flow_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        name = play_button_node.id,
         style = constants.style.play_button_frame,
         sprite = "utility/play",
         hovered_sprite = "utility/play",
         clicked_sprite = "utility/stop"
-    }
+    })
 
-    local label_node = repeatable_time_flow_node:add_child()
-    label_node.gui = {
+    local label_node = repeatable_time_flow_node:add_child({
         type = "label",
         direction = "vertical",
-        name = label_node.id,
         style = constants.style.repeatable_begining_label_frame,
         caption = "Repeat every"
-    }
+    })
 
-    local time_selection_node = repeatable_time_flow_node:add_child()
-    time_selection_node.gui = {
+    local time_selection_node = repeatable_time_flow_node:add_child({
         type = "textfield",
         direction = "vertical",
-        name = time_selection_node.id,
         style = constants.style.time_selection_frame,
         numeric = true,
         allow_decimal = true,
         allow_negative = false,
         lose_focus_on_confirm = true,
         text = "10"
-    }
+    })
     time_selection_node.events_id.on_gui_text_changed = "on_text_change_time"
     play_button_node.events_id.on_click = "on_click_play_button"
 
-    local padding_node = repeatable_time_flow_node:add_child()
-    padding_node.gui = {
+    local padding_node = repeatable_time_flow_node:add_child({
         type = "label",
         direction = "vertical",
-        name = padding_node.id,
         style = constants.style.repeatable_end_label_frame,
         caption = "seconds"
-    }    
+    })
 
-    local close_button_node = repeatable_time_flow_node:add_child()
-    close_button_node.gui = {
+    local close_button_node = repeatable_time_flow_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        name = close_button_node.id,
         style = constants.style.close_button_frame,
         sprite = "utility/close_white",
         hovered_sprite = "utility/close_black",
         clicked_sprite = "utility/close_black"
-    }
+    })
     close_button_node.events_id.on_click = "on_click_close_button"
     ------------------------------ Frame Area 2 ---------------------------------
-    local repeatable_sub_tasks_flow = vertical_flow_node:add_child()
-    repeatable_sub_tasks_flow.gui = {
+    local repeatable_sub_tasks_flow = vertical_flow_node:add_child({
         type = "flow",
         direction = "vertical",
-        name = repeatable_sub_tasks_flow.id,
         style = constants.style.sub_group_vertical_flow_frame,
         visible = false
-    }
+    })
     ------------------------------ Frame Area 3 ---------------------------------
-    local new_task_dropdown_node = vertical_flow_node:add_child()
-    new_task_dropdown_node.gui = {
+    local new_task_dropdown_node = vertical_flow_node:add_child({
         type = "drop-down",
         direction = "horizontal",
-        name = new_task_dropdown_node.id,
         style = constants.style.subtask_dropdown_frame,
         items =
         {
@@ -448,7 +418,7 @@ function node.on_selection_repeatable_timer(event, node_param)
             "Arithmetic Combinator - Signal <=> Constant",
             "Arithmetic Combinator - Constant <=> Signal",
         }
-    }
+    })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
     new_task_dropdown_node.events_params =
     {
@@ -456,15 +426,13 @@ function node.on_selection_repeatable_timer(event, node_param)
         repeatable_sub_tasks_flow_id = repeatable_sub_tasks_flow.id
     }
 
-    local overlay_node = new_task_dropdown_node:add_child()
-    overlay_node.gui = {
+    local overlay_node = new_task_dropdown_node:add_child({
         type = "label",
         direction = "vertical",
-        name = overlay_node.id,
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
         caption = "+ Add Subtask"
-    }
+    })
     play_button_node.events_params =
     {
         time_selection_node_id = time_selection_node.id,
@@ -499,144 +467,122 @@ function node.on_selection_constant_combinator(event, node_param)
     end
 
     --------------------------------------------------------
-    local repeatable_time_node = sub_tasks_flow:add_child()
-    repeatable_time_node.gui = {
+    local repeatable_time_node = sub_tasks_flow:add_child({
         type = "frame",
         direction = "horizontal",
-        name = repeatable_time_node.id,
         style = constants.style.sub_conditional_frame
-    }
+    })
     repeatable_time_node:setup_constant_combinator()
     repeatable_time_node:update_list_child_push(progressbar_node)
     --------------------------------------------------------
 
-    local left_button_node = repeatable_time_node:add_child()
     if event.element.selected_index == 3 then
-        left_button_node.gui = {
+        local left_button_node = repeatable_time_node:add_child({
             type = "textfield",
             direction = "vertical",
-            name = left_button_node.id,
             style = constants.style.dark_textfield_frame,
             numeric = true,
             allow_decimal = false,
             allow_negative = false,
             lose_focus_on_confirm = true
-        }
+        })
         left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
     else
-        left_button_node.gui = {
+        local left_button_node = repeatable_time_node:add_child({
             type = "choose-elem-button",
             direction = "vertical",        
-            name = left_button_node.id,
             style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
             elem_type = "signal",
-        }
+        })
         left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
     end
     --------------------------------------------------------
 
-    local constant_menu_node = repeatable_time_node:add_child()
-    constant_menu_node.gui = {
+    local constant_menu_node = repeatable_time_node:add_child({
         type = "drop-down",
         direction = "vertical",
-        name = constant_menu_node.id,
         style = constants.style.condition_comparator_dropdown_frame,
         selected_index = 1,
         items = { ">", "<", "=", "≥", "≤", "≠" }
-    }
+    })
     constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
 
     --------------------------------------------------------
-    local right_button_node = repeatable_time_node:add_child()
-    if event.element.selected_index == 2 then        
-        right_button_node.gui = {
+    if event.element.selected_index == 2 then
+        local right_button_node = repeatable_time_node:add_child({
             type = "textfield",
             direction = "vertical",
-            name = right_button_node.id,
             style = constants.style.dark_textfield_frame,
             numeric = true,
             allow_decimal = false,
             allow_negative = false,
             lose_focus_on_confirm = true
-        }
+        })
         right_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
     else
-        right_button_node.gui = {
+        local right_button_node = repeatable_time_node:add_child({
             type = "choose-elem-button",
             direction = "vertical",
-            name = right_button_node.id,
             style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
             elem_type = "signal",
-        }
+        })
         right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
     end
 
     --------------------------------------------------------
 
-    local equals_sprite_node = repeatable_time_node:add_child()
-    equals_sprite_node.gui = {
+    local equals_sprite_node = repeatable_time_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        name = equals_sprite_node.id,
         sprite = "advanced-combinator-sprites-equals-white",
         hovered_sprite = "advanced-combinator-sprites-equals-white",
         clicked_sprite = "advanced-combinator-sprites-equals-white",
         style = constants.style.invisible_frame,
         ignored_by_interaction = true
-    }
+    })
 
-    local signal_result_node = repeatable_time_node:add_child()
-    signal_result_node.gui = {
+    local signal_result_node = repeatable_time_node:add_child({
         type = "choose-elem-button",
         direction = "vertical",
-        name = signal_result_node.id,
         style = constants.style.dark_button_frame,
         elem_type = "signal",
-    }
+    })
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
     --------------------------------------------------------
-    local radio_group_node = repeatable_time_node:add_child()
-    radio_group_node.gui = {
+    local radio_group_node = repeatable_time_node:add_child({
         type = "flow",
         direction = "vertical",
-        name = radio_group_node.id,
         style = constants.style.radio_vertical_flow_frame
-    }
+    })
 
-    local radio_button_1 = radio_group_node:add_child()
-    radio_button_1.gui = {
+    local radio_button_1 = radio_group_node:add_child({
         type = "radiobutton",
-        name = radio_button_1.id,
         style = constants.style.radiobutton_frame,
         caption = "1",
         state = true
-    }
+    })
     radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator_one"
 
-    local radio_button_2 = radio_group_node:add_child()
-    radio_button_2.gui = {
+    local radio_button_2 = radio_group_node:add_child({
         type = "radiobutton",
-        name = radio_button_2.id,
         style = constants.style.radiobutton_frame,
         caption = "Input count",
         state = false
-    }
+    })
     radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator_all"
 
     radio_button_1.events_params = { other_radio_button = radio_button_2.id }
     radio_button_2.events_params = { other_radio_button = radio_button_1.id }
     --------------------------------------------------------
-    local close_button_node = repeatable_time_node:add_child()
-    close_button_node.gui = {
+    local close_button_node = repeatable_time_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        name = close_button_node.id,
         style = constants.style.close_button_frame,
         sprite = "utility/close_white",
         hovered_sprite = "utility/close_black",
         clicked_sprite = "utility/close_black",
-    }
+    })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
     close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
     --------------------------------------------------------
@@ -666,123 +612,106 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     end
 
     --------------------------------------------------------
-    local repeatable_time_node = sub_tasks_flow:add_child()
-    repeatable_time_node.gui = {
+    local repeatable_time_node = sub_tasks_flow:add_child({
         type = "frame",
         direction = "horizontal",
-        name = repeatable_time_node.id,
         style = constants.style.sub_conditional_frame
-    }
+    })
     repeatable_time_node:setup_arithmetic_combinator()
     repeatable_time_node:update_list_child_push(progressbar_node)
     --------------------------------------------------------
 
-    local left_button_node = repeatable_time_node:add_child()
     if event.element.selected_index == 6 then
-        left_button_node.gui = {
+        local left_button_node = repeatable_time_node:add_child({
             type = "textfield",
             direction = "vertical",
-            name = left_button_node.id,
             style = constants.style.dark_arithmetic_textfield_frame,
             numeric = true,
             allow_decimal = false,
             allow_negative = false,
             lose_focus_on_confirm = true
-        }
+        })
         left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
     else
-        left_button_node.gui = {
+        local left_button_node = repeatable_time_node:add_child({
             type = "choose-elem-button",
             direction = "vertical",        
-            name = left_button_node.id,
             style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
             elem_type = "signal"
-        }
+        })
         left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
     end
 
     --------------------------------------------------------
 
-    local arithmetic_menu_node = repeatable_time_node:add_child()
-    arithmetic_menu_node.gui = {
+    local arithmetic_menu_node = repeatable_time_node:add_child({
         type = "drop-down",
         direction = "vertical",
-        name = arithmetic_menu_node.id,
         style = constants.style.condition_arithmetic_comparator_dropdown_frame,
         selected_index = 1,
         items = { "*", "/", "+", "-", "%", "^", "<<", ">>", "AND", "OR", "XOR" }
-    }
+    })
     arithmetic_menu_node.events_id.on_selection_state_changed = "on_selection_arithmetic_changed"
 
     --------------------------------------------------------
 
-    local right_button_node = repeatable_time_node:add_child()
-    if event.element.selected_index == 5 then        
-        right_button_node.gui = {
+    
+    if event.element.selected_index == 5 then
+        local right_button_node = repeatable_time_node:add_child({
             type = "textfield",
             direction = "vertical",
-            name = right_button_node.id,
             style = constants.style.dark_arithmetic_textfield_frame,
             numeric = true,
             allow_decimal = false,
             allow_negative = false,
             lose_focus_on_confirm = true
-        }
+        })
         right_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
     else
-        right_button_node.gui = {
+        local right_button_node = repeatable_time_node:add_child({
             type = "choose-elem-button",
             direction = "vertical",
-            name = right_button_node.id,
             style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
             elem_type = "signal",
-        }
+        })
         right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
     end
 
     --------------------------------------------------------
 
-    local equals_sprite_node = repeatable_time_node:add_child()
-    equals_sprite_node.gui = {
+    local equals_sprite_node = repeatable_time_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        name = equals_sprite_node.id,
         sprite = "advanced-combinator-sprites-equals-white",
         hovered_sprite = "advanced-combinator-sprites-equals-white",
         clicked_sprite = "advanced-combinator-sprites-equals-white",
         style = constants.style.invisible_frame,
         ignored_by_interaction = true
-    }
+    })
 
-    local signal_result_node = repeatable_time_node:add_child()
-    signal_result_node.gui = {
+    local signal_result_node = repeatable_time_node:add_child({
         type = "choose-elem-button",
         direction = "vertical",
-        name = signal_result_node.id,
         style = constants.style.dark_button_frame,
         elem_type = "signal",
-    }
+    })
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
     --------------------------------------------------------
-    local close_padding_node = repeatable_time_node:add_child()
-    close_padding_node.gui = {
+    local close_padding_node = repeatable_time_node:add_child({
         type = "empty-widget",
         direction = "vertical",
-        name = close_padding_node.id,
         style = constants.style.combinator_horizontal_padding_frame
-    }
+    })
 
-    local close_button_node = repeatable_time_node:add_child()
-    close_button_node.gui = {
+    local close_button_node = repeatable_time_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        name = close_button_node.id,
         style = constants.style.close_button_frame,
         sprite = "utility/close_white",
         hovered_sprite = "utility/close_black",
         clicked_sprite = "utility/close_black",
-    }
+    })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
     close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
     --------------------------------------------------------
