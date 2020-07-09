@@ -241,6 +241,7 @@ local function write_output_signals()
                         parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
                     end
                 end
+                -- TODO -- Consider removal of signals comming from other mods
                 entity_output.get_control_behavior().parameters = {parameters = parameters}
             else
                 entity_output.get_control_behavior().parameters = {parameters = nil}

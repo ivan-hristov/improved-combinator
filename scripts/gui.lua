@@ -59,7 +59,7 @@ local function on_gui_click(event)
 end
 
 local function on_gui_elem_changed(event)
-    if event.element.elem_value then
+    if event.element.name and event.element.elem_value and event.element.elem_value.name and event.element.elem_value.type then
         logger.print("on_gui_elem_changed name: "..event.element.name..", type: "..event.element.elem_value.type.." name: "..event.element.elem_value.name)
     end
 

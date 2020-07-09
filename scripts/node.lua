@@ -16,16 +16,18 @@ function node:new(entity_id, gui)
     new_node.events_id = {}
     new_node.events_params = {}
     new_node.events = {}
+    new_node.gui_element = nil  -- Non-persistent Factorio element
+    new_node.children = {}
+    new_node.update_logic = nil
+    new_node.updatable = false
+
     if gui then
         new_node.gui = gui
         new_node.gui.name = new_node.id
     else
         new_node.gui = {}
     end
-    new_node.gui_element = nil  -- Non-persistent Factorio element
-    new_node.children = {}
-    new_node.update_logic = nil
-    new_node.updatable = false
+
     return new_node
 end
 
