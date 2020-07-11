@@ -113,7 +113,8 @@ add_styles({
         parent = constants.style.main_frame,
         padding  = 8,
         width = 450,
-        height = 660
+        height = 0,
+        horizontally_stretchable = "on"
     },
     [constants.style.signal_inner_frame] =
     {
@@ -123,6 +124,8 @@ add_styles({
         horizontal_align = "left",
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
+        horizontally_squashable = "on",
+        vertically_squashable = "on",
         padding  = 0
     },
     [constants.style.signal_group_frame] =
@@ -130,7 +133,7 @@ add_styles({
         type = "table_style",
         horizontally_stretchable = "on",
         vertically_stretchable = "on",
-        horizontally_squashable = "off",
+        horizontally_squashable = "on",
         vertically_squashable = "on",
         vertical_spacing = 1,
         horizontal_spacing = 1,
@@ -212,11 +215,12 @@ add_styles({
         horizontal_spacing = 0,
         top_margin = 12,
         left_margin = 12,
+        bottom_margin = 12,
         padding  = 0,
         top_padding = -3,
         left_padding = -5,
         width = 412,
-        height = 440,
+        height = 442,
         graphical_set =
         {
             base =

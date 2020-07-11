@@ -147,7 +147,6 @@ function node:build_gui_nodes(parent, node_param)
     if node_param.gui.locked then
         new_gui.locked = true
     end
-        
 
     for _, child in pairs(node_param.children) do
         node:build_gui_nodes(new_gui, child)
@@ -229,68 +228,131 @@ function node:create_signal_gui(unit_number)
         style = constants.style.signal_group_frame
     })
 
-    for _, item_group in pairs(game.item_group_prototypes) do
-        local sprite = "advanced-combinator-item-group-"..item_group.name
-        local group_button = scroll_pane:add_child({
-            type = "sprite-button",
-            direction = "vertical",
-            style = constants.style.signal_group_button_frame,
-            sprite = sprite,
-            hovered_sprite = sprite,
-            clicked_sprite = sprite
-        })
-    end
-
     local signals_scroll_pane = tasks_area:add_child({
         type = "scroll-pane",
         direction = "vertical",
         style = constants.style.signal_subgroup_scroll_frame,
-        vertical_scroll_policy = "always"
+        vertical_scroll_policy = "always",
+        horizontal_scroll_policy = "never"
     })
-    local signals_table = signals_scroll_pane:add_child({
-        type = "table",
-        direction = "vertical",
-        column_count = 10,
-        vertical_centering = true,
-        style = constants.style.signal_subgroup_frame
-    })
+    scroll_pane.events_params = { signals_scroll_pane_id = signals_scroll_pane.id }
+
+
+    -------------------------------------------------------------------------------
+    local function filtered_signal_prototypes(subgroup_name)
+        --- Check if the group contains items --
+        local signals_group = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
+        if #signals_group ~= 0 then
+            return "item", signals_group
+        end
+     
+        --- Check if the group contains fluids --
+        if #signals_group == 0 then
+            signals_group = game.get_filtered_fluid_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
+            if #signals_group ~= 0 then
+                return "fluid", signals_group
+            end
+        end
+
+        --- Check if the group contains signals --
+        signals_group = {}
+        for _, virtual_signal in pairs(game.virtual_signal_prototypes) do
+            if virtual_signal.subgroup.name == subgroup_name then
+                table.insert(signals_group, virtual_signal)
+            end
+        end
+
+        return "virtual", signals_group
+    end
 
     for _, item_group in pairs(game.item_group_prototypes) do
-        if item_group.name == "logistics" then
-            for _, sub_group in pairs(item_group.subgroups) do
-                local item_prototypes = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = sub_group.name}})
+        local signals_table = signals_scroll_pane:add_child({
+            type = "table",
+            direction = "vertical",
+            column_count = 10,
+            vertical_centering = true,
+            style = constants.style.signal_subgroup_frame,
+            subgroup_name = item_group.name,
+            visible = (item_group.name == "logistics") and true or false
+        })
 
-                local row_items = 1
-                for _, items in pairs(item_prototypes) do
-                    if items.has_flag("hidden") == false then
-                        local button_node = signals_table:add_child({
-                            type = "choose-elem-button",
-                            direction = "vertical",
-                            style = constants.style.signal_subgroup_button_frame,
-                            elem_type = "signal",
-                            elem_value = {type ="item", name = items.name},
-                            locked = true
-                        })
-                        button_node.events_id.on_click = "on_click_select_signal"
-                        row_items = row_items + 1
-                    end
+        for _, sub_group in pairs(item_group.subgroups) do
+            local type, signals = filtered_signal_prototypes(sub_group.name)
+            local row_items = 1
+            for _, signal in pairs(signals) do
+                if type == "virtual" or type == "fluid" and signal.hidden == false or signal.has_flag("hidden") == false  then
+                    local button_node = signals_table:add_child({
+                        type = "choose-elem-button",
+                        direction = "vertical",
+                        style = constants.style.signal_subgroup_button_frame,
+                        elem_type = "signal",
+                        elem_value = {type = type, name = signal.name},
+                        locked = true
+                    })
+                    button_node.events_id.on_click = "on_click_select_signal"
+                    row_items = row_items + 1
                 end
+            end
 
-                if row_items ~= 1 then
-                    local maximum_row_items = row_items + 10 - (row_items % 10)
-                    for i = row_items, maximum_row_items do
-                        local empty_node = signals_table:add_child({
-                            type = "empty-widget",
-                            direction = "vertical"
-                        })
-                    end
+            if row_items ~= 1 then
+                local maximum_row_items = row_items + 10 - (row_items % 10)
+                for i = row_items, maximum_row_items do
+                    local empty_node = signals_table:add_child({
+                        type = "empty-widget",
+                        direction = "vertical"
+                    })
                 end
             end
         end
+
+        if table_size(signals_table.children) > 0 then
+            local sprite = "advanced-combinator-item-group-"..item_group.name
+            local group_button = scroll_pane:add_child({
+                type = "sprite-button",
+                direction = "vertical",
+                style = constants.style.signal_group_button_frame,
+                group_name = item_group.name,
+                enabled = (item_group.name ~= "logistics") or false,
+                sprite = sprite,
+                hovered_sprite = sprite,
+                clicked_sprite = sprite
+            })
+            group_button.events_id.on_click = "on_click_change_subgroup"
+        else
+            signals_table:remove()
+        end
     end
+    -------------------------------------------------------------------------------
 
     root:recursive_setup_events()
     return root
+end
+
+function node.on_click_change_subgroup(event, node_param)
+    logger.print("on_click_change_subgroup")
+    if event.element.enabled == false then
+        return
+    end
+
+    local root_node = node_param.parent.parent
+    local parent_gui = event.element.parent
+    local parent_node = node_param.parent
+
+    for _, child in pairs(parent_gui.children) do
+        if child.name ~= event.element.name then
+            child.enabled = true
+            parent_node.children[child.name].gui.enabled = true
+        end
+    end
+
+    event.element.enabled = false
+    node_param.gui.enabled = false
+    local subgroup_node = root_node:recursive_find(parent_node.events_params.signals_scroll_pane_id)
+ 
+    for _, subgroup in pairs(subgroup_node.children) do
+        subgroup.gui.visible = (subgroup.gui.subgroup_name == node_param.gui.group_name) and true or false
+        subgroup.gui_element.visible = subgroup.gui.visible
+    end
 end
 
 function node:setup_events(node_param)
@@ -304,15 +366,17 @@ function node:setup_events(node_param)
         elseif node_param.events_id.on_click == "on_click_close_sub_button" then
             node_param.events.on_click = node.on_click_close_sub_button
         elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator_one" then
-            node_param.events.on_click = node.on_click_radiobutton_constant_combinator_one
+                node_param.events.on_click = node.on_click_radiobutton_constant_combinator_one
         elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator_all" then
-            node_param.events.on_click = node.on_click_radiobutton_constant_combinator_all
+                node_param.events.on_click = node.on_click_radiobutton_constant_combinator_all
         elseif node_param.events_id.on_click == "on_click_open_signal" then
             node_param.events.on_click = node.on_click_open_signal
         elseif node_param.events_id.on_click == "on_click_signal_frame_holder" then
             node_param.events.on_click = node.on_click_signal_frame_holder
         elseif node_param.events_id.on_click == "on_click_select_signal" then
             node_param.events.on_click = node.on_click_select_signal
+        elseif node_param.events_id.on_click == "on_click_change_subgroup" then
+            node_param.events.on_click = node.on_click_change_subgroup
         end
     elseif node_param.events_id.on_gui_text_changed then
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
