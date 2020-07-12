@@ -240,7 +240,32 @@ function node:create_signal_gui(unit_number)
 
 
     -------------------------------------------------------------------------------
+    local function filtered_signal_prototypes(subgroup_name)
+        --- Check if the group contains items --
+        local signals_group = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
+        if #signals_group ~= 0 then
+            return "item", signals_group
+        end
+     
+        --- Check if the group contains fluids --
+        if #signals_group == 0 then
+            signals_group = game.get_filtered_fluid_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
+            if #signals_group ~= 0 then
+                return "fluid", signals_group
+            end
+        end
 
+        --- Check if the group contains signals --
+        signals_group = {}
+        for _, virtual_signal in pairs(game.virtual_signal_prototypes) do
+            if virtual_signal.subgroup.name == subgroup_name then
+                table.insert(signals_group, virtual_signal)
+            end
+        end
+
+        return "virtual", signals_group
+    end
+    
     for _, item_group in pairs(game.item_group_prototypes) do
         local signals_table = signals_scroll_pane:add_child({
             type = "table",
@@ -252,19 +277,22 @@ function node:create_signal_gui(unit_number)
             visible = (item_group.name == "logistics") and true or false
         })
 
-        for _, sub_group in pairs(game_signals[item_group.name]) do
+        for _, sub_group in pairs(item_group.subgroups) do
+            local type, signals = filtered_signal_prototypes(sub_group.name)
             local row_items = 1
-            for _, signal in pairs(sub_group.signals_group) do
-                local button_node = signals_table:add_child({
-                    type = "choose-elem-button",
-                    direction = "vertical",
-                    style = constants.style.signal_subgroup_button_frame,
-                    elem_type = "signal",
-                    elem_value = {type = sub_group.type, name = signal.name},
-                    locked = true
-                })
-                button_node.events_id.on_click = "on_click_select_signal"
-                row_items = row_items + 1
+            for _, signal in pairs(signals) do
+                if type == "virtual" or type == "fluid" and signal.hidden == false or signal.has_flag("hidden") == false  then
+                    local button_node = signals_table:add_child({
+                        type = "choose-elem-button",
+                        direction = "vertical",
+                        style = constants.style.signal_subgroup_button_frame,
+                        elem_type = "signal",
+                        elem_value = {type = type, name = signal.name},
+                        locked = true
+                    })
+                    button_node.events_id.on_click = "on_click_select_signal"
+                    row_items = row_items + 1
+                end
             end
 
             if row_items ~= 1 then

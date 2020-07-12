@@ -1,5 +1,6 @@
+local logger = require("logger")
 local loaded = false
-local signals = {}
+local cached_signals = {}
 
 local function filtered_signal_prototypes(subgroup_name)
     --- Check if the group contains items --
@@ -27,30 +28,38 @@ local function filtered_signal_prototypes(subgroup_name)
     return "virtual", signals_group
 end
 
-function signals.on_game_load()
-    if not loaded then
+local function on_game_load(event)
+    if not loaded then        
         for _, item_group in pairs(game.item_group_prototypes) do
             local subgroup_signals = {}
             
             for _, sub_group in pairs(item_group.subgroups) do
-                local type, signals_group = filtered_signal_prototypes(sub_group.name)
-                if type == "virtual" or type == "fluid" and signals_group.hidden == false then
-                    subgroup_signals[sub_group.name] = { type = type, signals_group = signals_group}
+                local type, signals = filtered_signal_prototypes(sub_group.name)
+                subgroup_signals[sub_group.name] = {}
+                for _, signal in pairs(signals) do
+                    --if type == "virtual" or type == "fluid" and signal.hidden == false then
+                        table.insert(subgroup_signals[sub_group.name],  { type = type, signal = signal})
+                        logger.print("type "..type.." signal "..signal.name)
+                    --end
                 end
             end
 
-            for _, signal in pairs(subgroup_signals) do
-                game.print("subgroup_signals")
-            end
+            --for _, signal in pairs(subgroup_signals) do
+            --    game.print("subgroup_signals "..signal.type.." gorup "..signal.signals_group)
+            --end
 
             --signals_group.has_flag("hidden") == false
 
-            if #subgroup_signals ~= 0 then
-                signals[item_group.name] = subgroup_signals
-            end
+            --if #subgroup_signals ~= 0 then
+                cached_signals[item_group.name] = subgroup_signals
+            --end
         end
         loaded = true
     end
 end
 
-return signals
+-- TODO - Move in bootstrap
+script.on_event(defines.events.on_tick, on_game_load)
+
+return cached_signals
+
