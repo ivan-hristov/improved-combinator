@@ -1,6 +1,7 @@
 local constants = require("constants")
 local game_node = require("game_node")
 local list = require("list")
+local game_signals = require("signals")
 local logger = require("logger")
 local bitwise_math = require("bitwise_math")
 
@@ -254,6 +255,7 @@ local function on_tick(event)
     -- We must recreate all metatables once after a game is loaded
     game_node.recreate_metatables()
     list.recreate_metatables()
+    game_signals.on_game_load()
 
     input_signals = {}
     output_signals = {}

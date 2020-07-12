@@ -54,7 +54,7 @@ local function print_item_groups2()
         end
 
         if table_size(signals_group) ~= 0 then
-            "virtual", signals_group
+            return "virtual", signals_group
         end
 
         signals_group = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
