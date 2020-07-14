@@ -1,7 +1,7 @@
 local node = require("node")
 local constants = require("constants")
 local logger = require("logger")
-local game_signals = require("signals")
+local cached_signals = require("cached_signals")
 
 local function print_children(element, index)
     local str = ""
@@ -53,6 +53,35 @@ function node:setup_arithmetic_combinator()
     }
 end
 
+function node.on_click(event, unit_number)
+
+    local name = event.element.name
+    local clicked_on_signal = false
+
+    if global.screen_node then
+        local node = global.screen_node:recursive_find(name)
+        if node and node.events.on_click then
+            node.events.on_click(event, node)
+            clicked_on_signal = true
+        end
+    end
+
+    if global.top_node then
+        local node = global.top_node:recursive_find(name)
+        if node and node.events.on_click then
+            node.events.on_click(event, node)
+            clicked_on_signal = true
+        end
+    end
+
+    if clicked_on_signal == false and global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_click then
+            node.events.on_click(event, node)
+        end
+    end
+end
+
 function node:has_opened_signals_node()
     return global.screen_node and global.top_node
 end
@@ -99,36 +128,7 @@ function node:destory_top_nodes_and_unselect(player_index, entity_id)
         game.players[player_index].opened = entity.node.gui_element
     end
 end
-
-function node.on_click(event, unit_number)
-
-    local name = event.element.name
-    local clicked_on_signal = false
-
-    if global.screen_node then
-        local node = global.screen_node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-            clicked_on_signal = true
-        end
-    end
-
-    if global.top_node then
-        local node = global.top_node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-            clicked_on_signal = true
-        end
-    end
-
-    if clicked_on_signal == false and global.entities[unit_number] then
-        local node = global.entities[unit_number].node:recursive_find(name)
-        if node and node.events.on_click then
-            node.events.on_click(event, node)
-        end
-    end
-end
-        
+  
 function node:safely_add_gui_child(parent, style)
     for _, child in pairs(parent.children) do
         if child == name then
@@ -240,90 +240,51 @@ function node:create_signal_gui(unit_number)
 
 
     -------------------------------------------------------------------------------
-    local function filtered_signal_prototypes(subgroup_name)
-        --- Check if the group contains items --
-        local signals_group = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
-        if #signals_group ~= 0 then
-            return "item", signals_group
-        end
-     
-        --- Check if the group contains fluids --
-        if #signals_group == 0 then
-            signals_group = game.get_filtered_fluid_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
-            if #signals_group ~= 0 then
-                return "fluid", signals_group
-            end
-        end
+    for _, group in pairs(cached_signals.groups) do
 
-        --- Check if the group contains signals --
-        signals_group = {}
-        for _, virtual_signal in pairs(game.virtual_signal_prototypes) do
-            if virtual_signal.subgroup.name == subgroup_name then
-                table.insert(signals_group, virtual_signal)
-            end
-        end
+        local group_button = scroll_pane:add_child({
+            type = "sprite-button",
+            direction = "vertical",
+            style = constants.style.signal_group_button_frame,
+            group_name = group.name,
+            enabled = (group.name ~= "logistics") or false,
+            sprite = group.sprite,
+            hovered_sprite = group.sprite,
+            clicked_sprite = group.sprite
+        })
+        group_button.events_id.on_click = "on_click_change_subgroup"
 
-        return "virtual", signals_group
-    end
-    
-    for _, item_group in pairs(game.item_group_prototypes) do
         local signals_table = signals_scroll_pane:add_child({
             type = "table",
             direction = "vertical",
             column_count = 10,
             vertical_centering = true,
             style = constants.style.signal_subgroup_frame,
-            subgroup_name = item_group.name,
-            visible = (item_group.name == "logistics") and true or false
+            subgroup_name = group.name,
+            visible = (group.name == "logistics") and true or false
         })
 
-        for _, sub_group in pairs(item_group.subgroups) do
-            local type, signals = filtered_signal_prototypes(sub_group.name)
-            local row_items = 1
-            for _, signal in pairs(signals) do
-                if type == "virtual" or type == "fluid" and signal.hidden == false or signal.has_flag("hidden") == false  then
-                    local button_node = signals_table:add_child({
-                        type = "choose-elem-button",
-                        direction = "vertical",
-                        style = constants.style.signal_subgroup_button_frame,
-                        elem_type = "signal",
-                        elem_value = {type = type, name = signal.name},
-                        locked = true
-                    })
-                    button_node.events_id.on_click = "on_click_select_signal"
-                    row_items = row_items + 1
-                end
+        for _, subgroup in pairs(group.subgroups) do
+            for _, signal in pairs(subgroup.signals) do
+                local button_node = signals_table:add_child({
+                    type = "choose-elem-button",
+                    direction = "vertical",
+                    style = constants.style.signal_subgroup_button_frame,
+                    elem_type = "signal",
+                    elem_value = {type = subgroup.type, name = signal.name},
+                    locked = true
+                })
+                button_node.events_id.on_click = "on_click_select_signal"
             end
 
-            if row_items ~= 1 then
-                local maximum_row_items = row_items + 10 - (row_items % 10)
-                for i = row_items, maximum_row_items do
-                    local empty_node = signals_table:add_child({
-                        type = "empty-widget",
-                        direction = "vertical"
-                    })
-                end
+            for i = 1, subgroup.empty_cells do
+                local empty_node = signals_table:add_child({
+                    type = "empty-widget",
+                    direction = "vertical"
+                })
             end
-        end
-
-        if table_size(signals_table.children) > 0 then
-            local sprite = "advanced-combinator-item-group-"..item_group.name
-            local group_button = scroll_pane:add_child({
-                type = "sprite-button",
-                direction = "vertical",
-                style = constants.style.signal_group_button_frame,
-                group_name = item_group.name,
-                enabled = (item_group.name ~= "logistics") or false,
-                sprite = sprite,
-                hovered_sprite = sprite,
-                clicked_sprite = sprite
-            })
-            group_button.events_id.on_click = "on_click_change_subgroup"
-        else
-            signals_table:remove()
         end
     end
-    -------------------------------------------------------------------------------
 
     root:recursive_setup_events()
     return root

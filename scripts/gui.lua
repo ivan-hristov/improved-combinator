@@ -1,6 +1,7 @@
 local constants = require("constants")
 local game_node = require("game_node")
-local logger = require("scripts.logger")
+local logger = require("logger")
+local cached_signals = require("cached_signals")
 
 local opened_signal_frame = nil
 
