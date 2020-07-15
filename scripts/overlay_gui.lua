@@ -194,7 +194,6 @@ function overlay_gui.create_signal_gui(player_index, node_param)
                 })
                 button_node.elem_value = {type = subgroup.type, name = signal.name}
                 button_node.locked = true
-                --button_node.events_id.on_click = "on_click_select_signal"
             end
 
             for i = 1, subgroup.empty_cells do

@@ -68,5 +68,20 @@ function cache.functions.on_game_load()
     end
 end
 
+function cache.functions.on_contains_element(elem_value)
+    if elem_value.type ~= nil and elem_value.name ~= nil then
+        for _, group in pairs(cache.groups) do
+            for _, subgroup in pairs(group.subgroups) do
+                for _, signal in pairs(subgroup.signals) do
+                    if subgroup.type == elem_value.type and signal.name == elem_value.name then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
 return cache
 

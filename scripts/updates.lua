@@ -253,6 +253,51 @@ local function write_output_signals()
     end
 end
 
+local function validate_sigals()
+
+    local function recursive_signal_search(node)
+        if node.gui.type == "choose-elem-button" and node.gui.elem_value then
+            if cached_signals.functions.on_contains_element(node.gui.elem_value) == false then
+                node.gui.elem_value = nil
+            end
+        end
+
+        for _, child in pairs(node.children) do
+            recursive_signal_search(child)
+        end
+    end
+
+
+    for entity_id, entity in pairs(global.entities) do
+
+        recursive_signal_search(entity.node)
+
+        for iter in entity.update_list:iterator() do
+            for child_iter in iter.data.children:iterator() do
+                local update_logic = child_iter.data.node_element.update_logic
+
+                if update_logic.signal_slot_1 then
+                    if cached_signals.functions.on_contains_element(update_logic.signal_slot_1) == false then
+                        update_logic.signal_slot_1 = nil
+                    end
+                end
+
+                if update_logic.value_slot_2 then
+                    if cached_signals.functions.on_contains_element(update_logic.value_slot_2) == false then
+                        update_logic.value_slot_2 = nil
+                    end
+                end
+
+                if update_logic.signal_result then
+                    if cached_signals.functions.on_contains_element(update_logic.signal_result) == false then
+                        update_logic.signal_result = nil
+                    end
+                end
+            end
+        end
+    end
+end
+
 local function on_tick(event)
     -- We must recreate all metatables once after a game is loaded
     if not game_loaded then
@@ -260,6 +305,8 @@ local function on_tick(event)
         cached_signals.functions.on_game_load()
         game_node.recreate_metatables()
         list.recreate_metatables()
+        validate_sigals()
+        game_loaded = true
     end
 
     input_signals = {}
