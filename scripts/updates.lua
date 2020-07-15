@@ -4,7 +4,9 @@ local list = require("list")
 local logger = require("logger")
 local bitwise_math = require("bitwise_math")
 local cached_signals = require("cached_signals")
+local overlay_gui = require("overlay_gui")
 
+local game_loaded = false
 local input_signals = {}
 local output_signals = {}
 
@@ -251,13 +253,14 @@ local function write_output_signals()
     end
 end
 
-local test = true
-
 local function on_tick(event)
     -- We must recreate all metatables once after a game is loaded
-    game_node.recreate_metatables()
-    list.recreate_metatables()
-    cached_signals.functions.on_game_load()
+    if not game_loaded then
+        overlay_gui.on_load()
+        cached_signals.functions.on_game_load()
+        game_node.recreate_metatables()
+        list.recreate_metatables()
+    end
 
     input_signals = {}
     output_signals = {}

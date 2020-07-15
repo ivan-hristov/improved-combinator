@@ -1,5 +1,6 @@
 local constants = require("constants")
 local game_node = require("game_node")
+local overlay_gui = require("overlay_gui")
 local list = require("list")
 local logger = require("logger")
 
@@ -64,7 +65,7 @@ local function on_entity_died(event)
     local entity = event.entity
     if entity.name == constants.entity.name then
         -- Delete overlay signals if the entity was destroyed
-        game_node:safely_destory_top_nodes(entity.unit_number)
+        overlay_gui.safely_destory_top_nodes(entity.unit_number)
         
         local main_entity = global.entities[entity.unit_number]
 

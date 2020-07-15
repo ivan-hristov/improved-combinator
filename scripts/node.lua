@@ -71,12 +71,6 @@ function node.recreate_metatables()
                 node:recursive_create_metatable(entity.node)
             end
         end
-        if global.screen_node and not global.screen_node.valid then
-            node:recursive_create_metatable(global.screen_node)
-        end
-        if global.top_node and not global.top_node.valid then
-            node:recursive_create_metatable(global.top_node)
-        end
         recreate_metatables = true
     end
 end
