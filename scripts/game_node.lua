@@ -165,7 +165,6 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed[4] = node.on_selection_arithmetic_combinator
             node_param.events.on_selection_state_changed[5] = node.on_selection_arithmetic_combinator
             node_param.events.on_selection_state_changed[6] = node.on_selection_arithmetic_combinator
-            node_param.events.on_selection_state_changed[7] = node.on_selection_testing
         elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
@@ -301,17 +300,15 @@ function node.on_signal_changed_result(event, node_param)
     node_param.parent.update_logic.signal_result = event.element.elem_value
 end
 
--- TEMP --
 function node:on_remote_signal_change(event)
     if self.events_id.on_gui_elem_changed == "on_signal_changed_1" then
-        node.on_signal_changed_1(new_event, node)
+        node.on_signal_changed_1(event, self)
     elseif self.events_id.on_gui_elem_changed == "on_signal_changed_2" then
-        node.on_signal_changed_2(new_event, node)
+        node.on_signal_changed_2(event, self)
     elseif self.events_id.on_gui_elem_changed == "on_signal_changed_result" then
-        node.on_signal_changed_result(new_event, node)
+        node.on_signal_changed_result(event, self)
     end
 end
----------
 
 function node.on_selection_combinator_changed(event, node_param)
     node_param.gui.selected_index = event.element.selected_index
@@ -435,8 +432,7 @@ function node.on_selection_repeatable_timer(event, node_param)
             "Constant Combinator - Constant <=> Signal",
             "Arithmetic Combinator - Signal <=> Signal",
             "Arithmetic Combinator - Signal <=> Constant",
-            "Arithmetic Combinator - Constant <=> Signal",
-            "Testing"
+            "Arithmetic Combinator - Constant <=> Signal"
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -513,7 +509,10 @@ function node.on_selection_constant_combinator(event, node_param)
             direction = "vertical",        
             style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
             elem_type = "signal",
+            locked = true,
+            custom = "combinator-1"
         })
+        left_button_node.events_id.on_click = "on_click_open_signal"
         left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
     end
     --------------------------------------------------------
@@ -545,7 +544,10 @@ function node.on_selection_constant_combinator(event, node_param)
             direction = "vertical",
             style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
             elem_type = "signal",
+            locked = true,
+            custom = "combinator-2"
         })
+        right_button_node.events_id.on_click = "on_click_open_signal"
         right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
     end
 
@@ -566,7 +568,10 @@ function node.on_selection_constant_combinator(event, node_param)
         direction = "vertical",
         style = constants.style.dark_button_frame,
         elem_type = "signal",
+        locked = true,
+        custom = "combinator-result"
     })
+    signal_result_node.events_id.on_click = "on_click_open_signal"
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
     --------------------------------------------------------
@@ -657,8 +662,11 @@ function node.on_selection_arithmetic_combinator(event, node_param)
             type = "choose-elem-button",
             direction = "vertical",        
             style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
-            elem_type = "signal"
+            elem_type = "signal",
+            locked = true,
+            custom = "arithmetic-1"
         })
+        left_button_node.events_id.on_click = "on_click_open_signal"
         left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
     end
 
@@ -692,7 +700,10 @@ function node.on_selection_arithmetic_combinator(event, node_param)
             direction = "vertical",
             style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
             elem_type = "signal",
+            locked = true,
+            custom = "arithmetic-2"
         })
+        right_button_node.events_id.on_click = "on_click_open_signal"
         right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
     end
 
@@ -713,7 +724,10 @@ function node.on_selection_arithmetic_combinator(event, node_param)
         direction = "vertical",
         style = constants.style.dark_button_frame,
         elem_type = "signal",
+        locked = true,
+        custom = "arithmetic-result"
     })
+    signal_result_node.events_id.on_click = "on_click_open_signal"
     signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
 
     --------------------------------------------------------
@@ -749,7 +763,33 @@ function node.on_click_open_signal(event, node_param)
     if event.button == defines.mouse_button_type.left then
         if not overlay_gui.has_opened_signals_node() then
 
-            local top_gui = overlay_gui.create_gui(event.player_index, node_param)
+            local everything = {type="virtual", name="signal-everything"}
+            local anything = {type="virtual", name="signal-anything"}
+            local each = {type="virtual", name="signal-each"}
+            local excluded_signals = nil
+
+            if node_param.gui.custom then
+                if node_param.gui.custom == "combinator-1" then
+                    excluded_signals = nil
+                elseif node_param.gui.custom == "combinator-2" then
+                    excluded_signals = {everything, anything, each}
+                elseif node_param.gui.custom == "combinator-result" then
+                    excluded_signals = {anything, each}
+                elseif node_param.gui.custom == "arithmetic-1" then
+                    excluded_signals = {everything, anything}
+                elseif node_param.gui.custom == "arithmetic-2" then
+                    excluded_signals = {everything, anything, each}
+                elseif node_param.gui.custom == "arithmetic-result" then
+                    excluded_signals = {everything, anything, each}
+                end
+            end
+
+            local top_gui = overlay_gui.create_gui(
+                event.player_index,
+                node_param,
+                event.element.elem_value,
+                excluded_signals
+            )
 
             local root_node = global.entities[node_param.entity_id].node
             if root_node.gui_element.location then
@@ -766,65 +806,4 @@ function node.on_click_open_signal(event, node_param)
     end
 end
 
-function node.on_selection_testing(event, node_param)
-
-    -- Setup Persistent Nodes --
-    local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
-    local vertical_flow_node = node_param.parent
-    local vertical_flow_gui = event.element.parent
-
-    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
-
-    if not sub_tasks_flow.gui_element.visible then
-        sub_tasks_flow.gui.visible = true
-        sub_tasks_flow.gui_element.visible = true
-    end
-
-    --------------------------------------------------------
-    local repeatable_time_node = sub_tasks_flow:add_child()
-    repeatable_time_node.gui = {
-        type = "frame",
-        direction = "horizontal",
-        name = repeatable_time_node.id,
-        style = constants.style.sub_conditional_frame
-    }
-    --------------------------------------------------------
-
-    local button_node = repeatable_time_node:add_child()
-    button_node.gui = {
-        type = "choose-elem-button",
-        --type = "sprite-button",
-        direction = "vertical",
-        name = button_node.id,
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-        locked = true
-        --caption = "2G"
-    }
-    button_node.events_id.on_click = "on_click_open_signal"
-
-    --------------------------------------------------------
-    local close_button_node = repeatable_time_node:add_child()
-    close_button_node.gui = {
-        type = "sprite-button",
-        direction = "vertical",
-        name = close_button_node.id,
-        style = constants.style.close_button_frame,
-        sprite = "utility/close_white",
-        hovered_sprite = "utility/close_black",
-        clicked_sprite = "utility/close_black",
-    }
-    close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { progressbar_node_id = progressbar_node.id }
-    --------------------------------------------------------
-    -- Reset dropdown selection index --
-    event.element.selected_index = 0
-
-    -- Setup Node Events --
-    repeatable_time_node:recursive_setup_events()
-
-    -- Setup Factorio GUI --
-    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
-end
-    
 return node

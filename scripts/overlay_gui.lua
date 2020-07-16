@@ -126,7 +126,20 @@ function overlay_gui.create_signal_fill_gui(player_index)
     return root
 end
 
-function overlay_gui.create_signal_gui(player_index, node_param)
+function overlay_gui.is_signal_included(signal_type, signal_name, exclude_signals)
+    if exclude_signals then
+        for _, exclude_signal in pairs(exclude_signals) do
+            if exclude_signal.type == signal_type and exclude_signal.name == signal_name then
+                return false
+            end
+        end
+    end
+
+    return true
+end
+
+function overlay_gui.create_signal_gui(player_index, node_param, current_signal, exclude_signals)
+
     ownder = {unit_number = node_param.entity_id, node_id = node_param.id}
     local player = game.players[player_index]
     local root = player.gui.screen.add({
@@ -161,13 +174,13 @@ function overlay_gui.create_signal_gui(player_index, node_param)
     -------------------------------------------------------------------------------
     for _, group in pairs(cached_signals.groups) do
 
+        local current_group = false
         local group_button = scroll_pane.add({
             type = "sprite-button",
             name = group_name.."_"..group.name,
             direction = "vertical",
             style = constants.style.signal_group_button_frame,
             group_name = group.name,
-            enabled = (group.name ~= "logistics") or false,
             sprite = group.sprite,
             hovered_sprite = group.sprite,
             clicked_sprite = group.sprite
@@ -179,28 +192,54 @@ function overlay_gui.create_signal_gui(player_index, node_param)
             direction = "vertical",
             column_count = 10,
             vertical_centering = true,
-            style = constants.style.signal_subgroup_frame,
-            visible = (group.name == "logistics") and true or false
+            style = constants.style.signal_subgroup_frame
         })
 
         for _, subgroup in pairs(group.subgroups) do
+
+            local excluded_signals = 0
             for _, signal in pairs(subgroup.signals) do
-                local button_node = signals_table.add({
-                    type = "choose-elem-button",
-                    name = signal_name.."_"..signal.name,
-                    direction = "vertical",
-                    style = constants.style.signal_subgroup_button_frame,
-                    elem_type = "signal"
-                })
-                button_node.elem_value = {type = subgroup.type, name = signal.name}
-                button_node.locked = true
+                if overlay_gui.is_signal_included(subgroup.type, signal.name, exclude_signals) then
+                    local button_node = signals_table.add({
+                        type = "choose-elem-button",
+                        name = signal_name.."_"..signal.name,
+                        direction = "vertical",
+                        style = constants.style.signal_subgroup_button_frame,
+                        elem_type = "signal",
+                    })
+                    button_node.elem_value = {type = subgroup.type, name = signal.name}
+                    button_node.locked = true
+
+                    if current_signal and current_signal.type == subgroup.type and current_signal.name == signal.name then
+                        current_group = true
+                        button_node.enabled = false
+                    end
+                else
+                    excluded_signals = excluded_signals + 1
+                end
             end
 
-            for i = 1, subgroup.empty_cells do
-                local empty_node = signals_table.add({
-                    type = "empty-widget",
-                    direction = "vertical"
-                })
+            local empty_cells = subgroup.empty_cells + excluded_signals
+            if empty_cells ~= 10 then
+                for i = 1, empty_cells do
+                    local empty_node = signals_table.add({
+                        type = "empty-widget",
+                        direction = "vertical"
+                    })
+                end
+            end
+        end
+
+        if current_signal == nil then
+            group_button.enabled = (group.name ~= "logistics") or false
+            signals_table.visible = (group.name == "logistics") and true or false
+        else
+            if current_group then
+                group_button.enabled = false
+                signals_table.visible = true
+            else
+                group_button.enabled = true
+                signals_table.visible = false
             end
         end
     end
@@ -209,9 +248,9 @@ function overlay_gui.create_signal_gui(player_index, node_param)
     return root
 end
 
-function overlay_gui.create_gui(player_index, node_param)
+function overlay_gui.create_gui(player_index, node_param, current_signal, exclude_signals)
     global.screen_node = overlay_gui.create_signal_fill_gui(player_index)
-    global.top_node = overlay_gui.create_signal_gui(player_index, node_param)
+    global.top_node = overlay_gui.create_signal_gui(player_index, node_param, current_signal, exclude_signals)
     global.top_node.focus()
 
     return global.top_node

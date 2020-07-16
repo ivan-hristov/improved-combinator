@@ -7,6 +7,8 @@ local function add_styles(styles)
     end
 end
 
+local default_dirt_color = {15, 7, 3, 100}
+
 local default_shadow =
 {
     position = {200, 128},
@@ -29,7 +31,7 @@ local default_dirt =
 {
     position = {200, 128},
     corner_size = 8,
-    tint = {15, 7, 3, 100},
+    tint = default_dirt_color,
     scale = 0.5,
     draw_type = "outer"
 }
@@ -51,6 +53,20 @@ local default_inner_shadow =
     scale = 0.5,
     draw_type = "inner"
 }
+
+function offset_by_2_rounded_corners_glow(tint_value)
+    return
+    {
+        position = {240, 736},
+        corner_size = 16,
+        tint = tint_value,
+        top_outer_border_shift = 4,
+        bottom_outer_border_shift = -4,
+        left_outer_border_shift = 4,
+        right_outer_border_shift = -4,
+        draw_type = "outer"
+    }
+end
 
 add_styles({
     [constants.style.dialogue_frame] =
@@ -105,7 +121,7 @@ add_styles({
         left_padding = 5,
 
         width = 700,
-        height = 650
+        height = 650,
     },
     [constants.style.signal_frame] =
     {
@@ -286,7 +302,13 @@ add_styles({
     {
         type = "button_style",
         parent = "slot_button",
-        padding = 0
+        padding = 0,
+
+        disabled_graphical_set =
+        {
+            base = {border = 4, position = {80, 736}, size = 80},
+            shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
+        }
     },
     [constants.style.tasks_frame] =
     {
