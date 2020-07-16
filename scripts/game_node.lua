@@ -763,32 +763,15 @@ function node.on_click_open_signal(event, node_param)
     if event.button == defines.mouse_button_type.left then
         if not overlay_gui.has_opened_signals_node() then
 
-            local everything = {type="virtual", name="signal-everything"}
-            local anything = {type="virtual", name="signal-anything"}
-            local each = {type="virtual", name="signal-each"}
-            local excluded_signals = nil
-
-            if node_param.gui.custom then
-                if node_param.gui.custom == "combinator-1" then
-                    excluded_signals = nil
-                elseif node_param.gui.custom == "combinator-2" then
-                    excluded_signals = {everything, anything, each}
-                elseif node_param.gui.custom == "combinator-result" then
-                    excluded_signals = {anything, each}
-                elseif node_param.gui.custom == "arithmetic-1" then
-                    excluded_signals = {everything, anything}
-                elseif node_param.gui.custom == "arithmetic-2" then
-                    excluded_signals = {everything, anything, each}
-                elseif node_param.gui.custom == "arithmetic-result" then
-                    excluded_signals = {everything, anything, each}
-                end
-            end
-
             local top_gui = overlay_gui.create_gui(
                 event.player_index,
                 node_param,
                 event.element.elem_value,
-                excluded_signals
+                {
+                    {type="virtual", name="signal-everything"},
+                    {type="virtual", name="signal-anything"},
+                    {type="virtual", name="signal-each"}
+                }
             )
 
             local root_node = global.entities[node_param.entity_id].node
