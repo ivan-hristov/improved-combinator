@@ -763,7 +763,7 @@ function node.on_click_open_signal(event, node_param)
     if event.button == defines.mouse_button_type.left then
         if not overlay_gui.has_opened_signals_node() then
 
-            local top_gui = overlay_gui.create_gui(
+            local top_gui, consant_gui = overlay_gui.create_gui(
                 event.player_index,
                 node_param,
                 event.element.elem_value,
@@ -776,11 +776,7 @@ function node.on_click_open_signal(event, node_param)
 
             local root_node = global.entities[node_param.entity_id].node
             if root_node.gui_element.location then
-                top_gui.location =
-                {
-                    x = root_node.gui_element.location.x + 415,
-                    y = root_node.gui_element.location.y
-                }
+                overlay_gui.configure_location(root_node.gui_element.location)
             end
         end
     elseif event.button == defines.mouse_button_type.right then

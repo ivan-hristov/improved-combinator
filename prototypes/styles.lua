@@ -88,8 +88,8 @@ add_styles({
             shadow = default_shadow
         },
         flow_style = { type = "flow_style" },
-        horizontal_flow_style = { type = "horizontal_flow_style" }, -- content in Gui::Direction::Horizontal
-        vertical_flow_style = { type = "vertical_flow_style" }, -- content in Gui::Direction::Vertical
+        horizontal_flow_style = { type = "horizontal_flow_style" },
+        vertical_flow_style = { type = "vertical_flow_style" },
         header_flow_style =
         {
             type = "horizontal_flow_style",
@@ -131,6 +131,47 @@ add_styles({
         width = 450,
         height = 0,
         horizontally_stretchable = "on"
+    },
+    [constants.style.signal_constants_frame] =
+    {
+        type = "frame_style",
+        parent = constants.style.signal_frame,
+        horizontally_stretchable = "off",
+        vertically_stretchable = "off",
+        width = 450,
+        height = 105,
+    },
+    [constants.style.signal_constants_value_frame] =
+    {
+      type = "textbox_style",
+      horizontally_stretchable = "off",
+      vertically_stretchable = "off",
+      horizontal_align = "center",
+      font = "default",
+      size = {80, 28},
+      left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
+    },
+    [constants.style.signal_constants_inner_frame] =
+    {
+        type = "frame_style",
+        parent = "inside_shallow_frame",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        vertical_align = "center",
+        horizontal_align = "left",
+        margin = 0,
+        padding  = 12,
+        width = 0,
+        height = 0,
+
+        horizontal_flow_style =
+        {
+            type = "horizontal_flow_style",
+            vertical_align = "center",
+            horizontal_align = "left",
+            horizontally_stretchable = "on",
+            vertically_stretchable = "on",
+        },
     },
     [constants.style.signal_inner_frame] =
     {

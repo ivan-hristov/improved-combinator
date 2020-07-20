@@ -40,6 +40,8 @@ constants.style.prefix_uuid = "ac_"
 constants.style.dialogue_frame = constants.style.prefix_uuid.."dialogue_frame"
 constants.style.main_frame = constants.style.prefix_uuid.."main_frame"
 constants.style.signal_frame = constants.style.prefix_uuid.."signal_frame"
+constants.style.signal_constants_frame = constants.style.prefix_uuid.."signal_constants_frame"
+constants.style.signal_constants_inner_frame = constants.style.prefix_uuid.."signal_constants_inner_frame"
 constants.style.signal_inner_frame = constants.style.prefix_uuid.."signal_inner_frame"
 constants.style.signal_group_frame = constants.style.prefix_uuid.."signal_group_frame"
 constants.style.signal_subgroup_frame = constants.style.prefix_uuid.."signal_subgroup_frame"
@@ -83,5 +85,6 @@ constants.style.radio_vertical_flow_frame = constants.style.prefix_uuid.."radio_
 constants.style.dark_textfield_frame = constants.style.prefix_uuid.."dark_textfield_frame"
 constants.style.combinator_horizontal_padding_frame = constants.style.prefix_uuid.."combinator_horizontal_padding_frame"
 constants.style.screen_strech_frame = constants.style.prefix_uuid.."screen_strech_frame"
+constants.style.signal_constants_value_frame = constants.style.prefix_uuid.."signal_constants_value_frame"
 
 return constants

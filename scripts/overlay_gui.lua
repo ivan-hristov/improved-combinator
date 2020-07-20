@@ -2,29 +2,45 @@ local constants = require("constants")
 local cached_signals = require("cached_signals")
 local logger = require("logger")
 
+local overlay_gui = {}
+local signal_parent_name = "ac_overlay_signal_parent"
+local constant_parent_name = "ac_overlay_constant_parent"
 local overlay_name = "ac_overlay_button"
 local group_name = "ac_overlay_group"
 local signal_name = "ac_overlay_signal"
-local overlay_gui = {}
+local constant_slider_name = "ac_overlay_slider"
+local constant_textfield_name = "ac_overlay_textfield"
+local constant_confirm_name = "ac_overlay_confirm"
 local loaded = false
 local ownder = nil
+local signal_frame_height = 521
+local signal_group_height = 71
+local signal_current_signal_height = 0
+
+function overlay_gui.destory_nodes()
+    if global.screen_node then
+        global.screen_node.destroy()
+        global.screen_node = nil
+    end
+    if global.signal_node then
+        global.signal_node.destroy()
+        global.signal_node = nil
+    end
+    if global.constant_node then
+        global.constant_node.destroy()
+        global.constant_node = nil
+    end
+end
 
 function overlay_gui.on_load()
     if not loaded then
-        if global.screen_node then
-            global.screen_node.destroy()
-            global.screen_node = nil
-        end
-        if global.top_node then
-            global.top_node.destroy()
-            global.top_node = nil
-        end
+        overlay_gui.destory_nodes()
         loaded = true
     end
 end
 
 function overlay_gui.has_opened_signals_node()
-    return global.screen_node and global.top_node
+    return global.screen_node and global.signal_node
 end
 
 function overlay_gui.on_click(event, entity_id)
@@ -41,27 +57,12 @@ end
 
 function overlay_gui.safely_destory_top_nodes(unit_number)
     if ownder and ownder.unit_number == unit_number then
-        if global.screen_node then
-            global.screen_node.destroy()
-            global.screen_node = nil
-        end
-        if global.top_node then
-            global.top_node.destroy()
-            global.top_node = nil
-        end
+        overlay_gui.destory_nodes()
     end
 end
 
 function overlay_gui.destory_top_nodes_and_unselect(player_index, entity_id)
-    if global.screen_node then
-        global.screen_node.destroy()
-        global.screen_node = nil
-    end
-    if global.top_node then
-        global.top_node.destroy()
-        global.top_node = nil
-    end
-
+    overlay_gui.destory_nodes()
     ownder = nil
 
     local entity = global.entities[entity_id]
@@ -97,7 +98,10 @@ function overlay_gui.on_click_change_subgroup(event, entity_id)
 end
 
 function overlay_gui.on_click_select_signal(event, entity_id)
-    if event.button == defines.mouse_button_type.left and event.element.elem_type and event.element.elem_value then
+    if event.button == defines.mouse_button_type.left and
+       event.element.type == "choose-elem-button" and
+       event.element.elem_type and
+       event.element.elem_value then
         if global.entities[entity_id] and ownder then
             local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
             if node and node.gui.type == "choose-elem-button" then
@@ -114,8 +118,7 @@ function overlay_gui.on_click_select_signal(event, entity_id)
     end
 end
 
-function overlay_gui.create_signal_fill_gui(player_index)
-    local player = game.players[player_index]
+function overlay_gui.create_signal_fill_gui(player)
     local root = player.gui.screen.add({
         type = "button",
         name = overlay_name,
@@ -138,14 +141,15 @@ function overlay_gui.is_signal_included(signal_type, signal_name, exclude_signal
     return true
 end
 
-function overlay_gui.create_signal_gui(player_index, node_param, current_signal, exclude_signals)
+function overlay_gui.create_signal_gui(player, node_param, current_signal, exclude_signals)
 
     ownder = {unit_number = node_param.entity_id, node_id = node_param.id}
-    local player = game.players[player_index]
+    
     local root = player.gui.screen.add({
         type = "frame",
         direction = "vertical",
         style = constants.style.signal_frame,
+        name = signal_parent_name,
         caption = "Select a signal"
     })
 
@@ -245,15 +249,137 @@ function overlay_gui.create_signal_gui(player_index, node_param, current_signal,
     end
     -------------------------------------------------------------------------------
 
+    -- Calculate the current frame height
+    signal_current_signal_height = signal_frame_height +
+        (signal_group_height * math.ceil(table_size(scroll_pane.children) / 6))
+
     return root
 end
 
-function overlay_gui.create_gui(player_index, node_param, current_signal, exclude_signals)
-    global.screen_node = overlay_gui.create_signal_fill_gui(player_index)
-    global.top_node = overlay_gui.create_signal_gui(player_index, node_param, current_signal, exclude_signals)
-    global.top_node.focus()
+function overlay_gui.create_constant_gui(player, node_param)
+    local root = player.gui.screen.add({
+        type = "frame",
+        direction = "vertical",
+        style = constants.style.signal_constants_frame,
+        name = constant_parent_name,
+        caption = "Or set a constant"
+    })
 
-    return global.top_node
+    local horizontal_flow = root.add({
+        type = "frame",
+        direction = "horizontal",
+        style = constants.style.signal_constants_inner_frame
+    })
+
+    local right_button_node = horizontal_flow.add({
+        type = "slider",
+        direction = "vertical",
+        style = "slider",
+        name = constant_slider_name,
+        value = 0,
+        value_step = 1,
+        minimum_value = 0,
+        maximum_value = 100, -- 2000000000
+        discrete_slider = true,
+        discrete_values = true
+    })
+
+    local right_button_node = horizontal_flow.add({
+        type = "textfield",
+        direction = "vertical",
+        style = constants.style.signal_constants_value_frame,
+        name = constant_textfield_name,
+        numeric = true,
+        allow_decimal = false,
+        allow_negative = false,
+        lose_focus_on_confirm = true,
+        text = "0"
+    })    
+
+    return root
+end
+
+function overlay_gui.configure_location(main_gui_location)
+    global.signal_node.location =
+    {
+        x = main_gui_location.x + 415,
+        y = main_gui_location.y
+    }
+
+    if global.constant_node then
+        global.constant_node.location =
+        {
+            x = global.signal_node.location.x,
+            y = global.signal_node.location.y + signal_current_signal_height
+        }
+    end
+end
+
+function overlay_gui.on_gui_location_changed(event)
+    if event.element.name and event.element.location then
+        if event.element.name == signal_parent_name then
+            if global.constant_node then
+                global.constant_node.location =
+                {
+                    x = global.signal_node.location.x,
+                    y = global.signal_node.location.y + signal_current_signal_height
+                }
+            end
+        elseif event.element.name == constant_parent_name then
+            global.signal_node.location =
+            {
+                x = global.constant_node.location.x,
+                y = global.constant_node.location.y - signal_current_signal_height
+            }
+        end
+    end
+end
+
+function overlay_gui.on_gui_value_changed(event)
+    if event.element.name == constant_slider_name then
+        local textfield = event.element.parent.children[2]
+        local value = event.element.slider_value
+
+        if 10 < value and value <= 20 then
+            value = ((value % 10) * 10)
+            value = (value ~= 0) and value or 100
+        elseif 20 < value and value <= 30 then
+            value = (value % 20) * 100
+            value = (value ~= 0) and value or 1000
+        elseif 30 < value and value <= 40 then
+            value = (value % 30) * 1000
+            value = (value ~= 0) and value or 10000
+        elseif 40 < value and value <= 50 then
+            value = (value % 40) * 10000
+            value = (value ~= 0) and value or 100000
+        elseif 50 < value and value <= 60 then
+            value = (value % 50) * 100000
+            value = (value ~= 0) and value or 1000000
+        elseif 60 < value and value <= 70 then
+            value = (value % 60) * 1000000
+            value = (value ~= 0) and value or 10000000
+        elseif 70 < value and value <= 80 then
+            value = (value % 70) * 10000000
+            value = (value ~= 0) and value or 100000000
+        elseif 80 < value and value <= 90 then
+            value = (value % 80) * 100000000
+            value = (value ~= 0) and value or 1000000000
+        elseif 90 < value and value <= 100 then
+            value = (value % 90) * 2000000000
+            value = (value ~= 0) and value or 2000000000
+        end
+
+        textfield.text = tostring(value)
+    end
+end
+
+function overlay_gui.create_gui(player_index, node_param, current_signal, exclude_signals)
+    local player = game.players[player_index]
+
+    global.screen_node = overlay_gui.create_signal_fill_gui(player)
+    global.signal_node = overlay_gui.create_signal_gui(player, node_param, current_signal, exclude_signals)
+    global.signal_node.focus()
+    global.constant_node = overlay_gui.create_constant_gui(player, node_param)
 end
 
 return overlay_gui
