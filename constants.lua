@@ -86,5 +86,6 @@ constants.style.dark_textfield_frame = constants.style.prefix_uuid.."dark_textfi
 constants.style.combinator_horizontal_padding_frame = constants.style.prefix_uuid.."combinator_horizontal_padding_frame"
 constants.style.screen_strech_frame = constants.style.prefix_uuid.."screen_strech_frame"
 constants.style.signal_constants_value_frame = constants.style.prefix_uuid.."signal_constants_value_frame"
+constants.style.constant_button_frame = constants.style.prefix_uuid.."constant_button_frame"
 
 return constants

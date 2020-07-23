@@ -83,6 +83,9 @@ local function on_gui_text_changed(event)
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
+    -- Process overlay on-text-changed events
+    overlay_gui.on_gui_text_changed(event, unit_number)
+
     if global.entities[unit_number] then
         local node = global.entities[unit_number].node:recursive_find(name)
         if node and node.events.on_gui_text_changed then

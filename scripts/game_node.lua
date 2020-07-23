@@ -492,28 +492,32 @@ function node.on_selection_constant_combinator(event, node_param)
     repeatable_time_node:update_list_child_push(progressbar_node)
     --------------------------------------------------------
 
-    if event.element.selected_index == 3 then
-        local left_button_node = repeatable_time_node:add_child({
-            type = "textfield",
-            direction = "vertical",
-            style = constants.style.dark_textfield_frame,
-            numeric = true,
-            allow_decimal = false,
-            allow_negative = false,
-            lose_focus_on_confirm = true
-        })
-        left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
-    else
-        local left_button_node = repeatable_time_node:add_child({
-            type = "choose-elem-button",
-            direction = "vertical",        
-            style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
-            elem_type = "signal",
-            locked = true,
-            custom = "combinator-1"
-        })
-        left_button_node.events_id.on_click = "on_click_open_signal"
-        left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
+    local left_signal_node = node.create_signal_constant(repeatable_time_node, true)
+
+    if false then
+        if event.element.selected_index == 3 then
+            local left_button_node = repeatable_time_node:add_child({
+                type = "textfield",
+                direction = "vertical",
+                style = constants.style.dark_textfield_frame,
+                numeric = true,
+                allow_decimal = false,
+                allow_negative = false,
+                lose_focus_on_confirm = true
+            })
+            left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
+        else
+            local left_button_node = repeatable_time_node:add_child({
+                type = "choose-elem-button",
+                direction = "vertical",        
+                style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
+                elem_type = "signal",
+                locked = true,
+                custom = "combinator-1"
+            })
+            left_button_node.events_id.on_click = "on_click_open_signal"
+            left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
+        end
     end
     --------------------------------------------------------
 
@@ -759,14 +763,54 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end  
 
+function node.create_signal_constant(parent_node, create_constant)
+
+    if not create_constant then
+        local signal_node = parent_node:add_child({
+            type = "choose-elem-button",
+            direction = "vertical",        
+            style = constants.style.dark_button_frame,
+            elem_type = "signal",
+            locked = true,
+        })
+        signal_node.events_id.on_click = "on_click_open_signal"
+
+        return left_button_node
+    else
+        local flow_node = parent_node:add_child({
+            type = "flow",
+            direction = "horizontal",
+        })
+
+        local signal_node = flow_node:add_child({
+            type = "choose-elem-button",
+            direction = "vertical",        
+            style = constants.style.dark_button_frame,
+            elem_type = "signal",
+            locked = true,
+        })
+        signal_node.events_id.on_click = "on_click_open_signal"
+
+        local constant_node = flow_node:add_child({
+            type = "button",
+            direction = "vertical",        
+            style = constants.style.dark_button_frame,
+            tooltip = "Constant number"
+        })
+        constant_node.events_id.on_click = "on_click_open_signal"
+
+         return flow_node
+    end
+end
+
 function node.on_click_open_signal(event, node_param)
     if event.button == defines.mouse_button_type.left then
         if not overlay_gui.has_opened_signals_node() then
 
-            local top_gui, consant_gui = overlay_gui.create_gui(
+            overlay_gui.create_gui(
                 event.player_index,
                 node_param,
-                event.element.elem_value,
+                (event.element.type == "choose-elem-button") and event.element.elem_value or nil,
                 {
                     {type="virtual", name="signal-everything"},
                     {type="virtual", name="signal-anything"},
@@ -780,8 +824,13 @@ function node.on_click_open_signal(event, node_param)
             end
         end
     elseif event.button == defines.mouse_button_type.right then
-        node_param.gui.elem_value = nil
-        event.element.elem_value = nil
+        if event.element.type == "choose-elem-button" then     
+            node_param.gui.elem_value = nil
+            event.element.elem_value = nil
+        else
+            node_param.gui.caption = ""
+            event.element.caption = ""
+        end
     end
 end
 

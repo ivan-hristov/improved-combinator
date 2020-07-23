@@ -351,6 +351,19 @@ add_styles({
             shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
         }
     },
+    [constants.style.constant_button_frame] =
+    {
+        type = "button_style",
+        parent = "button_with_shadow",
+        horizontal_align = "center",
+        vertical_align = "center",
+        horizontally_stretchable = "on",
+
+        left_margin = 40,
+        right_padding = 12,
+        width = 110,
+        height = 28
+    },
     [constants.style.tasks_frame] =
     {
         type = "frame_style",
@@ -761,10 +774,10 @@ add_styles({
     {
         type = "button_style",
         parent = "train_schedule_item_select_button",
-        font = "default-semibold",
-        ont_color = {225, 225, 225},
+        font = "very-small-semibold",
+        default_font_color = {225, 225, 225},
         width = 28,
-        height = 28
+        height = 28,
     },
     [constants.style.dark_button_arithmetic_frame] =
     {
