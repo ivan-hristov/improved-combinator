@@ -776,8 +776,24 @@ add_styles({
         parent = "train_schedule_item_select_button",
         font = "very-small-semibold",
         default_font_color = {225, 225, 225},
+
         width = 28,
         height = 28,
+
+        disabled_graphical_set =
+        {
+            base = {border = 4, position = {162, 738}, size = 76},
+            shadow =
+            {
+                position = {378, 103},
+                corner_size = 16,
+                top_outer_border_shift = 4,
+                bottom_outer_border_shift = -4,
+                left_outer_border_shift = 4,
+                right_outer_border_shift = -4,
+                draw_type = "outer"
+            }
+        }
     },
     [constants.style.dark_button_arithmetic_frame] =
     {

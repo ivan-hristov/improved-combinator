@@ -18,7 +18,7 @@ local signal_frame_height = 521
 local signal_group_height = 71
 local signal_current_signal_height = 0
 
-function text_to_slider(text)
+local function text_to_slider(text)
     local value = tonumber(text)
 
     if value == nil then
@@ -49,7 +49,7 @@ function text_to_slider(text)
     return value
 end
 
-function slider_to_text(value)
+local function slider_to_text(value)
     if 10 < value and value <= 20 then
         value = ((value % 10) * 10)
         value = (value ~= 0) and value or 100
@@ -80,6 +80,29 @@ function slider_to_text(value)
     end
 
     return tostring(value)
+end
+
+function overlay_gui.switch_nodes(old_node)
+    old_node.gui.visible = false
+    old_node.gui_element.visible = false
+    old_node.gui_element.enabled = true
+    old_node.gui_element.ignored_by_interaction = true
+
+    local new_node = old_node.parent:recursive_find(old_node.events_params.other_node_id)    
+    new_node.gui.visible = true
+    new_node.gui_element.visible = true
+    new_node.gui_element.enabled = true
+    new_node.gui_element.ignored_by_interaction = true
+
+    return new_node
+end
+
+function overlay_gui.enable_owner(entity_id)
+    if ownder then
+        local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
+        node.gui_element.enabled = true
+        ownder = nil
+    end
 end
 
 function overlay_gui.destory_nodes()
@@ -138,7 +161,7 @@ end
 
 function overlay_gui.destory_top_nodes_and_unselect(player_index, entity_id)
     overlay_gui.destory_nodes()
-    ownder = nil
+    overlay_gui.enable_owner(entity_id)
 
     local entity = global.entities[entity_id]
     if entity then
@@ -179,6 +202,11 @@ function overlay_gui.on_click_select_signal(event, entity_id)
        event.element.elem_value then
         if global.entities[entity_id] and ownder then
             local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
+
+            if node and node.gui.type == "button" then
+                node = overlay_gui.switch_nodes(node)
+             end
+
             if node and node.gui.type == "choose-elem-button" then
                 node.gui.elem_value = event.element.elem_value
                 node.gui_element.elem_value = event.element.elem_value
@@ -196,9 +224,14 @@ function overlay_gui.on_click_set_constant(event, entity_id)
     if event.button == defines.mouse_button_type.left then
         if global.entities[entity_id] and ownder then
             local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
-            if node and node.gui.type == "button" then
 
-                local text = event.element.parent.children[2].text
+            if node and node.gui.type == "choose-elem-button" then
+                node = overlay_gui.switch_nodes(node)
+            end
+
+            if node and node.gui.type == "button" then
+                -- Get the constant text and remove leading zeros
+                local text = event.element.parent.children[2].text:match("0*(%d+)")
                 local number = tonumber(text)
 
                 -- Cap values --
@@ -229,7 +262,7 @@ function overlay_gui.on_click_set_constant(event, entity_id)
 
                 node.gui.caption = text
                 node.gui_element.caption = text
-                overlay_gui.destory_top_nodes_and_unselect(event.player_index, entity_id)            
+                overlay_gui.destory_top_nodes_and_unselect(event.player_index, entity_id)
             end
         end
     end
@@ -481,6 +514,9 @@ function overlay_gui.create_gui(player_index, node_param, elem_value, exclude_si
     global.signal_node = overlay_gui.create_signal_gui(player, node_param, elem_value, exclude_signals)
     global.signal_node.focus()
     global.constant_node = overlay_gui.create_constant_gui(player, node_param)
+    
+    -- Disable the GUI element without persisting the change
+    node_param.gui_element.enabled = false
 end
 
 return overlay_gui

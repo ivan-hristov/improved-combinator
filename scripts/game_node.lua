@@ -795,9 +795,12 @@ function node.create_signal_constant(parent_node, create_constant)
             type = "button",
             direction = "vertical",        
             style = constants.style.dark_button_frame,
-            tooltip = "Constant number"
+            tooltip = "Constant number",
+            visible = false
         })
         constant_node.events_id.on_click = "on_click_open_signal"
+        constant_node.events_params = { other_node_id = signal_node.id }
+        signal_node.events_params = { other_node_id = constant_node.id }
 
          return flow_node
     end
