@@ -351,6 +351,18 @@ add_styles({
             shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
         }
     },
+    [constants.style.signal_subgroup_selected_button_frame] =
+    {
+        type = "button_style",
+        parent = "slot_button",
+        padding = 0,
+
+        default_graphical_set =
+        {
+            base = {border = 4, position = {80, 736}, size = 80},
+            shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
+        }
+    },
     [constants.style.constant_button_frame] =
     {
         type = "button_style",

@@ -49,6 +49,7 @@ constants.style.signal_group_scroll_frame = constants.style.prefix_uuid.."signal
 constants.style.signal_group_button_frame = constants.style.prefix_uuid.."signal_group_button_frame"
 constants.style.signal_subgroup_scroll_frame = constants.style.prefix_uuid.."signal_subgroup_scroll_frame"
 constants.style.signal_subgroup_button_frame = constants.style.prefix_uuid.."signal_subgroup_button_frame"
+constants.style.signal_subgroup_selected_button_frame = constants.style.prefix_uuid.."signal_subgroup_selected_button_frame"
 constants.style.signal_subgroup_background_frame = constants.style.prefix_uuid.."signal_subgroup_background_frame"
 constants.style.tasks_frame = constants.style.prefix_uuid.."tasks_frame"
 constants.style.large_button_frame = constants.style.prefix_uuid.."large_button_frame"

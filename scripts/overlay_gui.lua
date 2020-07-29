@@ -175,7 +175,7 @@ function overlay_gui.on_click_change_subgroup(event, entity_id)
 
     for _, child in pairs(event.element.parent.children) do
         if child.name ~= event.element.name then
-            child.enabled = true
+            child.style = constants.style.signal_subgroup_selected_button_frame
         end
     end
 
@@ -209,10 +209,7 @@ function overlay_gui.on_click_select_signal(event, entity_id)
                 node.gui.elem_value = event.element.elem_value
                 node.gui_element.elem_value = event.element.elem_value
                 overlay_gui.destory_top_nodes_and_unselect(event.player_index, entity_id)
-
-                if node.events_id.on_gui_elem_changed then
-                    node:on_remote_signal_change({element = node.gui_element})
-                end
+                node:on_signal_confirm_change({element = node.gui_element})
             end
         end
     end
@@ -261,6 +258,7 @@ function overlay_gui.on_click_set_constant(event, entity_id)
                 node.gui.caption = text
                 node.gui_element.caption = text
                 overlay_gui.destory_top_nodes_and_unselect(event.player_index, entity_id)
+                node:on_signal_confirm_change({element = node.gui_element})
             end
         end
     end
@@ -369,7 +367,7 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
 
                     if current_signal and current_signal.type == subgroup.type and current_signal.name == signal.name then
                         current_group = true
-                        button_node.enabled = false
+                        button_node.style = constants.style.signal_subgroup_selected_button_frame
                     end
                 else
                     excluded_signals = excluded_signals + 1
@@ -511,7 +509,10 @@ function overlay_gui.create_gui(player_index, node_param, elem_value, exclude_si
     global.screen_node = overlay_gui.create_signal_fill_gui(player)
     global.signal_node = overlay_gui.create_signal_gui(player, node_param, elem_value, exclude_signals)
     global.signal_node.focus()
-    global.constant_node = overlay_gui.create_constant_gui(player, node_param)
+
+    if node_param.events_params.constant_pane then
+        global.constant_node = overlay_gui.create_constant_gui(player, node_param)
+    end
     
     -- Disable the GUI element without persisting the change
     node_param.gui_element.style = constants.style.dark_button_selected_frame
