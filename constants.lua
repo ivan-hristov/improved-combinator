@@ -76,6 +76,7 @@ constants.style.condition_comparator_dropdown_frame = constants.style.prefix_uui
 constants.style.condition_arithmetic_comparator_dropdown_frame = constants.style.prefix_uuid.."condition_arithmetic_comparator_dropdown_frame"
 constants.style.dropdown_overlay_label_frame = constants.style.prefix_uuid.."dropdown_overlay_label_frame"
 constants.style.dark_button_frame = constants.style.prefix_uuid.."dark_button_frame"
+constants.style.dark_button_selected_frame = constants.style.prefix_uuid.."dark_button_selected_frame"
 constants.style.dark_button_arithmetic_frame = constants.style.prefix_uuid.."dark_button_arithmetic_frame"
 constants.style.dark_button_constant_frame = constants.style.prefix_uuid.."dark_button_constant_frame"
 constants.style.dark_arithmetic_textfield_frame = constants.style.prefix_uuid.."dark_arithmetic_textfield_frame"

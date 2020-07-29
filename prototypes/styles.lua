@@ -779,8 +779,15 @@ add_styles({
 
         width = 28,
         height = 28,
+    },
+    [constants.style.dark_button_selected_frame] =
+    {
+        type = "button_style",
+        parent = constants.style.dark_button_frame,
 
-        disabled_graphical_set =
+        default_font_color = {20, 20, 20},
+
+        default_graphical_set =
         {
             base = {border = 4, position = {162, 738}, size = 76},
             shadow =

@@ -85,14 +85,12 @@ end
 function overlay_gui.switch_nodes(old_node)
     old_node.gui.visible = false
     old_node.gui_element.visible = false
-    old_node.gui_element.enabled = true
     old_node.gui_element.ignored_by_interaction = true
 
     local new_node = old_node.parent:recursive_find(old_node.events_params.other_node_id)    
     new_node.gui.visible = true
     new_node.gui_element.visible = true
-    new_node.gui_element.enabled = true
-    new_node.gui_element.ignored_by_interaction = true
+    new_node.gui_element.ignored_by_interaction = false
 
     return new_node
 end
@@ -100,7 +98,7 @@ end
 function overlay_gui.enable_owner(entity_id)
     if ownder then
         local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
-        node.gui_element.enabled = true
+        node.gui_element.style = constants.style.dark_button_frame
         ownder = nil
     end
 end
@@ -467,7 +465,7 @@ end
 function overlay_gui.configure_location(main_gui_location)
     global.signal_node.location =
     {
-        x = main_gui_location.x + 415,
+        x = main_gui_location.x + 420,
         y = main_gui_location.y
     }
 
@@ -516,7 +514,7 @@ function overlay_gui.create_gui(player_index, node_param, elem_value, exclude_si
     global.constant_node = overlay_gui.create_constant_gui(player, node_param)
     
     -- Disable the GUI element without persisting the change
-    node_param.gui_element.enabled = false
+    node_param.gui_element.style = constants.style.dark_button_selected_frame
 end
 
 return overlay_gui
