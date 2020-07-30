@@ -120,8 +120,81 @@ add_styles({
         bottom_padding = 5,
         left_padding = 5,
 
-        width = 382,
-        height = 616,
+        width = 406,
+        height = 608,
+    },
+    [constants.style.main_tabbed_pane] =
+    {
+        type = "tabbed_pane_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        padding  = 12,
+        width = 388,
+        height = 0,
+        tab_content_frame =
+        {
+            type = "frame_style",
+            top_padding = 0,
+            right_padding = 0,
+            left_padding = 0,
+            bottom_padding = 0,
+            graphical_set =
+            {
+                base =
+                {
+                    top =
+                    {
+                        filename = constants.gui_image,
+                        position = {12, 0}, size = {1, 24}
+                    },
+                    bottom =
+                    {
+                        filename = constants.gui_image,
+                        position = {12, 0}, size = {1, 24}
+                    },
+                    left =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 12}, size = {24, 1}
+                    },
+                    left_top =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 24}, size = 24
+                    },
+                    left_bottom =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 48}, size = 24
+                    },
+                    right =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 12}, size = {24, 1}
+                    },
+                    right_top =
+                    {
+                        filename = constants.gui_image,
+                        position = {24, 24}, size = 24
+                    },
+                    right_bottom =
+                    {
+                        filename = constants.gui_image,
+                        position = {24, 48}, size = 24
+                    },
+                    draw_type = "outer"
+                },
+                shadow = default_inner_shadow
+            },
+        },
+        tab_container =
+        {
+            type = "horizontal_flow_style",
+            bottom_padding = 12,
+            --left_padding = 12,
+            --right_padding = 12,
+            horizontal_spacing = 0
+        }
     },
     [constants.style.signal_frame] =
     {
@@ -576,7 +649,7 @@ add_styles({
         vertical_align = "center",
         horizontal_align = "left",
         font = "default-semibold",
-        width = 128,
+        width = 92,
         font_color = {220, 220, 220}
     },
     [constants.style.close_button_frame] =
@@ -597,7 +670,6 @@ add_styles({
                 corner_size = 8,
             }
         },
-        left_click_sound = {{ filename = "__core__/sound/gui-tool-button.ogg", volume = 1 }},
     },
     [constants.style.scroll_pane] =
     {

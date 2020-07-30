@@ -145,6 +145,15 @@ function node:clear()
     self.updatable = false
 end
 
+function node:find_child(id)
+    for _, child in pairs(self.children) do
+        if child.id == id then
+            return child
+        end
+    end
+    return nil
+end
+
 function node:recursive_find(id)
     if self.id == id then
         return self

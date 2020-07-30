@@ -76,6 +76,21 @@ function node:build_gui_nodes(parent, node_param)
     for _, child in pairs(node_param.children) do
         node:build_gui_nodes(new_gui, child)
     end
+
+    if node_param.gui.type == "tabbed-pane" then
+        local tab = nil
+        for _, child in pairs(node_param.children) do
+            if not tab then
+                tab = child
+            else
+                node_param.gui_element.add_tab(tab.gui_element, child.gui_element)
+                tab = nil
+            end
+        end
+
+        node_param.gui_element.selected_tab_index = node_param.events_params.selected_tab_index
+    end
+
     return new_gui
 end
 
@@ -87,23 +102,62 @@ function node:create_main_gui(unit_number)
         caption = "MAIN FRAME "..unit_number
     })
 
-    local tasks_area = root:add_child({
+    local inner_mane_frame = root:add_child({
+        type = "frame",
+        style = "inside_deep_frame"
+    })
+
+    local tabbed_pane = inner_mane_frame:add_child({
+        type = "tabbed-pane",
+        direction = "horizontal",
+        style = constants.style.main_tabbed_pane
+    })
+    -- TEMP -- Open Second tab by default
+    tabbed_pane.events_params = {selected_tab_index = 2}
+    
+
+    local combinators_tab = tabbed_pane:add_child({
+        type = "tab",
+        direction = "vertical",
+        caption = "Combinators"
+    })
+
+    local combinators_tasks_area = tabbed_pane:add_child({
         type = "frame",
         direction = "vertical",
         style = constants.style.tasks_frame
     })
 
-    local scroll_pane = tasks_area:add_child({
+    local combinators_scroll_pane = combinators_tasks_area:add_child({
         type = "scroll-pane",
         direction = "vertical",
         style = constants.style.scroll_pane
     })
 
-    local new_task_dropdown_node = scroll_pane:add_child({
+
+    local timer_tab = tabbed_pane:add_child({
+        type = "tab",
+        direction = "vertical",
+        caption = "Timers"
+    })
+
+    local timers_tasks_area = tabbed_pane:add_child({
+        type = "frame",
+        direction = "vertical",
+        style = constants.style.tasks_frame
+    })
+
+    local timers_scroll_pane = timers_tasks_area:add_child({
+        type = "scroll-pane",
+        direction = "vertical",
+        style = constants.style.scroll_pane
+    })
+
+    local new_task_dropdown_node = timers_scroll_pane:add_child({
         type = "drop-down",
         direction = "horizontal",
         style = constants.style.task_dropdown_frame,
-        items = { "Repeatable Timer", "Single Use Timer" }
+        items = { "Continuously Repeatable Timer", "Callable Timer", "Callable Timer"}
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
@@ -112,7 +166,7 @@ function node:create_main_gui(unit_number)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Task"
+        caption = "+ Add Timer"
     })
 
     root:recursive_setup_events()
@@ -145,6 +199,7 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_repeatable_timer
             node_param.events.on_selection_state_changed[2] = node.on_selection_single_timer
+            node_param.events.on_selection_state_changed[3] = node.on_selection_single_timer
         elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_subtask_dropdown" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator
@@ -431,7 +486,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Subtask"
+        caption = "+ Add Combinator"
     })
     play_button_node.events_params =
     {

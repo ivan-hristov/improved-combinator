@@ -39,6 +39,7 @@ constants.entity.output.circuit_wire_max_distance = 15
 constants.style.prefix_uuid = "ac_"
 constants.style.dialogue_frame = constants.style.prefix_uuid.."dialogue_frame"
 constants.style.main_frame = constants.style.prefix_uuid.."main_frame"
+constants.style.main_tabbed_pane = constants.style.prefix_uuid.."main_tabbed_pane"
 constants.style.signal_frame = constants.style.prefix_uuid.."signal_frame"
 constants.style.signal_constants_frame = constants.style.prefix_uuid.."signal_constants_frame"
 constants.style.signal_constants_inner_frame = constants.style.prefix_uuid.."signal_constants_inner_frame"

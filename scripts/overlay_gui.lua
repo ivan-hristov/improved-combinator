@@ -463,7 +463,7 @@ end
 function overlay_gui.configure_location(main_gui_location)
     global.signal_node.location =
     {
-        x = main_gui_location.x + 420,
+        x = main_gui_location.x + 406,
         y = main_gui_location.y
     }
 

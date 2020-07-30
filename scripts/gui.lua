@@ -119,6 +119,22 @@ local function on_gui_value_changed(event)
     overlay_gui.on_gui_value_changed(event)
 end
 
+
+local function on_gui_selected_tab_changed(event)
+    logger.print("on_gui_selected_tab_changed name: "..event.element.name.." index: "..event.element.selected_tab_index)
+
+    local name = event.element.name
+    local unit_number = global.opened_entity[event.player_index]
+    local selected_index = event.element.selected_index
+
+    if global.entities[unit_number] then
+        local node = global.entities[unit_number].node:recursive_find(name)
+        if node and node.events.on_gui_selected_tab_changed then
+            node.events.on_gui_selected_tab_changed(event, node)
+        end
+    end
+end
+
 script.on_event(defines.events.on_gui_opened, on_gui_opened)
 script.on_event(defines.events.on_gui_closed, on_gui_closed)
 script.on_event(defines.events.on_gui_click, on_gui_click)
@@ -127,5 +143,4 @@ script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
 script.on_event(defines.events.on_gui_location_changed, on_gui_location_changed)
 script.on_event(defines.events.on_gui_value_changed, on_gui_value_changed)
-
-
+--script.on_event(defines.events.on_gui_selected_tab_changed, on_gui_selected_tab_changed)
