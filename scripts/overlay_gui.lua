@@ -175,7 +175,7 @@ function overlay_gui.on_click_change_subgroup(event, entity_id)
 
     for _, child in pairs(event.element.parent.children) do
         if child.name ~= event.element.name then
-            child.style = constants.style.signal_subgroup_selected_button_frame
+            child.enabled = true
         end
     end
 

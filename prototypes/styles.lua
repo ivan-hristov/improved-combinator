@@ -470,7 +470,7 @@ add_styles({
     {
         type = "frame_style",
         parent = constants.style.conditional_frame,
-        left_margin = 42
+        left_margin = 72
     },
     [constants.style.group_vertical_flow_frame] =
     {
@@ -694,7 +694,7 @@ add_styles({
     {
         type = "dropdown_style",
         parent = constants.style.task_dropdown_frame,
-        left_margin = 42
+        left_margin = 72
     },
     [constants.style.condition_comparator_dropdown_frame] =
     {
