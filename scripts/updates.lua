@@ -282,9 +282,9 @@ local function validate_sigals()
                     end
                 end
 
-                if update_logic.value_slot_2 then
-                    if cached_signals.functions.on_contains_element(update_logic.value_slot_2) == false then
-                        update_logic.value_slot_2 = nil
+                if update_logic.signal_slot_2 then
+                    if cached_signals.functions.on_contains_element(update_logic.signal_slot_2) == false then
+                        update_logic.signal_slot_2 = nil
                     end
                 end
 

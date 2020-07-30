@@ -702,7 +702,7 @@ add_styles({
         minimal_width = 0,
         left_padding = 4,
         right_padding = 0,
-        width = 56,
+        width = 64,
         height = 28,
 
         -- semi-hack redefining the graphical set to put shadow in to glow layer to be on top of the neighbour inset
@@ -767,12 +767,6 @@ add_styles({
                 graphical_set = {shadow = default_shadow}
             }
         }
-    },
-    [constants.style.condition_arithmetic_comparator_dropdown_frame] =
-    {
-        type = "dropdown_style",
-        parent = constants.style.condition_comparator_dropdown_frame,
-        width = 64
     },
     [constants.style.dropdown_overlay_label_frame] =
     {

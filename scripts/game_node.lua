@@ -285,9 +285,6 @@ function node.on_signal_changed_result(event, node_param)
 end
 
 function node:on_signal_confirm_change(event)
-
-    logger.print("on_signal_confirm_change: "..self.events_params.signal_type)
-
     if self.events_params.signal_type == "left_signal" then
         node.on_signal_changed_1(event, self)
     elseif self.events_params.signal_type == "left_constant" then
@@ -617,7 +614,7 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     local arithmetic_menu_node = repeatable_time_node:add_child({
         type = "drop-down",
         direction = "vertical",
-        style = constants.style.condition_arithmetic_comparator_dropdown_frame,
+        style = constants.style.condition_comparator_dropdown_frame,
         selected_index = 1,
         items = { "*", "/", "+", "-", "%", "^", "<<", ">>", "AND", "OR", "XOR" }
     })
