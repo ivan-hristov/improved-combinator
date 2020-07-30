@@ -120,8 +120,8 @@ add_styles({
         bottom_padding = 5,
         left_padding = 5,
 
-        width = 700,
-        height = 650,
+        width = 382,
+        height = 616,
     },
     [constants.style.signal_frame] =
     {
@@ -382,14 +382,14 @@ add_styles({
         parent = "inside_deep_frame_for_tabs",
         vertical_align = "top",
         horizontal_align = "left",
+        vertically_stretchable = "on",
 
         top_padding  = 0,
         right_padding = 0,
         bottom_padding = 0,
         left_padding = 0,
 
-        width = 400,
-        height = 600
+        width = 364
     },
     [constants.style.dropdown_options_frame] =
     {
@@ -470,7 +470,7 @@ add_styles({
     {
         type = "frame_style",
         parent = constants.style.conditional_frame,
-        left_margin = 72
+        left_margin = 36
     },
     [constants.style.group_vertical_flow_frame] =
     {
@@ -603,12 +603,13 @@ add_styles({
     {
         type = "scroll_pane_style",
         parent = constants.style.scroll_pane_with_dark_background,
+        vertically_stretchable = "on",
         top_padding  = 5,
         right_padding = 5,
         bottom_padding = 5,
         left_padding = 5,
-        width = 400,
-        height = 600,
+        width = 364,
+
         background_graphical_set =
         {
             position = {282, 17},
@@ -623,7 +624,7 @@ add_styles({
         {
             type = "vertical_flow_style",
             horizontally_stretchable = "off",
-            width = 378,
+            width = 342,
             
         },
     },
@@ -694,7 +695,7 @@ add_styles({
     {
         type = "dropdown_style",
         parent = constants.style.task_dropdown_frame,
-        left_margin = 72
+        left_margin = 36
     },
     [constants.style.condition_comparator_dropdown_frame] =
     {
