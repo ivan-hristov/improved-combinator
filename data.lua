@@ -1,3 +1,3 @@
 require("prototypes.advanced-combinator")
 require("prototypes.styles")
-require("prototypes.sprites")
+require("prototypes.other")

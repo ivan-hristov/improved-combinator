@@ -22,4 +22,10 @@ data:extend(
         mipmap_count = 2,
         flags = {"gui-icon"}
     },
+    {
+        type = "font",
+        name = "very-small-semibold",
+        from = "default-semibold",
+        size = 10
+    },
 })

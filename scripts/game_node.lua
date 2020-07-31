@@ -76,6 +76,21 @@ function node:build_gui_nodes(parent, node_param)
     for _, child in pairs(node_param.children) do
         node:build_gui_nodes(new_gui, child)
     end
+
+    if node_param.gui.type == "tabbed-pane" then
+        local tab = nil
+        for _, child in pairs(node_param.children) do
+            if not tab then
+                tab = child
+            else
+                node_param.gui_element.add_tab(tab.gui_element, child.gui_element)
+                tab = nil
+            end
+        end
+
+        node_param.gui_element.selected_tab_index = node_param.events_params.selected_tab_index
+    end
+
     return new_gui
 end
 
@@ -87,23 +102,62 @@ function node:create_main_gui(unit_number)
         caption = "MAIN FRAME "..unit_number
     })
 
-    local tasks_area = root:add_child({
+    local inner_mane_frame = root:add_child({
+        type = "frame",
+        style = "inside_deep_frame"
+    })
+
+    local tabbed_pane = inner_mane_frame:add_child({
+        type = "tabbed-pane",
+        direction = "horizontal",
+        style = constants.style.main_tabbed_pane
+    })
+    -- TEMP -- Open Second tab by default
+    tabbed_pane.events_params = {selected_tab_index = 2}
+    
+
+    local combinators_tab = tabbed_pane:add_child({
+        type = "tab",
+        direction = "vertical",
+        caption = "Combinators"
+    })
+
+    local combinators_tasks_area = tabbed_pane:add_child({
         type = "frame",
         direction = "vertical",
         style = constants.style.tasks_frame
     })
 
-    local scroll_pane = tasks_area:add_child({
+    local combinators_scroll_pane = combinators_tasks_area:add_child({
         type = "scroll-pane",
         direction = "vertical",
         style = constants.style.scroll_pane
     })
 
-    local new_task_dropdown_node = scroll_pane:add_child({
+
+    local timer_tab = tabbed_pane:add_child({
+        type = "tab",
+        direction = "vertical",
+        caption = "Timers"
+    })
+
+    local timers_tasks_area = tabbed_pane:add_child({
+        type = "frame",
+        direction = "vertical",
+        style = constants.style.tasks_frame
+    })
+
+    local timers_scroll_pane = timers_tasks_area:add_child({
+        type = "scroll-pane",
+        direction = "vertical",
+        style = constants.style.scroll_pane
+    })
+
+    local new_task_dropdown_node = timers_scroll_pane:add_child({
         type = "drop-down",
         direction = "horizontal",
         style = constants.style.task_dropdown_frame,
-        items = { "Repeatable Timer", "Single Use Timer" }
+        items = { "Continuously Repeatable Timer", "Callable Timer", "Callable Timer"}
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
@@ -112,7 +166,7 @@ function node:create_main_gui(unit_number)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Task"
+        caption = "+ Add Timer"
     })
 
     root:recursive_setup_events()
@@ -139,32 +193,17 @@ function node:setup_events(node_param)
     elseif node_param.events_id.on_gui_text_changed then
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
             node_param.events.on_gui_text_changed = node.on_text_change_time
-        elseif node_param.events_id.on_gui_text_changed == "on_text_changed_constant_slot_1" then
-            node_param.events.on_gui_text_changed = node.on_text_changed_constant_slot_1
-        elseif node_param.events_id.on_gui_text_changed == "on_text_changed_constant_slot_2" then
-            node_param.events.on_gui_text_changed = node.on_text_changed_constant_slot_2
-        end
-    elseif node_param.events_id.on_gui_elem_changed then
-        if node_param.events_id.on_gui_elem_changed == "on_signal_changed_1" then
-            node_param.events.on_gui_elem_changed = node.on_signal_changed_1
-        elseif node_param.events_id.on_gui_elem_changed == "on_signal_changed_2" then
-            node_param.events.on_gui_elem_changed = node.on_signal_changed_2
-        elseif node_param.events_id.on_gui_elem_changed == "on_signal_changed_result" then
-            node_param.events.on_gui_elem_changed = node.on_signal_changed_result
         end
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_repeatable_timer
             node_param.events.on_selection_state_changed[2] = node.on_selection_single_timer
+            node_param.events.on_selection_state_changed[3] = node.on_selection_single_timer
         elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_subtask_dropdown" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator
-            node_param.events.on_selection_state_changed[2] = node.on_selection_constant_combinator
-            node_param.events.on_selection_state_changed[3] = node.on_selection_constant_combinator
-            node_param.events.on_selection_state_changed[4] = node.on_selection_arithmetic_combinator
-            node_param.events.on_selection_state_changed[5] = node.on_selection_arithmetic_combinator
-            node_param.events.on_selection_state_changed[6] = node.on_selection_arithmetic_combinator
+            node_param.events.on_selection_state_changed[2] = node.on_selection_arithmetic_combinator
         elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
@@ -262,37 +301,37 @@ function node.on_text_change_time(event, node_param)
 end
 
 function node.on_text_changed_constant_slot_1(event, node_param)
-    local number = tonumber(event.element.text)
+    local number = tonumber(event.element.caption)
 
     if not number then
-        node_param.gui.text = nil
-        node_param.parent.update_logic.value_slot_1 = nil
+        node_param.gui.caption = nil
+        node_param.parent.parent.update_logic.value_slot_1 = nil
     else
-        node_param.gui.text = event.element.text
-        node_param.parent.update_logic.value_slot_1 = number
+        node_param.gui.caption = event.element.caption
+        node_param.parent.parent.update_logic.value_slot_1 = number
     end    
 end
 
 function node.on_text_changed_constant_slot_2(event, node_param)
-    local number = tonumber(event.element.text)
+    local number = tonumber(event.element.caption)
 
     if not number then
-        node_param.gui.text = nil
-        node_param.parent.update_logic.value_slot_2 = nil
+        node_param.gui.caption = nil
+        node_param.parent.parent.update_logic.value_slot_2 = nil
     else
-        node_param.gui.text = event.element.text
-        node_param.parent.update_logic.value_slot_2 = number
+        node_param.gui.caption = event.element.caption
+        node_param.parent.parent.update_logic.value_slot_2 = number
     end    
 end
 
 function node.on_signal_changed_1(event, node_param)
     node_param.gui.elem_value = event.element.elem_value
-    node_param.parent.update_logic.signal_slot_1 = event.element.elem_value
+    node_param.parent.parent.update_logic.signal_slot_1 = event.element.elem_value
 end
 
 function node.on_signal_changed_2(event, node_param)
     node_param.gui.elem_value = event.element.elem_value
-    node_param.parent.update_logic.signal_slot_2 = event.element.elem_value
+    node_param.parent.parent.update_logic.signal_slot_2 = event.element.elem_value
 end
 
 function node.on_signal_changed_result(event, node_param)
@@ -300,12 +339,16 @@ function node.on_signal_changed_result(event, node_param)
     node_param.parent.update_logic.signal_result = event.element.elem_value
 end
 
-function node:on_remote_signal_change(event)
-    if self.events_id.on_gui_elem_changed == "on_signal_changed_1" then
+function node:on_signal_confirm_change(event)
+    if self.events_params.signal_type == "left_signal" then
         node.on_signal_changed_1(event, self)
-    elseif self.events_id.on_gui_elem_changed == "on_signal_changed_2" then
+    elseif self.events_params.signal_type == "left_constant" then
+        node.on_text_changed_constant_slot_1(event, self)
+    elseif self.events_params.signal_type == "right_signal" then
         node.on_signal_changed_2(event, self)
-    elseif self.events_id.on_gui_elem_changed == "on_signal_changed_result" then
+    elseif self.events_params.signal_type == "right_constant" then
+        node.on_text_changed_constant_slot_2(event, self)
+    elseif self.events_params.signal_type == "result_signal" then 
         node.on_signal_changed_result(event, self)
     end
 end
@@ -427,12 +470,8 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            "Constant Combinator - Signal <=> Signal",
-            "Constant Combinator - Signal <=> Constant",
-            "Constant Combinator - Constant <=> Signal",
-            "Arithmetic Combinator - Signal <=> Signal",
-            "Arithmetic Combinator - Signal <=> Constant",
-            "Arithmetic Combinator - Constant <=> Signal"
+            "Constant Combinator",
+            "Arithmetic Combinator",
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -447,7 +486,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Subtask"
+        caption = "+ Add Combinator"
     })
     play_button_node.events_params =
     {
@@ -492,29 +531,15 @@ function node.on_selection_constant_combinator(event, node_param)
     repeatable_time_node:update_list_child_push(progressbar_node)
     --------------------------------------------------------
 
-    if event.element.selected_index == 3 then
-        local left_button_node = repeatable_time_node:add_child({
-            type = "textfield",
-            direction = "vertical",
-            style = constants.style.dark_textfield_frame,
-            numeric = true,
-            allow_decimal = false,
-            allow_negative = false,
-            lose_focus_on_confirm = true
-        })
-        left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
-    else
-        local left_button_node = repeatable_time_node:add_child({
-            type = "choose-elem-button",
-            direction = "vertical",        
-            style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
-            elem_type = "signal",
-            locked = true,
-            custom = "combinator-1"
-        })
-        left_button_node.events_id.on_click = "on_click_open_signal"
-        left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
-    end
+    local left_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        true,
+        {
+            signal_type = "left_signal",
+            constant_type = "left_constant"
+        }
+    )
+
     --------------------------------------------------------
 
     local constant_menu_node = repeatable_time_node:add_child({
@@ -527,29 +552,15 @@ function node.on_selection_constant_combinator(event, node_param)
     constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
 
     --------------------------------------------------------
-    if event.element.selected_index == 2 then
-        local right_button_node = repeatable_time_node:add_child({
-            type = "textfield",
-            direction = "vertical",
-            style = constants.style.dark_textfield_frame,
-            numeric = true,
-            allow_decimal = false,
-            allow_negative = false,
-            lose_focus_on_confirm = true
-        })
-        right_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
-    else
-        local right_button_node = repeatable_time_node:add_child({
-            type = "choose-elem-button",
-            direction = "vertical",
-            style = (event.element.selected_index == 1 and constants.style.dark_button_constant_frame or constants.style.dark_button_frame),
-            elem_type = "signal",
-            locked = true,
-            custom = "combinator-2"
-        })
-        right_button_node.events_id.on_click = "on_click_open_signal"
-        right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
-    end
+
+    local right_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        true,
+        {
+            signal_type = "right_signal",
+            constant_type = "right_constant"
+        }
+    )
 
     --------------------------------------------------------
 
@@ -563,16 +574,14 @@ function node.on_selection_constant_combinator(event, node_param)
         ignored_by_interaction = true
     })
 
-    local signal_result_node = repeatable_time_node:add_child({
-        type = "choose-elem-button",
-        direction = "vertical",
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-        locked = true,
-        custom = "combinator-result"
-    })
-    signal_result_node.events_id.on_click = "on_click_open_signal"
-    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
+
+    local result_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        false,
+        {
+            signal_type = "result_signal",
+        }
+    )
 
     --------------------------------------------------------
     local radio_group_node = repeatable_time_node:add_child({
@@ -646,36 +655,21 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     repeatable_time_node:update_list_child_push(progressbar_node)
     --------------------------------------------------------
 
-    if event.element.selected_index == 6 then
-        local left_button_node = repeatable_time_node:add_child({
-            type = "textfield",
-            direction = "vertical",
-            style = constants.style.dark_arithmetic_textfield_frame,
-            numeric = true,
-            allow_decimal = false,
-            allow_negative = false,
-            lose_focus_on_confirm = true
-        })
-        left_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_1"
-    else
-        local left_button_node = repeatable_time_node:add_child({
-            type = "choose-elem-button",
-            direction = "vertical",        
-            style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
-            elem_type = "signal",
-            locked = true,
-            custom = "arithmetic-1"
-        })
-        left_button_node.events_id.on_click = "on_click_open_signal"
-        left_button_node.events_id.on_gui_elem_changed = "on_signal_changed_1"
-    end
+    local left_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        true,
+        {
+            signal_type = "left_signal",
+            constant_type = "left_constant"
+        }
+    )
 
     --------------------------------------------------------
 
     local arithmetic_menu_node = repeatable_time_node:add_child({
         type = "drop-down",
         direction = "vertical",
-        style = constants.style.condition_arithmetic_comparator_dropdown_frame,
+        style = constants.style.condition_comparator_dropdown_frame,
         selected_index = 1,
         items = { "*", "/", "+", "-", "%", "^", "<<", ">>", "AND", "OR", "XOR" }
     })
@@ -683,29 +677,14 @@ function node.on_selection_arithmetic_combinator(event, node_param)
 
     --------------------------------------------------------
 
-    if event.element.selected_index == 5 then
-        local right_button_node = repeatable_time_node:add_child({
-            type = "textfield",
-            direction = "vertical",
-            style = constants.style.dark_arithmetic_textfield_frame,
-            numeric = true,
-            allow_decimal = false,
-            allow_negative = false,
-            lose_focus_on_confirm = true
-        })
-        right_button_node.events_id.on_gui_text_changed = "on_text_changed_constant_slot_2"
-    else
-        local right_button_node = repeatable_time_node:add_child({
-            type = "choose-elem-button",
-            direction = "vertical",
-            style = (event.element.selected_index == 4 and constants.style.dark_button_arithmetic_frame or constants.style.dark_button_frame),
-            elem_type = "signal",
-            locked = true,
-            custom = "arithmetic-2"
-        })
-        right_button_node.events_id.on_click = "on_click_open_signal"
-        right_button_node.events_id.on_gui_elem_changed = "on_signal_changed_2"
-    end
+    local right_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        true,
+        {
+            signal_type = "right_signal",
+            constant_type = "right_constant"
+        }
+    )
 
     --------------------------------------------------------
 
@@ -719,16 +698,13 @@ function node.on_selection_arithmetic_combinator(event, node_param)
         ignored_by_interaction = true
     })
 
-    local signal_result_node = repeatable_time_node:add_child({
-        type = "choose-elem-button",
-        direction = "vertical",
-        style = constants.style.dark_button_frame,
-        elem_type = "signal",
-        locked = true,
-        custom = "arithmetic-result"
-    })
-    signal_result_node.events_id.on_click = "on_click_open_signal"
-    signal_result_node.events_id.on_gui_elem_changed = "on_signal_changed_result"
+    local result_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        false,
+        {
+            signal_type = "result_signal",
+        }
+    )
 
     --------------------------------------------------------
     local close_padding_node = repeatable_time_node:add_child({
@@ -759,14 +735,72 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end  
 
+function node.create_signal_constant(parent_node, create_constant, types)
+
+    if not create_constant then
+        local signal_node = parent_node:add_child({
+            type = "choose-elem-button",
+            direction = "vertical",        
+            style = constants.style.dark_button_frame,
+            elem_type = "signal",
+            locked = true,
+        })
+        signal_node.events_id.on_click = "on_click_open_signal"
+        signal_node.events_params =
+        {
+            constant_pane = false,
+            signal_type = types.signal_type
+        }
+
+        return signal_node
+    else
+        local flow_node = parent_node:add_child({
+            type = "flow",
+            direction = "horizontal",
+        })
+
+        local signal_node = flow_node:add_child({
+            type = "choose-elem-button",
+            direction = "vertical",        
+            style = constants.style.dark_button_frame,
+            elem_type = "signal",
+            locked = true,
+        })
+        signal_node.events_id.on_click = "on_click_open_signal"
+
+        local constant_node = flow_node:add_child({
+            type = "button",
+            direction = "vertical",        
+            style = constants.style.dark_button_frame,
+            tooltip = "Constant number",
+            ignored_by_interaction = true,
+            visible = false
+        })
+        constant_node.events_id.on_click = "on_click_open_signal"
+        constant_node.events_params =
+        {
+            other_node_id = signal_node.id,
+            constant_pane = true,
+            signal_type = types.constant_type
+        }
+        signal_node.events_params =
+        {
+            other_node_id = constant_node.id,
+            constant_pane = true,
+            signal_type = types.signal_type
+        }
+        return flow_node
+    end
+end
+
 function node.on_click_open_signal(event, node_param)
     if event.button == defines.mouse_button_type.left then
         if not overlay_gui.has_opened_signals_node() then
 
-            local top_gui = overlay_gui.create_gui(
+            overlay_gui.create_gui(
                 event.player_index,
                 node_param,
-                event.element.elem_value,
+                (event.element.type == "choose-elem-button") and event.element.elem_value or nil,
                 {
                     {type="virtual", name="signal-everything"},
                     {type="virtual", name="signal-anything"},
@@ -776,16 +810,17 @@ function node.on_click_open_signal(event, node_param)
 
             local root_node = global.entities[node_param.entity_id].node
             if root_node.gui_element.location then
-                top_gui.location =
-                {
-                    x = root_node.gui_element.location.x + 415,
-                    y = root_node.gui_element.location.y
-                }
+                overlay_gui.configure_location(root_node.gui_element.location)
             end
         end
     elseif event.button == defines.mouse_button_type.right then
-        node_param.gui.elem_value = nil
-        event.element.elem_value = nil
+        if event.element.type == "choose-elem-button" then     
+            node_param.gui.elem_value = nil
+            event.element.elem_value = nil
+        else
+            node_param.gui.caption = ""
+            event.element.caption = ""
+        end
     end
 end
 

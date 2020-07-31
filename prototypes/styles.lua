@@ -88,8 +88,8 @@ add_styles({
             shadow = default_shadow
         },
         flow_style = { type = "flow_style" },
-        horizontal_flow_style = { type = "horizontal_flow_style" }, -- content in Gui::Direction::Horizontal
-        vertical_flow_style = { type = "vertical_flow_style" }, -- content in Gui::Direction::Vertical
+        horizontal_flow_style = { type = "horizontal_flow_style" },
+        vertical_flow_style = { type = "vertical_flow_style" },
         header_flow_style =
         {
             type = "horizontal_flow_style",
@@ -120,8 +120,81 @@ add_styles({
         bottom_padding = 5,
         left_padding = 5,
 
-        width = 700,
-        height = 650,
+        width = 406,
+        height = 608,
+    },
+    [constants.style.main_tabbed_pane] =
+    {
+        type = "tabbed_pane_style",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        padding  = 12,
+        width = 388,
+        height = 0,
+        tab_content_frame =
+        {
+            type = "frame_style",
+            top_padding = 0,
+            right_padding = 0,
+            left_padding = 0,
+            bottom_padding = 0,
+            graphical_set =
+            {
+                base =
+                {
+                    top =
+                    {
+                        filename = constants.gui_image,
+                        position = {12, 0}, size = {1, 24}
+                    },
+                    bottom =
+                    {
+                        filename = constants.gui_image,
+                        position = {12, 0}, size = {1, 24}
+                    },
+                    left =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 12}, size = {24, 1}
+                    },
+                    left_top =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 24}, size = 24
+                    },
+                    left_bottom =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 48}, size = 24
+                    },
+                    right =
+                    {
+                        filename = constants.gui_image,
+                        position = {0, 12}, size = {24, 1}
+                    },
+                    right_top =
+                    {
+                        filename = constants.gui_image,
+                        position = {24, 24}, size = 24
+                    },
+                    right_bottom =
+                    {
+                        filename = constants.gui_image,
+                        position = {24, 48}, size = 24
+                    },
+                    draw_type = "outer"
+                },
+                shadow = default_inner_shadow
+            },
+        },
+        tab_container =
+        {
+            type = "horizontal_flow_style",
+            bottom_padding = 12,
+            --left_padding = 12,
+            --right_padding = 12,
+            horizontal_spacing = 0
+        }
     },
     [constants.style.signal_frame] =
     {
@@ -131,6 +204,47 @@ add_styles({
         width = 450,
         height = 0,
         horizontally_stretchable = "on"
+    },
+    [constants.style.signal_constants_frame] =
+    {
+        type = "frame_style",
+        parent = constants.style.signal_frame,
+        horizontally_stretchable = "off",
+        vertically_stretchable = "off",
+        width = 450,
+        height = 105,
+    },
+    [constants.style.signal_constants_value_frame] =
+    {
+      type = "textbox_style",
+      horizontally_stretchable = "off",
+      vertically_stretchable = "off",
+      horizontal_align = "center",
+      font = "default",
+      size = {80, 28},
+      left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
+    },
+    [constants.style.signal_constants_inner_frame] =
+    {
+        type = "frame_style",
+        parent = "inside_shallow_frame",
+        horizontally_stretchable = "on",
+        vertically_stretchable = "on",
+        vertical_align = "center",
+        horizontal_align = "left",
+        margin = 0,
+        padding  = 12,
+        width = 0,
+        height = 0,
+
+        horizontal_flow_style =
+        {
+            type = "horizontal_flow_style",
+            vertical_align = "center",
+            horizontal_align = "left",
+            horizontally_stretchable = "on",
+            vertically_stretchable = "on",
+        },
     },
     [constants.style.signal_inner_frame] =
     {
@@ -310,20 +424,45 @@ add_styles({
             shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
         }
     },
+    [constants.style.signal_subgroup_selected_button_frame] =
+    {
+        type = "button_style",
+        parent = "slot_button",
+        padding = 0,
+
+        default_graphical_set =
+        {
+            base = {border = 4, position = {80, 736}, size = 80},
+            shadow = offset_by_2_rounded_corners_glow(default_dirt_color),
+        }
+    },
+    [constants.style.constant_button_frame] =
+    {
+        type = "button_style",
+        parent = "button_with_shadow",
+        horizontal_align = "center",
+        vertical_align = "center",
+        horizontally_stretchable = "on",
+
+        left_margin = 40,
+        right_padding = 12,
+        width = 110,
+        height = 28
+    },
     [constants.style.tasks_frame] =
     {
         type = "frame_style",
         parent = "inside_deep_frame_for_tabs",
         vertical_align = "top",
         horizontal_align = "left",
+        vertically_stretchable = "on",
 
         top_padding  = 0,
         right_padding = 0,
         bottom_padding = 0,
         left_padding = 0,
 
-        width = 400,
-        height = 600
+        width = 364
     },
     [constants.style.dropdown_options_frame] =
     {
@@ -404,7 +543,7 @@ add_styles({
     {
         type = "frame_style",
         parent = constants.style.conditional_frame,
-        left_margin = 42
+        left_margin = 36
     },
     [constants.style.group_vertical_flow_frame] =
     {
@@ -510,7 +649,7 @@ add_styles({
         vertical_align = "center",
         horizontal_align = "left",
         font = "default-semibold",
-        width = 128,
+        width = 92,
         font_color = {220, 220, 220}
     },
     [constants.style.close_button_frame] =
@@ -531,18 +670,18 @@ add_styles({
                 corner_size = 8,
             }
         },
-        left_click_sound = {{ filename = "__core__/sound/gui-tool-button.ogg", volume = 1 }},
     },
     [constants.style.scroll_pane] =
     {
         type = "scroll_pane_style",
         parent = constants.style.scroll_pane_with_dark_background,
+        vertically_stretchable = "on",
         top_padding  = 5,
         right_padding = 5,
         bottom_padding = 5,
         left_padding = 5,
-        width = 400,
-        height = 600,
+        width = 364,
+
         background_graphical_set =
         {
             position = {282, 17},
@@ -557,7 +696,7 @@ add_styles({
         {
             type = "vertical_flow_style",
             horizontally_stretchable = "off",
-            width = 378,
+            width = 342,
             
         },
     },
@@ -628,7 +767,7 @@ add_styles({
     {
         type = "dropdown_style",
         parent = constants.style.task_dropdown_frame,
-        left_margin = 42
+        left_margin = 36
     },
     [constants.style.condition_comparator_dropdown_frame] =
     {
@@ -636,7 +775,7 @@ add_styles({
         minimal_width = 0,
         left_padding = 4,
         right_padding = 0,
-        width = 56,
+        width = 64,
         height = 28,
 
         -- semi-hack redefining the graphical set to put shadow in to glow layer to be on top of the neighbour inset
@@ -702,12 +841,6 @@ add_styles({
             }
         }
     },
-    [constants.style.condition_arithmetic_comparator_dropdown_frame] =
-    {
-        type = "dropdown_style",
-        parent = constants.style.condition_comparator_dropdown_frame,
-        width = 64
-    },
     [constants.style.dropdown_overlay_label_frame] =
     {
         type = "label_style",
@@ -720,10 +853,33 @@ add_styles({
     {
         type = "button_style",
         parent = "train_schedule_item_select_button",
-        font = "default-semibold",
-        ont_color = {225, 225, 225},
+        font = "very-small-semibold",
+        default_font_color = {225, 225, 225},
+
         width = 28,
-        height = 28
+        height = 28,
+    },
+    [constants.style.dark_button_selected_frame] =
+    {
+        type = "button_style",
+        parent = constants.style.dark_button_frame,
+
+        default_font_color = {20, 20, 20},
+
+        default_graphical_set =
+        {
+            base = {border = 4, position = {162, 738}, size = 76},
+            shadow =
+            {
+                position = {378, 103},
+                corner_size = 16,
+                top_outer_border_shift = 4,
+                bottom_outer_border_shift = -4,
+                left_outer_border_shift = 4,
+                right_outer_border_shift = -4,
+                draw_type = "outer"
+            }
+        }
     },
     [constants.style.dark_button_arithmetic_frame] =
     {
