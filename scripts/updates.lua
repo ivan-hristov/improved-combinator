@@ -45,17 +45,30 @@ end
 local function update_timer_and_progress_bar(gui_element, update_logic)
     local timer_finished = false
 
+    if update_logic.activation_queued_on and update_logic.activation_queued_on ~= game.tick then
+        update_logic.activation_queued_on = nil
+        update_logic.active = true
+    end
+
     if update_logic and update_logic.active then
         if update_logic.max_value > update_logic.value then
             update_logic.value = update_logic.value + 1
         else
             update_logic.value = 0
             timer_finished = true
+
+            if not update_logic.repeatable then
+                update_logic.active = false
+            end
         end
 
         if gui_element and gui_element.valid and update_logic.max_value ~= 0 then
             -- Convert the game ticks to a range of 0..1
             gui_element.value = update_logic.value / update_logic.max_value
+        end
+
+        if update_logic.every_tick then
+            return true
         end
     end
 
@@ -63,7 +76,7 @@ local function update_timer_and_progress_bar(gui_element, update_logic)
 end
 
 local function is_invalid(update_logic)
-    return update_logic.signal_result == nil or
+    return (update_logic.signal_result == nil and update_logic.callable_node_id == nil) or
     (update_logic.signal_slot_1 == nil and update_logic.value_slot_1 == nil) or
     (update_logic.signal_slot_2 == nil and update_logic.value_slot_2 == nil)
 end
@@ -88,6 +101,13 @@ local function set_output_signal(signal, entity_id, result)
     end
     
     output_signals[entity_id][signal.name] = { signal = signal, count = result }
+end
+
+local function schedule_callable_timer(entity_id, node_id)
+    local node = global.entities[entity_id].node:recursive_find(node_id)
+    if node and not node.update_logic.active and not node.update_logic.activation_queued_on then
+        node.update_logic.activation_queued_on = game.tick
+    end
 end
 
 local function update_constant_combinator(input_signal, entity_id, update_logic)
@@ -133,12 +153,15 @@ local function update_constant_combinator(input_signal, entity_id, update_logic)
     end
 
     if combinator_result ~= nil then
-        if not update_logic.output_value then
-            combinator_result =  1
+        if update_logic.callable_combinator then
+            schedule_callable_timer(entity_id, update_logic.callable_node_id)
+        else
+            if not update_logic.output_value then
+                combinator_result =  1
+            end
+            set_output_signal(update_logic.signal_result, entity_id, combinator_result)
         end
-        set_output_signal(update_logic.signal_result, entity_id, combinator_result)
-    end
-
+     end
 end
 
 local function update_arithmetic_combinator(input_signal, entity_id, update_logic)
@@ -209,17 +232,19 @@ local function process_events()
         local input_signal = input_signals[entity_id]
         if input_signal then
             for iter in entity.update_list:iterator() do
-                local timer_finished = update_timer_and_progress_bar(
+                local check_combinators = update_timer_and_progress_bar(
                     iter.data.node_element.gui_element,
                     iter.data.node_element.update_logic)
 
-                if timer_finished then
+                if check_combinators then
                     for child_iter in iter.data.children:iterator() do
                         local update_logic = child_iter.data.node_element.update_logic
                         if update_logic.constant_combinator then
                             update_constant_combinator(input_signal, entity_id, update_logic)
                         elseif update_logic.arithmetic_combinator then
                             update_arithmetic_combinator(input_signal, entity_id, update_logic)
+                        elseif update_logic.callable_combinator then
+                            update_constant_combinator(input_signal, entity_id, update_logic)
                         end
                     end
                 end
@@ -298,8 +323,8 @@ local function validate_sigals()
     end
 end
 
-local function on_tick(event)
-    -- We must recreate all metatables once after a game is loaded
+local function on_tick()
+    -- Recreate all metatables once after a game is loaded
     if not game_loaded then
         overlay_gui.on_load()
         cached_signals.functions.on_game_load()
