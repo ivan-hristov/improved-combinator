@@ -323,56 +323,39 @@ function node.on_text_change_time(event, node_param)
     end
 end
 
-function node.on_text_changed_constant_slot_1(event, node_param)
-    local number = tonumber(event.element.caption)
-
-    if not number then
-        node_param.gui.caption = nil
-        node_param.parent.parent.update_logic.value_slot_1 = nil
-    else
-        node_param.gui.caption = event.element.caption
-        node_param.parent.parent.update_logic.value_slot_1 = number
-    end    
+function node.on_text_changed_constant_slot_1(node_param)
+    node_param.parent.parent.update_logic.value_slot_1 = node_param.gui.number
+    node_param.gui_element.caption = node_param.gui.caption
 end
 
-function node.on_text_changed_constant_slot_2(event, node_param)
-    local number = tonumber(event.element.caption)
-
-    if not number then
-        node_param.gui.caption = nil
-        node_param.parent.parent.update_logic.value_slot_2 = nil
-    else
-        node_param.gui.caption = event.element.caption
-        node_param.parent.parent.update_logic.value_slot_2 = number
-    end    
+function node.on_text_changed_constant_slot_2(node_param)
+    node_param.parent.parent.update_logic.value_slot_2 = node_param.gui.number
+    node_param.gui_element.caption = node_param.gui.caption 
 end
 
-function node.on_signal_changed_1(event, node_param)
-    node_param.gui.elem_value = event.element.elem_value
-    node_param.parent.parent.update_logic.signal_slot_1 = event.element.elem_value
+function node.on_signal_changed_1(node_param)
+    node_param.parent.parent.update_logic.signal_slot_1 = node_param.gui.elem_value
 end
 
-function node.on_signal_changed_2(event, node_param)
-    node_param.gui.elem_value = event.element.elem_value
-    node_param.parent.parent.update_logic.signal_slot_2 = event.element.elem_value
+function node.on_signal_changed_2(node_param)
+    node_param.parent.parent.update_logic.signal_slot_2 = node_param.gui.elem_value
 end
 
-function node.on_signal_changed_result(event, node_param)
-    node_param.gui.elem_value = event.element.elem_value
-    node_param.parent.update_logic.signal_result = event.element.elem_value
+function node.on_signal_changed_result(node_param)
+    node_param.parent.update_logic.signal_result = node_param.gui.elem_value
 end
 
-function node:on_signal_confirm_change(event)
+function node:on_signal_confirm_change()
     if self.events_params.signal_type == "left_signal" then
-        node.on_signal_changed_1(event, self)
+        node.on_signal_changed_1(self)
     elseif self.events_params.signal_type == "left_constant" then
-        node.on_text_changed_constant_slot_1(event, self)
+        node.on_text_changed_constant_slot_1(self)
     elseif self.events_params.signal_type == "right_signal" then
-        node.on_signal_changed_2(event, self)
+        node.on_signal_changed_2(self)
     elseif self.events_params.signal_type == "right_constant" then
-        node.on_text_changed_constant_slot_2(event, self)
+        node.on_text_changed_constant_slot_2(self)
     elseif self.events_params.signal_type == "result_signal" then 
-        node.on_signal_changed_result(event, self)
+        node.on_signal_changed_result(self)
     end
 end
 

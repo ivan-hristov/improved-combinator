@@ -254,9 +254,10 @@ function overlay_gui.on_click_set_constant(event, entity_id)
                 end
 
                 node.gui.caption = text
-                node.gui_element.caption = text
+                node.gui.number = number
+
                 overlay_gui.destory_top_nodes_and_unselect(event.player_index, entity_id)
-                node:on_signal_confirm_change({element = node.gui_element})
+                node:on_signal_confirm_change()
             end
         end
     end
