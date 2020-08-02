@@ -152,6 +152,7 @@ local function update_constant_combinator(input_signal, entity_id, update_logic)
         end
     end
 
+    --logger.print("Combinator at: "..update_logic.sign_index.." left: "..tostring(left_count).." right: "..tostring(right_count))
     if combinator_result ~= nil then
         if update_logic.callable_combinator then
             schedule_callable_timer(entity_id, update_logic.callable_node_id)
@@ -239,12 +240,10 @@ local function process_events()
                 if check_combinators then
                     for child_iter in iter.data.children:iterator() do
                         local update_logic = child_iter.data.node_element.update_logic
-                        if update_logic.constant_combinator then
+                        if update_logic.constant_combinator or update_logic.callable_combinator then
                             update_constant_combinator(input_signal, entity_id, update_logic)
                         elseif update_logic.arithmetic_combinator then
                             update_arithmetic_combinator(input_signal, entity_id, update_logic)
-                        elseif update_logic.callable_combinator then
-                            update_constant_combinator(input_signal, entity_id, update_logic)
                         end
                     end
                 end
