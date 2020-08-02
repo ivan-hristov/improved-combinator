@@ -104,7 +104,7 @@ local function on_gui_selection_state_changed(event)
     if global.entities[unit_number] then
         local node = global.entities[unit_number].node:recursive_find(name)
         if node and node.events.on_selection_state_changed then
-            node.events.on_selection_state_changed[selected_index](event, node)
+            node.events.on_selection_state_changed(event, node, selected_index)
         end
     end
 end

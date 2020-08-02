@@ -207,40 +207,36 @@ function node:setup_events(node_param)
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
             node_param.events.on_gui_text_changed = node.on_text_change_time
         end
-    -- TODO refactor, this is not needed --
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
-            node_param.events.on_selection_state_changed = {}
-            node_param.events.on_selection_state_changed[1] = node.on_selection_repeatable_timer
-            node_param.events.on_selection_state_changed[2] = node.on_selection_callable_tick_timer
-            node_param.events.on_selection_state_changed[3] = node.on_selection_callable_timer
+            node_param.events.on_selection_state_changed = node.on_selection_changed_task_dropdown
         elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_subtask_dropdown" then
-            node_param.events.on_selection_state_changed = {}
-            node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator
-            node_param.events.on_selection_state_changed[2] = node.on_selection_arithmetic_combinator
-            node_param.events.on_selection_state_changed[3] = node.on_selection_callable_combinator
+            node_param.events.on_selection_state_changed = node.on_selection_changed_subtask_dropdown
         elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
-            node_param.events.on_selection_state_changed = {}
-            node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[2] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[3] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[4] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[5] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[6] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed = node.on_selection_combinator_changed
         elseif node_param.events_id.on_selection_state_changed == "on_selection_arithmetic_changed" then
-            node_param.events.on_selection_state_changed = {}
-            node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[2] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[3] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[4] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[5] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[6] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[7] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[8] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[9] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[10] = node.on_selection_combinator_changed
-            node_param.events.on_selection_state_changed[11] = node.on_selection_combinator_changed
+            node_param.events.on_selection_state_changed = node.on_selection_combinator_changed
         end
+    end
+end
+
+function node.on_selection_changed_task_dropdown(event, node_param, selected_index)
+    if selected_index == 1 then
+        node.on_selection_repeatable_timer(event, node_param)
+    elseif selected_index == 2 then
+        node.on_selection_callable_tick_timer(event, node_param)
+    elseif selected_index == 3 then
+        node.on_selection_callable_timer(event, node_param)
+    end
+end
+
+function node.on_selection_changed_subtask_dropdown(event, node_param, selected_index)
+    if selected_index == 1 then
+        node.on_selection_constant_combinator(event, node_param)
+    elseif selected_index == 2 then
+        node.on_selection_arithmetic_combinator(event, node_param)
+    elseif selected_index == 3 then
+        node.on_selection_callable_combinator(event, node_param)
     end
 end
 
@@ -377,9 +373,9 @@ function node:on_signal_confirm_change(event)
     end
 end
 
-function node.on_selection_combinator_changed(event, node_param)
-    node_param.gui.selected_index = event.element.selected_index
-    node_param.parent.update_logic.sign_index = event.element.selected_index
+function node.on_selection_combinator_changed(event, node_param, selected_index)
+    node_param.gui.selected_index = selected_index
+    node_param.parent.update_logic.sign_index = selected_index
 end
 
 function node.on_click_radiobutton_constant_combinator_one(event, node_param)
