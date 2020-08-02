@@ -324,21 +324,25 @@ function node.on_text_change_time(event, node_param)
 end
 
 function node.on_text_changed_constant_slot_1(node_param)
+    node_param.parent.parent.update_logic.signal_slot_1 = nil
     node_param.parent.parent.update_logic.value_slot_1 = node_param.gui.number
     node_param.gui_element.caption = node_param.gui.caption
 end
 
 function node.on_text_changed_constant_slot_2(node_param)
+    node_param.parent.parent.update_logic.signal_slot_2 = nil
     node_param.parent.parent.update_logic.value_slot_2 = node_param.gui.number
     node_param.gui_element.caption = node_param.gui.caption 
 end
 
 function node.on_signal_changed_1(node_param)
     node_param.parent.parent.update_logic.signal_slot_1 = node_param.gui.elem_value
+    node_param.parent.parent.update_logic.value_slot_1 = nil
 end
 
 function node.on_signal_changed_2(node_param)
     node_param.parent.parent.update_logic.signal_slot_2 = node_param.gui.elem_value
+    node_param.parent.parent.update_logic.value_slot_2 = nil
 end
 
 function node.on_signal_changed_result(node_param)
