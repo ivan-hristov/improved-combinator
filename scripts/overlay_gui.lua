@@ -85,12 +85,10 @@ end
 function overlay_gui.switch_nodes(old_node)
     old_node.gui.visible = false
     old_node.gui_element.visible = false
-    old_node.gui_element.ignored_by_interaction = true
 
     local new_node = old_node.parent:recursive_find(old_node.events_params.other_node_id)    
     new_node.gui.visible = true
     new_node.gui_element.visible = true
-    new_node.gui_element.ignored_by_interaction = false
 
     return new_node
 end

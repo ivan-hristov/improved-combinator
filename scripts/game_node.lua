@@ -1034,7 +1034,6 @@ function node.create_signal_constant(parent_node, create_constant, types)
             direction = "vertical",        
             style = constants.style.dark_button_frame,
             tooltip = "Constant number",
-            ignored_by_interaction = true,
             visible = false
         })
         constant_node.events_id.on_click = "on_click_open_signal"
