@@ -822,7 +822,7 @@ add_styles({
             },
             disabled_graphical_set =
             {
-                base = {position = {17, 17}, corner_size = 8},
+                base = {position = {0, 0}, corner_size = 8},
                 glow = default_dirt
             },
             selected_graphical_set =
