@@ -633,6 +633,27 @@ add_styles({
       size = {62, 28},
       left_click_sound = {{ filename = "__core__/sound/gui-menu-small.ogg", volume = 1 }},
     },
+    [constants.style.callable_timer_label] =
+    {
+      type = "label_style",
+      vertical_align = "center",
+      horizontal_align = "left",
+      horizontally_squashable = "on",
+      font = "default-semibold",
+      left_margin = 5,
+      width = 93,
+      font_color = {220, 220, 220}
+    },
+    [constants.style.callable_begining_label_frame] =
+    {
+      type = "label_style",
+      vertical_align = "center",
+      horizontal_align = "right",
+      horizontally_squashable = "on",
+      font = "default-semibold",
+      width = 50,
+      font_color = {220, 220, 220}
+    },
     [constants.style.repeatable_begining_label_frame] =
     {
       type = "label_style",
@@ -840,6 +861,12 @@ add_styles({
                 graphical_set = {shadow = default_shadow}
             }
         }
+    },
+    [constants.style.callable_timer_dropdown_frame] =
+    {
+        type = "dropdown_style",
+        parent = constants.style.condition_comparator_dropdown_frame,
+        width = 114
     },
     [constants.style.dropdown_overlay_label_frame] =
     {

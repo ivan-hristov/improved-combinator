@@ -53,6 +53,19 @@ function node:setup_arithmetic_combinator()
     }
 end
 
+function node:setup_callable_timer()
+    self.update_logic =
+    {
+        callable_combinator = true,
+        call_on_every_tick = false,
+        signal_slot_1 = nil,
+        sign_index = 1,
+        signal_slot_2 = nil,
+        value_slot_2 = nil,
+        callable_node = nil
+    }
+end
+
 function node:safely_add_gui_child(parent, style)
     for _, child in pairs(parent.children) do
         if child == name then
@@ -157,7 +170,7 @@ function node:create_main_gui(unit_number)
         type = "drop-down",
         direction = "horizontal",
         style = constants.style.task_dropdown_frame,
-        items = { "Continuously Repeatable Timer", "Callable Timer", "Callable Timer"}
+        items = {"Repeatable Timer", "Callable Tick Timer", "Callable Timer"}
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
@@ -194,16 +207,18 @@ function node:setup_events(node_param)
         if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
             node_param.events.on_gui_text_changed = node.on_text_change_time
         end
+    -- TODO refactor, this is not needed --
     elseif node_param.events_id.on_selection_state_changed then
         if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_repeatable_timer
-            node_param.events.on_selection_state_changed[2] = node.on_selection_single_timer
-            node_param.events.on_selection_state_changed[3] = node.on_selection_single_timer
+            node_param.events.on_selection_state_changed[2] = node.on_selection_callable_tick_timer
+            node_param.events.on_selection_state_changed[3] = node.on_selection_callable_timer
         elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_subtask_dropdown" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_constant_combinator
             node_param.events.on_selection_state_changed[2] = node.on_selection_arithmetic_combinator
+            node_param.events.on_selection_state_changed[3] = node.on_selection_callable_combinator
         elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
             node_param.events.on_selection_state_changed = {}
             node_param.events.on_selection_state_changed[1] = node.on_selection_combinator_changed
@@ -230,6 +245,15 @@ function node:setup_events(node_param)
 end
 
 function node.on_click_close_button(event, node_param)
+
+    if node_param.parent.parent.events_params.timer_name and node_param.events_params.scroll_pane_node_id then
+        local unit_number = global.opened_entity[event.player_index]
+        local scroll_pane_node = global.entities[unit_number].node:recursive_find(node_param.events_params.scroll_pane_node_id)
+        if scroll_pane_node then
+            scroll_pane_node:remove_dropdown_item(node_param.parent.parent.events_params.timer_name)
+        end
+    end
+
     local entity_id_copy = node_param.entity_id
     node_param.parent.parent.parent:remove()
     event.element.parent.parent.parent.destroy()
@@ -472,6 +496,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         {
             "Constant Combinator",
             "Arithmetic Combinator",
+            "Callable Timer"
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -495,7 +520,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         new_task_dropdown_node_id = new_task_dropdown_node.id
     }
     ------------------------------------------------------------------------------
-    
+
     -- Setup Node Events --
     scroll_pane_node:recursive_setup_events()
 
@@ -503,13 +528,135 @@ function node.on_selection_repeatable_timer(event, node_param)
     node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)
 end
 
-function node.on_selection_single_timer(event, node_param)
+function node.on_selection_callable_tick_timer(event, node_param)
+    node.callable_timer(event, node_param, "Tick Timer ", "tick timer")
+end
+
+function node.on_selection_callable_timer(event, node_param)
+    node.callable_timer(event, node_param, "Timer ", "timer")
+end
+
+function node.callable_timer(event, node_param, timer_prefix, timer_type)
     event.element.selected_index = 0
+
+    -- Setup Persistent Nodes --
+    local scroll_pane_node = node_param.parent
+    local scroll_pane_gui = event.element.parent
+
+    local vertical_flow_node = scroll_pane_node:add_child({
+        type = "flow",
+        direction = "vertical",
+        style = constants.style.group_vertical_flow_frame,
+    })
+
+    ------------------------------ Frame Area 1 ---------------------------------
+    local callable_time_node = vertical_flow_node:add_child({
+        type = "progressbar",
+        direction = "vertical",
+        style = constants.style.conditional_progress_frame,
+        value = 0
+    })
+    callable_time_node:setup_timer(false, false, 600)
+    callable_time_node:update_list_push()
+
+    local repeatable_time_flow_node = callable_time_node:add_child({
+        type = "flow",
+        direction = "horizontal",
+        style = constants.style.conditional_flow_frame,
+    })
+
+    local timer_id_node = repeatable_time_flow_node:add_child({
+        type = "label",
+        direction = "vertical",
+        style = constants.style.callable_timer_label,
+        caption = scroll_pane_node:find_next_available_name(timer_prefix, timer_type)
+    })
+    callable_time_node.events_params = {timer_name = timer_id_node.gui.caption, timer_type = timer_type}
+
+    local label_node = repeatable_time_flow_node:add_child({
+        type = "label",
+        direction = "vertical",
+        style = constants.style.callable_begining_label_frame,
+        caption = "Run for"
+    })
+
+    local time_selection_node = repeatable_time_flow_node:add_child({
+        type = "textfield",
+        direction = "vertical",
+        style = constants.style.time_selection_frame,
+        numeric = true,
+        allow_decimal = true,
+        allow_negative = false,
+        lose_focus_on_confirm = true,
+        text = "10"
+    })
+    time_selection_node.events_id.on_gui_text_changed = "on_text_change_time"
+
+    local padding_node = repeatable_time_flow_node:add_child({
+        type = "label",
+        direction = "vertical",
+        style = constants.style.repeatable_end_label_frame,
+        caption = "seconds"
+    })
+
+    local close_button_node = repeatable_time_flow_node:add_child({
+        type = "sprite-button",
+        direction = "vertical",
+        style = constants.style.close_button_frame,
+        sprite = "utility/close_white",
+        hovered_sprite = "utility/close_black",
+        clicked_sprite = "utility/close_black"
+    })
+    close_button_node.events_id.on_click = "on_click_close_button"
+    close_button_node.events_params = {scroll_pane_node_id = scroll_pane_node.id}
+
+    ------------------------------ Frame Area 2 ---------------------------------
+    local repeatable_sub_tasks_flow = vertical_flow_node:add_child({
+        type = "flow",
+        direction = "vertical",
+        style = constants.style.sub_group_vertical_flow_frame,
+        visible = false
+    })
+    ------------------------------ Frame Area 3 ---------------------------------
+    local new_task_dropdown_node = vertical_flow_node:add_child({
+        type = "drop-down",
+        direction = "horizontal",
+        style = constants.style.subtask_dropdown_frame,
+        items =
+        {
+            "Constant Combinator",
+            "Arithmetic Combinator",
+            "Callable Timer"
+        }
+    })
+    new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
+    new_task_dropdown_node.events_params =
+    {
+        repeatable_time_node_id = callable_time_node.id,
+        repeatable_sub_tasks_flow_id = repeatable_sub_tasks_flow.id
+    }
+
+    local overlay_node = new_task_dropdown_node:add_child({
+        type = "label",
+        direction = "vertical",
+        style = constants.style.dropdown_overlay_label_frame,
+        ignored_by_interaction = true,
+        caption = "+ Add Combinator"
+    })
+    ------------------------------------------------------------------------------
+
+    -- Update all callable dropdown menus --
+    scroll_pane_node:add_dropdown_item(timer_id_node.gui.caption)
+
+    -- Setup Node Events --
+    scroll_pane_node:recursive_setup_events()
+
+    -- Setup Factorio GUI --
+    node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)
 end
 
 function node.on_selection_constant_combinator(event, node_param)
 
-    -- Setup Persistent Nodes --
     local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
     local vertical_flow_node = node_param.parent
     local vertical_flow_gui = event.element.parent
@@ -633,7 +780,6 @@ end
 
 function node.on_selection_arithmetic_combinator(event, node_param)
 
-    -- Setup Persistent Nodes --
     local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
     local vertical_flow_node = node_param.parent
     local vertical_flow_gui = event.element.parent
@@ -735,6 +881,113 @@ function node.on_selection_arithmetic_combinator(event, node_param)
     node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
 end  
 
+function node.on_selection_callable_combinator(event, node_param)
+
+    local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
+    local scroll_pane_node = node_param.parent.parent
+    local vertical_flow_node = node_param.parent
+    local vertical_flow_gui = vertical_flow_node.gui_element
+
+    local sub_tasks_flow = vertical_flow_node:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
+
+    if not sub_tasks_flow.gui_element.visible then
+        sub_tasks_flow.gui.visible = true
+        sub_tasks_flow.gui_element.visible = true
+    end
+
+    --------------------------------------------------------
+    local repeatable_time_node = sub_tasks_flow:add_child({
+        type = "frame",
+        direction = "horizontal",
+        style = constants.style.sub_conditional_frame
+    })
+    repeatable_time_node:setup_callable_timer()
+    repeatable_time_node:update_list_child_push(progressbar_node)
+    -------------------------------------------------------- 
+
+    local left_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        true,
+        {
+            signal_type = "left_signal",
+            constant_type = "left_constant"
+        }
+    )
+
+    --------------------------------------------------------
+
+    local constant_menu_node = repeatable_time_node:add_child({
+        type = "drop-down",
+        direction = "vertical",
+        style = constants.style.condition_comparator_dropdown_frame,
+        selected_index = 1,
+        items = { ">", "<", "=", "≥", "≤", "≠" }
+    })
+    constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
+
+    --------------------------------------------------------
+
+    local right_signal_flow_node = node.create_signal_constant(
+        repeatable_time_node,
+        true,
+        {
+            signal_type = "right_signal",
+            constant_type = "right_constant"
+        }
+    )
+
+    --------------------------------------------------------
+
+    local equals_sprite_node = repeatable_time_node:add_child({
+        type = "sprite-button",
+        direction = "vertical",
+        sprite = "advanced-combinator-sprites-equals-white",
+        hovered_sprite = "advanced-combinator-sprites-equals-white",
+        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        style = constants.style.invisible_frame,
+        ignored_by_interaction = true
+    })
+
+    --------------------------------------------------------
+
+    local callable_timer_node = repeatable_time_node:add_child({
+        type = "drop-down",
+        direction = "vertical",
+        style = constants.style.callable_timer_dropdown_frame,
+        selected_index = 0,
+        items = scroll_pane_node:find_all_timers(),
+    })
+    if table_size(callable_timer_node.gui.items) == 0 then
+        callable_timer_node.gui.enabled = false
+    end
+    callable_timer_node.events_id.on_selection_state_changed = "on_selection_callable_timer_changed"
+    callable_timer_node.events_params = {callable_timer_node = true}
+
+    --------------------------------------------------------
+
+    local close_button_node = repeatable_time_node:add_child({
+        type = "sprite-button",
+        direction = "vertical",
+        style = constants.style.close_button_frame,
+        sprite = "utility/close_white",
+        hovered_sprite = "utility/close_black",
+        clicked_sprite = "utility/close_black",
+    })
+    close_button_node.events_id.on_click = "on_click_close_sub_button"
+    close_button_node.events_params = {progressbar_node_id = progressbar_node.id}
+    --------------------------------------------------------
+
+    -- Reset dropdown selection index --
+    event.element.selected_index = 0
+
+    -- Setup Node Events --
+    repeatable_time_node:recursive_setup_events()
+
+    -- Setup Factorio GUI --
+    node:build_gui_nodes(sub_tasks_flow.gui_element, repeatable_time_node)
+
+end
+
 function node.create_signal_constant(parent_node, create_constant, types)
 
     if not create_constant then
@@ -822,6 +1075,119 @@ function node.on_click_open_signal(event, node_param)
             event.element.caption = ""
         end
     end
+end
+
+function node:find_callable_timers(timers)
+    if self.gui.type == "progressbar" then
+        table.insert(timers, self)
+    else
+        for _, child in pairs(self.children) do
+            child:find_callable_timers(timers)
+        end
+    end
+end
+
+function node:find_next_available_name(timer_prefix, timer_type)
+    local timers = {}
+    self:find_callable_timers(timers)
+
+    local existing_timers = {}
+    for _, progressbar in pairs(timers) do
+        if progressbar.events_params.timer_name and progressbar.events_params.timer_type == timer_type then
+            if progressbar.events_params.timer_name then
+                local number = tonumber(string.sub(progressbar.events_params.timer_name, #timer_prefix, #progressbar.events_params.timer_name))
+                table.insert(existing_timers, number) 
+            end
+        end
+    end
+
+    function recursive_find_index(index)
+        local match = false
+        for k, v in pairs(existing_timers) do
+            if index == v then
+                match = true
+                break
+            end
+        end
+
+        if match then
+            index = index + 1
+            return recursive_find_index(index)
+        else
+            return index
+        end
+    end
+
+    local index = recursive_find_index(1)
+    local timer_name = timer_prefix..tostring(index)
+
+    return timer_name
+end
+
+function node:find_callable_dropdown_nodes(dropdown_nodes)
+    if self.events_params.callable_timer_node then
+        table.insert(dropdown_nodes, self)
+    else
+        for _, child in pairs(self.children) do
+            child:find_callable_dropdown_nodes(dropdown_nodes)
+        end
+    end
+end
+
+function node:add_dropdown_item(item_name)
+    local dropdown_nodes = {}
+    self:find_callable_dropdown_nodes(dropdown_nodes)
+
+    for _, dropdown_node in pairs(dropdown_nodes) do
+        if dropdown_node.gui.type == "drop-down" then
+
+            if not dropdown_node.gui.enabled then
+                dropdown_node.gui_element.enabled = true
+                dropdown_node.gui.enabled = true
+            end
+
+            dropdown_node.gui_element.add_item(item_name)
+            dropdown_node.gui.items = dropdown_node.gui_element.items
+        end
+    end    
+end
+
+function node:remove_dropdown_item(item_name)
+    local dropdown_nodes = {}
+    self:find_callable_dropdown_nodes(dropdown_nodes)
+
+    for _, dropdown_node in pairs(dropdown_nodes) do
+        if dropdown_node.gui.type == "drop-down" then
+            for index, item in pairs(dropdown_node.gui_element.items) do
+                if item == item_name then
+                    dropdown_node.gui_element.remove_item(index)
+                end
+            end
+
+            dropdown_node.gui.items = dropdown_node.gui_element.items
+            dropdown_node.gui.selected_index = dropdown_node.gui_element.selected_index
+
+            if table_size(dropdown_node.gui.items) == 0 then
+                dropdown_node.gui_element.enabled = false
+                dropdown_node.gui.enabled = false
+            end
+        end
+    end
+end
+
+function node:find_all_timers()
+    local callable_timers = {}
+    self:find_callable_timers(callable_timers)
+
+    local items = {}
+    local array_index = 1
+
+    for _, timer in pairs(callable_timers) do
+        items[array_index] = timer.events_params.timer_name
+        array_index = array_index + 1
+    end
+
+    return items
 end
 
 return node
