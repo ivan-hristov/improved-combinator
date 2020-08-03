@@ -278,11 +278,6 @@ function node.on_click_play_button(event, node_param)
         element.clicked_sprite = sprite
     end
 
-    local function set_ignore_by_interaction(node, value)
-        node.gui.ignored_by_interaction = value
-        node.gui_element.ignored_by_interaction = value
-    end
-
     local main_vertical_flow = node_param.parent.parent.parent
     local progressbar_node = node_param.parent.parent
     local timebox_node = node_param.parent:recursive_find(node_param.events_params.time_selection_node_id)
@@ -295,16 +290,10 @@ function node.on_click_play_button(event, node_param)
 
     if progressbar_node.update_logic.active then
         progressbar_node.update_logic.active = false
-        set_ignore_by_interaction(timebox_node, false)
-        set_ignore_by_interaction(repeatable_sub_tasks_node, false)
-        set_ignore_by_interaction(new_task_dropdown_node, false)
         set_sprites(event.element, "utility/play")
         set_sprites(node_param.gui, "utility/play")
     else
         progressbar_node.update_logic.active = true
-        set_ignore_by_interaction(timebox_node, true)
-        set_ignore_by_interaction(repeatable_sub_tasks_node, true)
-        set_ignore_by_interaction(new_task_dropdown_node, true)
         set_sprites(event.element, "utility/stop")
         set_sprites(node_param.gui, "utility/stop")
     end
@@ -1165,7 +1154,8 @@ function node:remove_dropdown_item(item_name)
         if dropdown_node.gui.type == "drop-down" then
 
             local current_id = self.events_params.callable_timers[dropdown_node.gui_element.selected_index]
-            if dropdown_node.parent.update_logic.callable_node_id == current_id then
+            if current_id and dropdown_node.parent.update_logic.callable_node_id == current_id then
+                --logger.print("remove_dropdown_item at: "..dropdown_node.gui_element.selected_index..", id: "..current_id)
                 dropdown_node.parent.update_logic.callable_node_id = nil
                 self.events_params.callable_timers[dropdown_node.gui_element.selected_index] = nil
             end
