@@ -109,7 +109,7 @@ function list:remove(id)
             elseif element == self.front then
                 if self.front.next then
                     self.front = self.front.next
-                    self.back.prev = nil
+                    self.front.prev = nil
                     element = nil
                 else
                     self.front = nil
