@@ -103,6 +103,10 @@ local function on_entity_settings_pasted(event)
     local src_entity = global.entities[event.source.unit_number]
     local dest_entity = global.entities[event.destination.unit_number]
 
+    if not src_entity or not dest_entity then
+        return
+    end
+
     -- Clear existing entity settings --
     dest_entity.node:remove()
     dest_entity.node = nil

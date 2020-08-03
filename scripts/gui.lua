@@ -6,7 +6,7 @@ local overlay_gui = require("overlay_gui")
 local opened_signal_frame = nil
 
 local function on_gui_opened(event)
-    logger.print("on_gui_opened")
+    --logger.print("on_gui_opened")
 
     if not event.entity then
         return
@@ -26,9 +26,9 @@ end
 
 local function on_gui_closed(event)
     if event.element then
-        logger.print("on_gui_closed: "..event.element.name.." type: "..event.element.type)
+        --logger.print("on_gui_closed: "..event.element.name.." type: "..event.element.type)
     else
-        logger.print("on_gui_closed")
+        --logger.print("on_gui_closed")
     end
 
     -- TODO add option to minimise dropdown options instead of closing the main GUI
@@ -45,7 +45,7 @@ local function on_gui_closed(event)
 end
 
 local function on_gui_click(event)
-    logger.print("on_gui_click name: "..event.element.name)
+    --logger.print("on_gui_click name: "..event.element.name)
 
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
@@ -63,7 +63,7 @@ end
 
 local function on_gui_elem_changed(event)
     if event.element.name and event.element.elem_value and event.element.elem_value.name and event.element.elem_value.type then
-        logger.print("on_gui_elem_changed name: "..event.element.name..", type: "..event.element.elem_value.type.." name: "..event.element.elem_value.name)
+        --logger.print("on_gui_elem_changed name: "..event.element.name..", type: "..event.element.elem_value.type.." name: "..event.element.elem_value.name)
     end
 
     local name = event.element.name
@@ -78,7 +78,7 @@ local function on_gui_elem_changed(event)
 end
 
 local function on_gui_text_changed(event)
-    logger.print("on_gui_text_changed name: "..event.element.name)
+    --logger.print("on_gui_text_changed name: "..event.element.name)
 
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
@@ -95,7 +95,7 @@ local function on_gui_text_changed(event)
 end
 
 local function on_gui_selection_state_changed(event)
-    logger.print("on_gui_selection_state_changed name: "..event.element.name)
+    --logger.print("on_gui_selection_state_changed name: "..event.element.name)
 
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
@@ -104,7 +104,7 @@ local function on_gui_selection_state_changed(event)
     if global.entities[unit_number] then
         local node = global.entities[unit_number].node:recursive_find(name)
         if node and node.events.on_selection_state_changed then
-            node.events.on_selection_state_changed[selected_index](event, node)
+            node.events.on_selection_state_changed(event, node, selected_index)
         end
     end
 end
@@ -121,7 +121,7 @@ end
 
 
 local function on_gui_selected_tab_changed(event)
-    logger.print("on_gui_selected_tab_changed name: "..event.element.name.." index: "..event.element.selected_tab_index)
+    --logger.print("on_gui_selected_tab_changed name: "..event.element.name.." index: "..event.element.selected_tab_index)
 
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
@@ -143,4 +143,3 @@ script.on_event(defines.events.on_gui_text_changed, on_gui_text_changed)
 script.on_event(defines.events.on_gui_selection_state_changed, on_gui_selection_state_changed)
 script.on_event(defines.events.on_gui_location_changed, on_gui_location_changed)
 script.on_event(defines.events.on_gui_value_changed, on_gui_value_changed)
---script.on_event(defines.events.on_gui_selected_tab_changed, on_gui_selected_tab_changed)
