@@ -3,7 +3,7 @@ local constants = require("constants")
 local logger = require("logger")
 local overlay_gui = require("overlay_gui")
 
-local function print_children(element, index)
+local function print_children(element, index, max_level)
     local str = ""
 
     for i=1,index do
@@ -11,9 +11,13 @@ local function print_children(element, index)
     end
 
     index = index + 1
+    if index >= max_level then
+        return
+    end
+
     logger.print(str.."name: "..element.name.." type: "..element.type)
     for _, child in pairs(element.children) do
-        print_children(child, index)
+        print_children(child, index, max_level)
     end
 end
 
@@ -63,7 +67,7 @@ function node:setup_callable_timer()
         sign_index = 1,
         signal_slot_2 = nil,
         value_slot_2 = nil,
-        callable_node_id = nil
+        callable_node_ids = nil
     }
 end
 
@@ -363,12 +367,15 @@ function node.on_selection_callable_timer_changed(event, node_param, selected_in
     local scroll_pane_node = node_param.parent.parent.parent.parent
     node_param.parent.update_logic.callable_node_id = scroll_pane_node.events_params.callable_timers[selected_index]
 
-    if node_param.parent.update_logic.callable_node_id then
+    local root = scroll_pane_node:root_parent()
+    local call_node = root:recursive_find(node_param.parent.update_logic.callable_node_id)
+
+    if call_node then
         logger.print("on_selection_callable_timer_changed "..node_param.parent.update_logic.callable_node_id)
     else
         logger.print("on_selection_callable_timer_changed nil")
         for _, timers in pairs(scroll_pane_node.events_params.callable_timers) do
-            logger.print("timer: "..timers)
+            logger.print("  timer: "..timers)
         end
     end
 end
@@ -459,7 +466,8 @@ function node.on_selection_repeatable_timer(event, node_param)
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        caption = "seconds"
+        --caption = "seconds"
+        caption = repeatable_time_node.id
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -1140,8 +1148,9 @@ function node:add_dropdown_item(item_name, timer_id)
             dropdown_node.gui_element.add_item(item_name)
             dropdown_node.gui.items = dropdown_node.gui_element.items
 
-            logger.print("add_dropdown_item at: "..table_size(dropdown_node.gui.items).." id: "..timer_id)
-            self.events_params.callable_timers[table_size(dropdown_node.gui.items)] = timer_id
+            --logger.print("add_dropdown_item at: "..table_size(dropdown_node.gui.items).." id: "..timer_id)
+            
+            table.insert(self.events_params.callable_timers, timer_id)
         end
     end    
 end
@@ -1153,16 +1162,10 @@ function node:remove_dropdown_item(item_name)
     for _, dropdown_node in pairs(dropdown_nodes) do
         if dropdown_node.gui.type == "drop-down" then
 
-            local current_id = self.events_params.callable_timers[dropdown_node.gui_element.selected_index]
-            if current_id and dropdown_node.parent.update_logic.callable_node_id == current_id then
-                --logger.print("remove_dropdown_item at: "..dropdown_node.gui_element.selected_index..", id: "..current_id)
-                dropdown_node.parent.update_logic.callable_node_id = nil
-                self.events_params.callable_timers[dropdown_node.gui_element.selected_index] = nil
-            end
-
             for index, item in pairs(dropdown_node.gui_element.items) do
                 if item == item_name then
-                    dropdown_node.gui_element.remove_item(index)                    
+                    dropdown_node.gui_element.remove_item(index)
+                    table.remove(self.events_params.callable_timers, index)
                 end
             end
 
@@ -1189,7 +1192,7 @@ function node:find_all_timers()
             items[array_index] = timer.events_params.timer_name
 
             if not self.events_params.callable_timers[array_index] then
-                logger.print("find_all_timers "..array_index.." id: "..timer.id)
+                --logger.print("find_all_timers "..array_index.." id: "..timer.id)
                 self.events_params.callable_timers[array_index] = timer.id
             end
 
