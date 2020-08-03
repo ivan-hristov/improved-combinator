@@ -101,7 +101,7 @@ local function set_output_signal(signal, entity_id, result)
     if output_signals[entity_id][signal.name] ~= nil then
         result = output_signals[entity_id][signal.name].count + result
     end
-    
+
     output_signals[entity_id][signal.name] = { signal = signal, count = result }
 end
 
@@ -153,9 +153,6 @@ local function update_constant_combinator(input_signal, entity_id, update_logic)
             combinator_result = left_count
         end
     end
-
-    --local callable = update_logic.callable_combinator and tostring(update_logic.callable_combinator) or "nil"
-    --logger.print("Combinator at: "..update_logic.sign_index.." left: "..tostring(left_count).." right: "..tostring(right_count).." callable: "..callable)
 
     if combinator_result ~= nil then
         if update_logic.callable_combinator then
@@ -272,7 +269,6 @@ local function write_output_signals()
                         parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
                     end
                 end
-                -- TODO -- Consider removal of signals comming from other mods
                 entity_output.get_control_behavior().parameters = {parameters = parameters}
             else
                 entity_output.get_control_behavior().parameters = {parameters = nil}
