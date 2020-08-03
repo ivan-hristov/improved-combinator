@@ -152,7 +152,9 @@ local function update_constant_combinator(input_signal, entity_id, update_logic)
         end
     end
 
-    --logger.print("Combinator at: "..update_logic.sign_index.." left: "..tostring(left_count).." right: "..tostring(right_count))
+    --local callable = update_logic.callable_combinator and tostring(update_logic.callable_combinator) or "nil"
+    --logger.print("Combinator at: "..update_logic.sign_index.." left: "..tostring(left_count).." right: "..tostring(right_count).." callable: "..callable)
+
     if combinator_result ~= nil then
         if update_logic.callable_combinator then
             schedule_callable_timer(entity_id, update_logic.callable_node_id)

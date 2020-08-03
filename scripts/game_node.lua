@@ -374,7 +374,14 @@ function node.on_selection_callable_timer_changed(event, node_param, selected_in
     local scroll_pane_node = node_param.parent.parent.parent.parent
     node_param.parent.update_logic.callable_node_id = scroll_pane_node.events_params.callable_timers[selected_index]
 
-    logger.print("Selected new timer: "..node_param.parent.update_logic.callable_node_id)
+    if node_param.parent.update_logic.callable_node_id then
+        logger.print("on_selection_callable_timer_changed "..node_param.parent.update_logic.callable_node_id)
+    else
+        logger.print("on_selection_callable_timer_changed nil")
+        for _, timers in pairs(scroll_pane_node.events_params.callable_timers) do
+            logger.print("timer: "..timers)
+        end
+    end
 end
 
 function node.on_click_radiobutton_constant_combinator_one(event, node_param)
@@ -489,9 +496,9 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            "Constant Combinator",
+            "Decider Combinator",
             "Arithmetic Combinator",
-            "Conditional Timer"
+            "Conditional Timer Combinator"
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -591,7 +598,8 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        caption = "seconds"
+        --caption = "seconds"
+        caption = callable_time_node.id
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -619,9 +627,9 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            "Constant Combinator",
+            "Decider Combinator",
             "Arithmetic Combinator",
-            "Conditional Timer"
+            "Conditional Timer Combinator"
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -1143,6 +1151,7 @@ function node:add_dropdown_item(item_name, timer_id)
             dropdown_node.gui_element.add_item(item_name)
             dropdown_node.gui.items = dropdown_node.gui_element.items
 
+            logger.print("add_dropdown_item at: "..table_size(dropdown_node.gui.items).." id: "..timer_id)
             self.events_params.callable_timers[table_size(dropdown_node.gui.items)] = timer_id
         end
     end    
@@ -1158,8 +1167,8 @@ function node:remove_dropdown_item(item_name)
             local current_id = self.events_params.callable_timers[dropdown_node.gui_element.selected_index]
             if dropdown_node.parent.update_logic.callable_node_id == current_id then
                 dropdown_node.parent.update_logic.callable_node_id = nil
+                self.events_params.callable_timers[dropdown_node.gui_element.selected_index] = nil
             end
-            self.events_params.callable_timers[dropdown_node.gui_element.selected_index] = nil
 
             for index, item in pairs(dropdown_node.gui_element.items) do
                 if item == item_name then
@@ -1186,8 +1195,16 @@ function node:find_all_timers()
     local array_index = 1
 
     for _, timer in pairs(callable_timers) do
-        items[array_index] = timer.events_params.timer_name
-        array_index = array_index + 1
+        if timer.events_params.timer_name then
+            items[array_index] = timer.events_params.timer_name
+
+            if not self.events_params.callable_timers[array_index] then
+                logger.print("find_all_timers "..array_index.." id: "..timer.id)
+                self.events_params.callable_timers[array_index] = timer.id
+            end
+
+            array_index = array_index + 1
+        end
     end
 
     return items
