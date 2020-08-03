@@ -45,7 +45,7 @@ end
 local function update_timer_and_progress_bar(gui_element, update_logic)
     local timer_finished = false
 
-    if update_logic.activation_queued_on and update_logic.activation_queued_on ~= game.tick then
+    if update_logic.activation_queued_on and update_logic.activation_queued_on < game.tick then
         update_logic.activation_queued_on = nil
         update_logic.active = true
     end
@@ -67,7 +67,9 @@ local function update_timer_and_progress_bar(gui_element, update_logic)
             gui_element.value = update_logic.value / update_logic.max_value
         end
 
-        if update_logic.every_tick then
+        if timer_finished and update_logic.every_tick then
+            return false
+        elseif update_logic.every_tick then
             return true
         end
     end
