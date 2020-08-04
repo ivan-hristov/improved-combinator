@@ -21,7 +21,14 @@ local function print_children(element, index, max_level)
     end
 end
 
-function node:setup_timer(repeatable, active, max_value, every_tick)
+function node:setup_combinators_logic()
+    self.update_logic =
+    {
+        combinators = true
+    }
+end
+
+function node:setup_progressbar_timer(repeatable, active, max_value, every_tick)
     self.update_logic =
     {
         timer = true,
@@ -34,10 +41,10 @@ function node:setup_timer(repeatable, active, max_value, every_tick)
     }
 end
 
-function node:setup_constant_combinator()
+function node:setup_decider_combinator()
     self.update_logic =
     {
-        constant_combinator = true,
+        decider_combinator = true,
         signal_slot_1 = nil,
         sign_index = 1,
         signal_slot_2 = nil,
@@ -130,9 +137,6 @@ function node:create_main_gui(unit_number)
         direction = "horizontal",
         style = constants.style.main_tabbed_pane
     })
-    -- TEMP -- Open Second tab by default
-    tabbed_pane.events_params = {selected_tab_index = 2}
-    
 
     local combinators_tab = tabbed_pane:add_child({
         type = "tab",
@@ -150,6 +154,25 @@ function node:create_main_gui(unit_number)
         type = "scroll-pane",
         direction = "vertical",
         style = constants.style.scroll_pane
+    })
+    combinators_scroll_pane:setup_combinators_logic()
+    combinators_scroll_pane:update_list_push()
+
+    local combinators_dropdown_node = combinators_scroll_pane:add_child({
+        type = "drop-down",
+        direction = "horizontal",
+        style = constants.style.task_dropdown_frame,
+        items = {"Decider Combinator", "Arithmetic Combinator", "Conditional Timer Combinator"},
+    })
+    combinators_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_combinators_dropdown"
+    combinators_dropdown_node.events_params = {}
+
+    local overlay_node = combinators_dropdown_node:add_child({
+        type = "label",
+        direction = "vertical",
+        style = constants.style.dropdown_overlay_label_frame,
+        ignored_by_interaction = true,
+        caption = "+ Add Combinator"
     })
 
     local timer_tab = tabbed_pane:add_child({
@@ -201,10 +224,10 @@ function node:setup_events(node_param)
             node_param.events.on_click = node.on_click_close_button
         elseif node_param.events_id.on_click == "on_click_close_sub_button" then
             node_param.events.on_click = node.on_click_close_sub_button
-        elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator_one" then
-                node_param.events.on_click = node.on_click_radiobutton_constant_combinator_one
-        elseif node_param.events_id.on_click == "on_click_radiobutton_constant_combinator_all" then
-                node_param.events.on_click = node.on_click_radiobutton_constant_combinator_all
+        elseif node_param.events_id.on_click == "on_click_radiobutton_decider_combinator_one" then
+                node_param.events.on_click = node.on_click_radiobutton_decider_combinator_one
+        elseif node_param.events_id.on_click == "on_click_radiobutton_decider_combinator_all" then
+                node_param.events.on_click = node.on_click_radiobutton_decider_combinator_all
         elseif node_param.events_id.on_click == "on_click_open_signal" then
             node_param.events.on_click = node.on_click_open_signal
         end
@@ -223,8 +246,19 @@ function node:setup_events(node_param)
             node_param.events.on_selection_state_changed = node.on_selection_combinator_changed
         elseif node_param.events_id.on_selection_state_changed == "on_selection_callable_timer_changed" then
             node_param.events.on_selection_state_changed = node.on_selection_callable_timer_changed
+        elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_combinators_dropdown" then
+            node_param.events.on_selection_state_changed = node.on_selection_changed_combinators_dropdown
         end
     end
+end
+
+function node.on_selection_changed_combinators_dropdown(event, node_param, selected_index)
+    if selected_index == 1 then
+        node.on_selection_decider_combinator(event, node_param)
+    end
+
+    -- Reset dropdown selection index --
+    event.element.selected_index = 0
 end
 
 function node.on_selection_changed_task_dropdown(event, node_param, selected_index)
@@ -316,43 +350,43 @@ function node.on_text_change_time(event, node_param)
     end
 end
 
-function node.on_text_changed_constant_slot_1(node_param)
-    node_param.parent.parent.update_logic.signal_slot_1 = nil
-    node_param.parent.parent.update_logic.value_slot_1 = node_param.gui.number
-    node_param.gui_element.caption = node_param.gui.caption
+function node:on_text_changed_constant_slot_1()
+    self.parent.parent.update_logic.signal_slot_1 = nil
+    self.parent.parent.update_logic.value_slot_1 = self.gui.number
+    self.gui_element.caption = self.gui.caption
 end
 
-function node.on_text_changed_constant_slot_2(node_param)
-    node_param.parent.parent.update_logic.signal_slot_2 = nil
-    node_param.parent.parent.update_logic.value_slot_2 = node_param.gui.number
-    node_param.gui_element.caption = node_param.gui.caption 
+function node:on_text_changed_constant_slot_2()
+    self.parent.parent.update_logic.signal_slot_2 = nil
+    self.parent.parent.update_logic.value_slot_2 = self.gui.number
+    self.gui_element.caption = self.gui.caption 
 end
 
-function node.on_signal_changed_1(node_param)
-    node_param.parent.parent.update_logic.signal_slot_1 = node_param.gui.elem_value
-    node_param.parent.parent.update_logic.value_slot_1 = nil
+function node:on_signal_changed_1()
+    self.parent.parent.update_logic.signal_slot_1 = self.gui.elem_value
+    self.parent.parent.update_logic.value_slot_1 = nil
 end
 
-function node.on_signal_changed_2(node_param)
-    node_param.parent.parent.update_logic.signal_slot_2 = node_param.gui.elem_value
-    node_param.parent.parent.update_logic.value_slot_2 = nil
+function node:on_signal_changed_2()
+    self.parent.parent.update_logic.signal_slot_2 = self.gui.elem_value
+    self.parent.parent.update_logic.value_slot_2 = nil
 end
 
-function node.on_signal_changed_result(node_param)
-    node_param.parent.update_logic.signal_result = node_param.gui.elem_value
+function node:on_signal_changed_result()
+    self.parent.update_logic.signal_result = self.gui.elem_value
 end
 
 function node:on_signal_confirm_change()
     if self.events_params.signal_type == "left_signal" then
-        node.on_signal_changed_1(self)
+        self:on_signal_changed_1()
     elseif self.events_params.signal_type == "left_constant" then
-        node.on_text_changed_constant_slot_1(self)
+        self:on_text_changed_constant_slot_1()
     elseif self.events_params.signal_type == "right_signal" then
-        node.on_signal_changed_2(self)
+        self:on_signal_changed_2()
     elseif self.events_params.signal_type == "right_constant" then
-        node.on_text_changed_constant_slot_2(self)
+        self:on_text_changed_constant_slot_2()
     elseif self.events_params.signal_type == "result_signal" then 
-        node.on_signal_changed_result(self)
+        self:on_signal_changed_result()
     end
 end
 
@@ -380,7 +414,7 @@ function node.on_selection_callable_timer_changed(event, node_param, selected_in
     end
 end
 
-function node.on_click_radiobutton_constant_combinator_one(event, node_param)
+function node.on_click_radiobutton_decider_combinator_one(event, node_param)
 
     local radio_parent = event.element.parent
     local other_radio_node = node_param.parent:recursive_find(node_param.events_params.other_radio_button)
@@ -392,7 +426,7 @@ function node.on_click_radiobutton_constant_combinator_one(event, node_param)
     node_param.parent.parent.update_logic.output_value = false
 end
 
-function node.on_click_radiobutton_constant_combinator_all(event, node_param)
+function node.on_click_radiobutton_decider_combinator_all(event, node_param)
 
     local radio_parent = event.element.parent
     local other_radio_node = node_param.parent:recursive_find(node_param.events_params.other_radio_button)
@@ -424,7 +458,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.conditional_progress_frame,
         value = 0
     })
-    repeatable_time_node:setup_timer(true, false, 600, false)
+    repeatable_time_node:setup_progressbar_timer(true, false, 600, false)
     repeatable_time_node:update_list_push()
 
     local repeatable_time_flow_node = repeatable_time_node:add_child({
@@ -555,7 +589,7 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         style = constants.style.conditional_progress_frame,
         value = 0
     })
-    callable_time_node:setup_timer(false, false, 600, every_tick)
+    callable_time_node:setup_progressbar_timer(false, false, 600, every_tick)
     callable_time_node:update_list_push()
 
     local repeatable_time_flow_node = callable_time_node:add_child({
@@ -655,6 +689,117 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
     node:build_gui_nodes(scroll_pane_gui, vertical_flow_node)
 end
 
+function node.on_selection_decider_combinator(event, node_param)
+
+    local vertical_flow_node = node_param.parent
+
+    --------------------------------------------------------
+    local decider_frame_node = vertical_flow_node:add_child({
+        type = "frame",
+        direction = "horizontal",
+        style = constants.style.sub_conditional_frame
+    })
+    decider_frame_node:setup_decider_combinator()
+    decider_frame_node:update_list_child_push(vertical_flow_node)
+
+    --------------------------------------------------------
+    local left_signal_flow_node = node.create_signal_constant(
+        decider_frame_node,
+        true,
+        {
+            signal_type = "left_signal",
+            constant_type = "left_constant"
+        }
+    )
+
+    --------------------------------------------------------
+
+    local constant_menu_node = decider_frame_node:add_child({
+        type = "drop-down",
+        direction = "vertical",
+        style = constants.style.condition_comparator_dropdown_frame,
+        selected_index = 1,
+        items = { ">", "<", "=", "≥", "≤", "≠" }
+    })
+    constant_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
+
+    --------------------------------------------------------
+
+    local right_signal_flow_node = node.create_signal_constant(
+        decider_frame_node,
+        true,
+        {
+            signal_type = "right_signal",
+            constant_type = "right_constant"
+        }
+    )
+
+    --------------------------------------------------------
+
+    local equals_sprite_node = decider_frame_node:add_child({
+        type = "sprite-button",
+        direction = "vertical",
+        sprite = "advanced-combinator-sprites-equals-white",
+        hovered_sprite = "advanced-combinator-sprites-equals-white",
+        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        style = constants.style.invisible_frame,
+        ignored_by_interaction = true
+    })
+
+
+    local result_signal_flow_node = node.create_signal_constant(
+        decider_frame_node,
+        false,
+        {
+            signal_type = "result_signal",
+        }
+    )
+
+    --------------------------------------------------------
+    local radio_group_node = decider_frame_node:add_child({
+        type = "flow",
+        direction = "vertical",
+        style = constants.style.radio_vertical_flow_frame
+    })
+
+    local radio_button_1 = radio_group_node:add_child({
+        type = "radiobutton",
+        style = constants.style.radiobutton_frame,
+        caption = "1",
+        state = true
+    })
+    radio_button_1.events_id.on_click = "on_click_radiobutton_decider_combinator_one"
+
+    local radio_button_2 = radio_group_node:add_child({
+        type = "radiobutton",
+        style = constants.style.radiobutton_frame,
+        caption = "Input count",
+        state = false
+    })
+    radio_button_2.events_id.on_click = "on_click_radiobutton_decider_combinator_all"
+
+    radio_button_1.events_params = { other_radio_button = radio_button_2.id }
+    radio_button_2.events_params = { other_radio_button = radio_button_1.id }
+    --------------------------------------------------------
+    local close_button_node = decider_frame_node:add_child({
+        type = "sprite-button",
+        direction = "vertical",
+        style = constants.style.close_button_frame,
+        sprite = "utility/close_white",
+        hovered_sprite = "utility/close_black",
+        clicked_sprite = "utility/close_black",
+    })
+    close_button_node.events_id.on_click = "on_click_close_sub_button"
+    close_button_node.events_params = { progressbar_node_id = vertical_flow_node.id }
+    --------------------------------------------------------
+
+    -- Setup Node Events --
+    decider_frame_node:recursive_setup_events()
+
+    -- Setup Factorio GUI --
+    node:build_gui_nodes(vertical_flow_node.gui_element, decider_frame_node)
+end
+
 function node.on_selection_constant_combinator(event, node_param)
 
     local progressbar_node = node_param.parent.children[node_param.events_params.repeatable_time_node_id]
@@ -674,7 +819,7 @@ function node.on_selection_constant_combinator(event, node_param)
         direction = "horizontal",
         style = constants.style.sub_conditional_frame
     })
-    repeatable_time_node:setup_constant_combinator()
+    repeatable_time_node:setup_decider_combinator()
     repeatable_time_node:update_list_child_push(progressbar_node)
     --------------------------------------------------------
 
@@ -743,7 +888,7 @@ function node.on_selection_constant_combinator(event, node_param)
         caption = "1",
         state = true
     })
-    radio_button_1.events_id.on_click = "on_click_radiobutton_constant_combinator_one"
+    radio_button_1.events_id.on_click = "on_click_radiobutton_decider_combinator_one"
 
     local radio_button_2 = radio_group_node:add_child({
         type = "radiobutton",
@@ -751,7 +896,7 @@ function node.on_selection_constant_combinator(event, node_param)
         caption = "Input count",
         state = false
     })
-    radio_button_2.events_id.on_click = "on_click_radiobutton_constant_combinator_all"
+    radio_button_2.events_id.on_click = "on_click_radiobutton_decider_combinator_all"
 
     radio_button_1.events_params = { other_radio_button = radio_button_2.id }
     radio_button_2.events_params = { other_radio_button = radio_button_1.id }

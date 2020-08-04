@@ -175,6 +175,15 @@ end
 
 function node:update_list_push()
     if not self.updatable then
+
+        logger.print("ENTITY ID "..(self.entity_id or "nil"))
+
+        if global.entities[self.entity_id].update_list then
+            logger.print("VALID update_list")
+        else
+            logger.print("INVALID update_list")
+        end
+
         global.entities[self.entity_id].update_list:push_back({ id = self.id, node_element = self, children = list:new() })
         self.updatable = true
     end
