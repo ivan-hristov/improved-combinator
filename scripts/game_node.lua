@@ -3,24 +3,6 @@ local constants = require("constants")
 local logger = require("logger")
 local overlay_gui = require("overlay_gui")
 
-local function print_children(element, index, max_level)
-    local str = ""
-
-    for i=1,index do
-        str = str.."    "
-    end
-
-    index = index + 1
-    if index >= max_level then
-        return
-    end
-
-    logger.print(str.."name: "..element.name.." type: "..element.type)
-    for _, child in pairs(element.children) do
-        print_children(child, index, max_level)
-    end
-end
-
 function node:setup_combinators_logic()
     self.update_logic =
     {
@@ -218,149 +200,221 @@ function node:setup_events(node_param)
     if not node_param.events_id then
         return
     elseif node_param.events_id.on_click then
-        if node_param.events_id.on_click == "on_click_play_button" then
-            node_param.events.on_click = node.on_click_play_button
-        elseif node_param.events_id.on_click == "on_click_close_button" then
-            node_param.events.on_click = node.on_click_close_button
-        elseif node_param.events_id.on_click == "on_click_close_sub_button" then
-            node_param.events.on_click = node.on_click_close_sub_button
-        elseif node_param.events_id.on_click == "on_click_radiobutton_decider_combinator_one" then
-                node_param.events.on_click = node.on_click_radiobutton_decider_combinator_one
-        elseif node_param.events_id.on_click == "on_click_radiobutton_decider_combinator_all" then
-                node_param.events.on_click = node.on_click_radiobutton_decider_combinator_all
-        elseif node_param.events_id.on_click == "on_click_open_signal" then
-            node_param.events.on_click = node.on_click_open_signal
-        end
+        node_param.events.on_click = node.on_click[node_param.events_id.on_click]
     elseif node_param.events_id.on_gui_text_changed then
-        if node_param.events_id.on_gui_text_changed == "on_text_change_time" then
-            node_param.events.on_gui_text_changed = node.on_text_change_time
-        end
+        node_param.events.on_gui_text_changed = node.on_gui_text_changed[node_param.events_id.on_gui_text_changed]
     elseif node_param.events_id.on_selection_state_changed then
-        if node_param.events_id.on_selection_state_changed == "on_selection_changed_task_dropdown" then
-            node_param.events.on_selection_state_changed = node.on_selection_changed_task_dropdown
-        elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_subtask_dropdown" then
-            node_param.events.on_selection_state_changed = node.on_selection_changed_subtask_dropdown
-        elseif node_param.events_id.on_selection_state_changed == "on_selection_combinator_changed" then
-            node_param.events.on_selection_state_changed = node.on_selection_combinator_changed
-        elseif node_param.events_id.on_selection_state_changed == "on_selection_arithmetic_changed" then
-            node_param.events.on_selection_state_changed = node.on_selection_combinator_changed
-        elseif node_param.events_id.on_selection_state_changed == "on_selection_callable_timer_changed" then
-            node_param.events.on_selection_state_changed = node.on_selection_callable_timer_changed
-        elseif node_param.events_id.on_selection_state_changed == "on_selection_changed_combinators_dropdown" then
-            node_param.events.on_selection_state_changed = node.on_selection_changed_combinators_dropdown
+        node_param.events.on_selection_state_changed = node.on_selection_state_changed[node_param.events_id.on_selection_state_changed]
+    end
+end
+
+--------------------------- ON CLICK EVENTS -------------------------------------
+node.on_click = {
+
+    on_click_play_button = function(event, node_param)
+
+        local function set_sprites(element, sprite)
+            element.sprite = sprite
+            element.hovered_sprite = sprite
+            element.clicked_sprite = sprite
         end
-    end
-end
+    
+        local main_vertical_flow = node_param.parent.parent.parent
+        local progressbar_node = node_param.parent.parent
+        local timebox_node = node_param.parent:recursive_find(node_param.events_params.time_selection_node_id)
+    
+        local repeatable_sub_tasks_node = main_vertical_flow.parent:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
+        local new_task_dropdown_node = main_vertical_flow.parent:recursive_find(node_param.events_params.new_task_dropdown_node_id)
+    
+        progressbar_node.update_logic.value = 0
+        progressbar_node.gui_element.value = 0
+    
+        if progressbar_node.update_logic.active then
+            progressbar_node.update_logic.active = false
+            set_sprites(event.element, "utility/play")
+            set_sprites(node_param.gui, "utility/play")
+        else
+            progressbar_node.update_logic.active = true
+            set_sprites(event.element, "utility/stop")
+            set_sprites(node_param.gui, "utility/stop")
+        end    
+    end,
 
-function node.on_selection_changed_combinators_dropdown(event, node_param, selected_index)
-    -- Reset dropdown selection index --
-    event.element.selected_index = 0
+    on_click_close_button = function(event, node_param)
 
-    if selected_index == 1 then
-        node.on_selection_decider_combinator(event, node_param)
-    elseif selected_index == 2 then
-        node.on_selection_arithmetic_combinator(event, node_param)
-    elseif selected_index == 3 then
-        node.on_selection_callable_combinator(event, node_param)
-    end
-end
+        if node_param.parent.parent.events_params.timer_name and node_param.events_params.scroll_pane_node_id then
+            local unit_number = global.opened_entity[event.player_index]
+            local scroll_pane_node = global.entities[unit_number].node:recursive_find(node_param.events_params.scroll_pane_node_id)
+            if scroll_pane_node then
+                scroll_pane_node:remove_dropdown_item(
+                    global.entities[scroll_pane_node.entity_id].node,
+                    node_param.parent.parent.events_params.timer_name)
+            end
+        end
+    
+        local entity_id_copy = node_param.entity_id
+        node_param.parent.parent.parent:remove()
+        event.element.parent.parent.parent.destroy()
+    end,
 
-function node.on_selection_changed_task_dropdown(event, node_param, selected_index)
-    -- Reset dropdown selection index --
-    event.element.selected_index = 0
+    on_click_close_sub_button = function(event, node_param)
+        if table_size(event.element.parent.parent.children) == 1 then
+            node_param.parent.parent.gui.visible = false
+            event.element.parent.parent.visible = false
+        end
+    
+        local update_root_node = node_param.parent.parent.parent:recursive_find(node_param.events_params.update_root_node_id)
+        node_param.parent:update_list_child_remove(update_root_node)
+        node_param.parent:remove()
+        event.element.parent.destroy()
+    end,
 
-    if selected_index == 1 then
-        node.on_selection_repeatable_timer(event, node_param)
-    elseif selected_index == 2 then
-        node.on_selection_callable_tick_timer(event, node_param)
-    elseif selected_index == 3 then
-        node.on_selection_callable_timer(event, node_param)
-    end
-end
+    on_click_radiobutton_decider_combinator_one = function(event, node_param)
 
-function node.on_selection_changed_subtask_dropdown(event, node_param, selected_index)
-    -- Reset dropdown selection index --
-    event.element.selected_index = 0
+        local radio_parent = event.element.parent
+        local other_radio_node = node_param.parent:recursive_find(node_param.events_params.other_radio_button)
+    
+        radio_parent[node_param.events_params.other_radio_button].state = false
+        other_radio_node.gui.state = false
+        node_param.gui.state = true
+    
+        node_param.parent.parent.update_logic.output_value = false
+    end,
+    
+    on_click_radiobutton_decider_combinator_all = function(event, node_param)
+    
+        local radio_parent = event.element.parent
+        local other_radio_node = node_param.parent:recursive_find(node_param.events_params.other_radio_button)
+    
+        radio_parent[node_param.events_params.other_radio_button].state = false
+        other_radio_node.gui.state = false
+        node_param.gui.state = true
+    
+        node_param.parent.parent.update_logic.output_value = true
+    end,
+    
+    on_click_open_signal = function(event, node_param)
+        if event.button == defines.mouse_button_type.left then
+            if not overlay_gui.has_opened_signals_node() then
 
-    if selected_index == 1 then
-        node.on_selection_decider_combinator_in_timers(event, node_param)
-    elseif selected_index == 2 then
-        node.on_selection_arithmetic_combinator_in_timers(event, node_param)
-    elseif selected_index == 3 then
-        node.on_selection_callable_combinator_in_timers(event, node_param)
-    end
-end
+                overlay_gui.create_gui(
+                    event.player_index,
+                    node_param,
+                    (event.element.type == "choose-elem-button") and event.element.elem_value or nil,
+                    {
+                        {type="virtual", name="signal-everything"},
+                        {type="virtual", name="signal-anything"},
+                        {type="virtual", name="signal-each"}
+                    }
+                )
 
-function node.on_click_close_button(event, node_param)
+                local root_node = global.entities[node_param.entity_id].node
+                if root_node.gui_element.location then
+                    overlay_gui.configure_location(root_node.gui_element.location)
+                end
+            end
+        elseif event.button == defines.mouse_button_type.right then
+            if event.element.type == "choose-elem-button" then     
+                node_param.gui.elem_value = nil
+                event.element.elem_value = nil
+            else
+                node_param.gui.caption = ""
+                event.element.caption = ""
+            end
+        end
+    end,
+}
 
-    if node_param.parent.parent.events_params.timer_name and node_param.events_params.scroll_pane_node_id then
+--------------------------- ON TEXT CHANGED EVENTS ------------------------------
+node.on_gui_text_changed = {
+
+    on_text_change_time = function(event, node_param)
+        local number = tonumber(event.element.text) 
+
+        if not number then
+            node_param.gui.text = nil
+            node_param.parent.parent.update_logic.max_value = 0
+        else
+            node_param.gui.text = event.element.text
+            node_param.parent.parent.update_logic.max_value = number * 60
+        end
+    end,
+
+}
+
+--------------------------- ON SELECTION CHANGED EVENTS -------------------------
+node.on_selection_state_changed = {
+
+    on_selection_changed_task_dropdown = function(event, node_param, selected_index)
+        -- Reset dropdown selection index --
+        event.element.selected_index = 0
+    
+        if selected_index == 1 then
+            node.on_selection_repeatable_timer(event, node_param)
+        elseif selected_index == 2 then
+            node.on_selection_callable_tick_timer(event, node_param)
+        elseif selected_index == 3 then
+            node.on_selection_callable_timer(event, node_param)
+        end
+    end,
+
+    on_selection_changed_subtask_dropdown = function(event, node_param, selected_index)
+        -- Reset dropdown selection index --
+        event.element.selected_index = 0
+    
+        if selected_index == 1 then
+            node.on_selection_decider_combinator_in_timers(event, node_param)
+        elseif selected_index == 2 then
+            node.on_selection_arithmetic_combinator_in_timers(event, node_param)
+        elseif selected_index == 3 then
+            node.on_selection_callable_combinator_in_timers(event, node_param)
+        end
+    end,
+    
+    on_selection_combinator_changed = function(event, node_param, selected_index)
+        node_param.gui.selected_index = selected_index
+        node_param.parent.update_logic.sign_index = selected_index
+    end,
+
+    on_selection_callable_timer_changed = function(event, node_param, selected_index)
+        node_param.gui.selected_index = selected_index
+    
         local unit_number = global.opened_entity[event.player_index]
-        local scroll_pane_node = global.entities[unit_number].node:recursive_find(node_param.events_params.scroll_pane_node_id)
-        if scroll_pane_node then
-            scroll_pane_node:remove_dropdown_item(
-                global.entities[scroll_pane_node.entity_id].node,
-                node_param.parent.parent.events_params.timer_name)
+    
+        if global.entities[unit_number] then
+            local scroll_pane_node = global.entities[unit_number].node:recursive_find(node_param.events_params.timers_scroll_pane_id)
+            if scroll_pane_node then
+                node_param.parent.update_logic.callable_node_id = scroll_pane_node.events_params.callable_timers[selected_index]
+            end
+    
+            ----------------- DEBUG ----------------------------
+            local callable_node = global.entities[unit_number].node:recursive_find(node_param.parent.update_logic.callable_node_id)
+            if callable_node then
+                logger.print("on_selection_callable_timer_changed "..node_param.parent.update_logic.callable_node_id)
+            else
+                logger.print("on_selection_callable_timer_changed nil")
+                for _, timers in pairs(scroll_pane_node.events_params.callable_timers) do
+                    logger.print("  timer: "..timers)
+                end
+            end
+            ---------------------------------------------------
         end
-    end
+    end,
 
-    local entity_id_copy = node_param.entity_id
-    node_param.parent.parent.parent:remove()
-    event.element.parent.parent.parent.destroy()
-end
-
-function node.on_click_close_sub_button(event, node_param)
-    if table_size(event.element.parent.parent.children) == 1 then
-        node_param.parent.parent.gui.visible = false
-        event.element.parent.parent.visible = false
-    end
-
-    local update_root_node = node_param.parent.parent.parent:recursive_find(node_param.events_params.update_root_node_id)
-    node_param.parent:update_list_child_remove(update_root_node)
-    node_param.parent:remove()
-    event.element.parent.destroy()
-end
-
-function node.on_click_play_button(event, node_param)
-
-    local function set_sprites(element, sprite)
-        element.sprite = sprite
-        element.hovered_sprite = sprite
-        element.clicked_sprite = sprite
-    end
-
-    local main_vertical_flow = node_param.parent.parent.parent
-    local progressbar_node = node_param.parent.parent
-    local timebox_node = node_param.parent:recursive_find(node_param.events_params.time_selection_node_id)
-
-    local repeatable_sub_tasks_node = main_vertical_flow.parent:recursive_find(node_param.events_params.repeatable_sub_tasks_flow_id)
-    local new_task_dropdown_node = main_vertical_flow.parent:recursive_find(node_param.events_params.new_task_dropdown_node_id)
-
-    progressbar_node.update_logic.value = 0
-    progressbar_node.gui_element.value = 0
-
-    if progressbar_node.update_logic.active then
-        progressbar_node.update_logic.active = false
-        set_sprites(event.element, "utility/play")
-        set_sprites(node_param.gui, "utility/play")
-    else
-        progressbar_node.update_logic.active = true
-        set_sprites(event.element, "utility/stop")
-        set_sprites(node_param.gui, "utility/stop")
-    end
-
-end
-
-function node.on_text_change_time(event, node_param)
-    local number = tonumber(event.element.text) 
-
-    if not number then
-        node_param.gui.text = nil
-        node_param.parent.parent.update_logic.max_value = 0
-    else
-        node_param.gui.text = event.element.text
-        node_param.parent.parent.update_logic.max_value = number * 60
-    end
-end
+    on_selection_changed_combinators_dropdown = function(event, node_param, selected_index)
+        -- Reset dropdown selection index --
+        event.element.selected_index = 0
+    
+        if selected_index == 1 then
+            node.on_selection_decider_combinator(event, node_param)
+        elseif selected_index == 2 then
+            node.on_selection_arithmetic_combinator(event, node_param)
+        elseif selected_index == 3 then
+            node.on_selection_callable_combinator(event, node_param)
+        end
+    end,
+}
+---------------------------------------------------------------------------------
 
 function node:on_text_changed_constant_slot_1()
     self.parent.parent.update_logic.signal_slot_1 = nil
@@ -400,60 +454,6 @@ function node:on_signal_confirm_change()
     elseif self.events_params.signal_type == "result_signal" then 
         self:on_signal_changed_result()
     end
-end
-
-function node.on_selection_combinator_changed(event, node_param, selected_index)
-    node_param.gui.selected_index = selected_index
-    node_param.parent.update_logic.sign_index = selected_index
-end
-
-function node.on_selection_callable_timer_changed(event, node_param, selected_index)
-    node_param.gui.selected_index = selected_index
-
-    local unit_number = global.opened_entity[event.player_index]
-
-    if global.entities[unit_number] then
-        local scroll_pane_node = global.entities[unit_number].node:recursive_find(node_param.events_params.timers_scroll_pane_id)
-        if scroll_pane_node then
-            node_param.parent.update_logic.callable_node_id = scroll_pane_node.events_params.callable_timers[selected_index]
-        end
-
-        ----------------- DEBUG ----------------------------
-        local callable_node = global.entities[unit_number].node:recursive_find(node_param.parent.update_logic.callable_node_id)
-        if callable_node then
-            logger.print("on_selection_callable_timer_changed "..node_param.parent.update_logic.callable_node_id)
-        else
-            logger.print("on_selection_callable_timer_changed nil")
-            for _, timers in pairs(scroll_pane_node.events_params.callable_timers) do
-                logger.print("  timer: "..timers)
-            end
-        end
-        ---------------------------------------------------
-    end
-end
-
-function node.on_click_radiobutton_decider_combinator_one(event, node_param)
-
-    local radio_parent = event.element.parent
-    local other_radio_node = node_param.parent:recursive_find(node_param.events_params.other_radio_button)
-
-    radio_parent[node_param.events_params.other_radio_button].state = false
-    other_radio_node.gui.state = false
-    node_param.gui.state = true
-
-    node_param.parent.parent.update_logic.output_value = false
-end
-
-function node.on_click_radiobutton_decider_combinator_all(event, node_param)
-
-    local radio_parent = event.element.parent
-    local other_radio_node = node_param.parent:recursive_find(node_param.events_params.other_radio_button)
-
-    radio_parent[node_param.events_params.other_radio_button].state = false
-    other_radio_node.gui.state = false
-    node_param.gui.state = true
-
-    node_param.parent.parent.update_logic.output_value = true
 end
 
 function node.on_selection_repeatable_timer(event, node_param)
@@ -887,7 +887,7 @@ function node.arithmetic_combinator(root_node, update_node)
         selected_index = 1,
         items = { "*", "/", "+", "-", "%", "^", "<<", ">>", "AND", "OR", "XOR" }
     })
-    arithmetic_menu_node.events_id.on_selection_state_changed = "on_selection_arithmetic_changed"
+    arithmetic_menu_node.events_id.on_selection_state_changed = "on_selection_combinator_changed"
 
     --------------------------------------------------------
 
@@ -1119,37 +1119,6 @@ function node.create_signal_constant(parent_node, create_constant, types)
             signal_type = types.signal_type
         }
         return flow_node
-    end
-end
-
-function node.on_click_open_signal(event, node_param)
-    if event.button == defines.mouse_button_type.left then
-        if not overlay_gui.has_opened_signals_node() then
-
-            overlay_gui.create_gui(
-                event.player_index,
-                node_param,
-                (event.element.type == "choose-elem-button") and event.element.elem_value or nil,
-                {
-                    {type="virtual", name="signal-everything"},
-                    {type="virtual", name="signal-anything"},
-                    {type="virtual", name="signal-each"}
-                }
-            )
-
-            local root_node = global.entities[node_param.entity_id].node
-            if root_node.gui_element.location then
-                overlay_gui.configure_location(root_node.gui_element.location)
-            end
-        end
-    elseif event.button == defines.mouse_button_type.right then
-        if event.element.type == "choose-elem-button" then     
-            node_param.gui.elem_value = nil
-            event.element.elem_value = nil
-        else
-            node_param.gui.caption = ""
-            event.element.caption = ""
-        end
     end
 end
 
