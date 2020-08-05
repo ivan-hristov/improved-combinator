@@ -50,12 +50,11 @@ end
 local function on_built_entity(event)
     local entity = event.created_entity
     if entity.name == constants.entity.name then
-        local main_entity = {}
-        main_entity.entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
-        main_entity.entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
-        main_entity.node = game_node:create_main_gui(entity.unit_number)
-        main_entity.update_list = list:new()
-        global.entities[entity.unit_number] = main_entity
+        global.entities[entity.unit_number] = {}
+        global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
+        global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
+        global.entities[entity.unit_number].update_list = list:new()
+        global.entities[entity.unit_number].node = game_node:create_main_gui(entity.unit_number)
 
         logger.print("function.on_built_entity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
