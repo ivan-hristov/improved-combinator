@@ -386,18 +386,6 @@ node.on_selection_state_changed = {
             if scroll_pane_node then
                 node_param.parent.update_logic.callable_node_id = scroll_pane_node.events_params.callable_timers[selected_index]
             end
-    
-            ----------------- DEBUG ----------------------------
-            local callable_node = global.entities[unit_number].node:recursive_find(node_param.parent.update_logic.callable_node_id)
-            if callable_node then
-                logger.print("on_selection_callable_timer_changed "..node_param.parent.update_logic.callable_node_id)
-            else
-                logger.print("on_selection_callable_timer_changed nil")
-                for _, timers in pairs(scroll_pane_node.events_params.callable_timers) do
-                    logger.print("  timer: "..timers)
-                end
-            end
-            ---------------------------------------------------
         end
     end,
 
@@ -1194,8 +1182,6 @@ function node:add_dropdown_item(root, item_name, timer_id)
             dropdown_node.gui_element.add_item(item_name)
             dropdown_node.gui.items = dropdown_node.gui_element.items
 
-            --logger.print("add_dropdown_item at: "..table_size(dropdown_node.gui.items).." id: "..timer_id)
-            
             table.insert(self.events_params.callable_timers, timer_id)
         end
     end    
@@ -1238,7 +1224,6 @@ function node:find_all_timers()
             items[array_index] = timer.events_params.timer_name
 
             if not self.events_params.callable_timers[array_index] then
-                --logger.print("find_all_timers "..array_index.." id: "..timer.id)
                 self.events_params.callable_timers[array_index] = timer.id
             end
 
