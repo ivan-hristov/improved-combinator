@@ -6,8 +6,6 @@ local overlay_gui = require("overlay_gui")
 local opened_signal_frame = nil
 
 local function on_gui_opened(event)
-    --logger.print("on_gui_opened")
-
     if not event.entity then
         return
     end
@@ -25,13 +23,6 @@ local function on_gui_opened(event)
 end
 
 local function on_gui_closed(event)
-    if event.element then
-        --logger.print("on_gui_closed: "..event.element.name.." type: "..event.element.type)
-    else
-        --logger.print("on_gui_closed")
-    end
-
-    -- TODO add option to minimise dropdown options instead of closing the main GUI
     if event.element and global.opened_entity then
         if overlay_gui.has_opened_signals_node() then
             overlay_gui.destory_top_nodes_and_unselect(event.player_index, global.opened_entity[event.player_index])
@@ -45,8 +36,6 @@ local function on_gui_closed(event)
 end
 
 local function on_gui_click(event)
-    --logger.print("on_gui_click name: "..event.element.name)
-
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
@@ -62,10 +51,6 @@ local function on_gui_click(event)
 end
 
 local function on_gui_elem_changed(event)
-    if event.element.name and event.element.elem_value and event.element.elem_value.name and event.element.elem_value.type then
-        --logger.print("on_gui_elem_changed name: "..event.element.name..", type: "..event.element.elem_value.type.." name: "..event.element.elem_value.name)
-    end
-
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
@@ -78,8 +63,6 @@ local function on_gui_elem_changed(event)
 end
 
 local function on_gui_text_changed(event)
-    --logger.print("on_gui_text_changed name: "..event.element.name)
-
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
 
@@ -95,8 +78,6 @@ local function on_gui_text_changed(event)
 end
 
 local function on_gui_selection_state_changed(event)
-    --logger.print("on_gui_selection_state_changed name: "..event.element.name)
-
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
     local selected_index = event.element.selected_index
@@ -121,8 +102,6 @@ end
 
 
 local function on_gui_selected_tab_changed(event)
-    --logger.print("on_gui_selected_tab_changed name: "..event.element.name.." index: "..event.element.selected_tab_index)
-
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
     local selected_index = event.element.selected_index

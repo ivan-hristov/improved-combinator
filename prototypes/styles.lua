@@ -464,65 +464,6 @@ add_styles({
 
         width = 364
     },
-    [constants.style.dropdown_options_frame] =
-    {
-        type = "frame_style",
-        parent = "inner_frame_in_outer_frame",
-        vertical_align = "center",
-        horizontal_align = "left",
-        horizontally_stretchable = "on",
-
-        top_padding  = 7,
-        right_padding = 7,
-        bottom_padding = 7,
-        left_padding = 7
-    },
-    [constants.style.dropdown_subtask_options_frame] =
-    {
-        type = "frame_style",
-        parent = "inner_frame_in_outer_frame",
-        vertical_align = "center",
-        horizontal_align = "left",
-        horizontally_stretchable = "on",
-
-        left_margin = 42,
-        
-        top_padding  = 7,
-        right_padding = 7,
-        bottom_padding = 7,
-        left_padding = 7
-    },
-    [constants.style.options_list] =
-    {
-        type = "list_box_style",
-        vertical_align = "top",
-        horizontal_align = "left",
-
-        top_padding  = 0,
-        right_padding = 0,
-        bottom_padding = 0,
-        left_padding = 0
-
-    },
-    [constants.style.large_button_frame] =
-    {
-        type = "button_style",
-        parent = "button_with_shadow",
-        horizontal_align = "left",
-        horizontally_stretchable = "on",
-
-        height = 36
-    },
-    [constants.style.large_options_button_frame] =
-    {
-        type = "button_style",
-        parent = "button_with_shadow",
-        horizontal_align = "left",
-        horizontally_stretchable = "on",
-
-        left_margin = 42,
-        height = 36
-    },
     [constants.style.conditional_frame] =
     {
         type = "frame_style",
@@ -907,64 +848,6 @@ add_styles({
                 draw_type = "outer"
             }
         }
-    },
-    [constants.style.dark_button_arithmetic_frame] =
-    {
-        type = "button_style",
-        parent = constants.style.dark_button_frame,
-        left_margin = 8,
-        right_margin = 8
-    },
-    [constants.style.dark_button_constant_frame] =
-    {
-        type = "button_style",
-        parent = constants.style.dark_button_frame,
-        left_margin = 10,
-        right_margin = 10
-    },
-    [constants.style.dark_textfield_frame] =
-    {
-        type = "textbox_style",
-        horizontal_align = "center",
-        font = "default-semibold",
-
-        width = 68,
-        height = 28,
-        font_color = {225, 225, 225},
-        default_background =
-        {
-            base = {border = 4, position = {2, 738}, size = 76},
-            shadow =
-            {
-                position = {378, 103},
-                corner_size = 16,
-                top_outer_border_shift = 4,
-                bottom_outer_border_shift = -4,
-                left_outer_border_shift = 4,
-                right_outer_border_shift = -4,
-                draw_type = "outer"
-            }
-        },
-        active_background =
-        {
-            base = {border = 4, position = {162, 738}, size = 76},
-            shadow =
-            {
-                position = {378, 103},
-                corner_size = 16,
-                top_outer_border_shift = 4,
-                bottom_outer_border_shift = -4,
-                left_outer_border_shift = 4,
-                right_outer_border_shift = -4,
-                draw_type = "outer"
-            }
-        }
-    },
-    [constants.style.dark_arithmetic_textfield_frame] =
-    {
-        type = "textbox_style",
-        parent = constants.style.dark_textfield_frame,
-        width = 60
     },
     [constants.style.invisible_frame] =
     {

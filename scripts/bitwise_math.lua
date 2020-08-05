@@ -10,9 +10,9 @@ end
 
 local function to_bit_table(x)
     if x == 0 then
-        return { 0 }
+        return {0}
     end
-    return { to_bit_table_recursive(x) }
+    return {to_bit_table_recursive(x)}
 end
 
 local function makeop(condition)
