@@ -1,8 +1,6 @@
 local constants = {
     entity = {
-        graphics = {
-            activity_leds = {}
-        },        
+        graphics = {},        
         input = {},
         output = {}
     },
@@ -11,7 +9,6 @@ local constants = {
 
 constants.base_path = "__AdvancedCombinator__"
 constants.blank_image = constants.base_path.."/graphics/blank.png"
-constants.blank_image_4x4 = constants.base_path.."/graphics/blank_4x4.png"
 constants.gui_image = constants.base_path.."/graphics/gui.png"
 
 constants.entity.name = "advanced-combinator"

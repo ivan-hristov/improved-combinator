@@ -107,6 +107,10 @@ local function on_entity_settings_pasted(event)
     end
 
     -- Clear existing entity settings --
+    if dest_entity.node.gui_element then
+        dest_entity.node.gui_element.destroy()
+    end
+
     dest_entity.node:remove()
     dest_entity.node = nil
 
