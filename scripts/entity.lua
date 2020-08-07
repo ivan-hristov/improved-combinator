@@ -42,7 +42,6 @@ local function create_subentity(mainEntity, subEntityType, xOffset, yOffset)
 end
 
 local function on_init()
-    logger.print("function.onInit")
     global.opened_entity = global.opened_entity or {}
     global.entities = global.entities or {}
 end
@@ -55,8 +54,6 @@ local function on_built_entity(event)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
         global.entities[entity.unit_number].update_list = list:new()
         global.entities[entity.unit_number].node = game_node:create_main_gui(entity.unit_number)
-
-        logger.print("function.on_built_entity Entity Added "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
@@ -90,15 +87,10 @@ local function on_entity_died(event)
         main_entity.update_list = nil
         
         global.entities[entity.unit_number] = nil
-
-        logger.print("function.on_entity_died Entity Destroyed "..entity.unit_number.." ("..table_size(global.entities)..")")
     end
 end
 
 local function on_entity_settings_pasted(event)
-    logger.print("copying settings from "..event.source.unit_number.." to "..event.destination.unit_number)
-
-
     local src_entity = global.entities[event.source.unit_number]
     local dest_entity = global.entities[event.destination.unit_number]
 

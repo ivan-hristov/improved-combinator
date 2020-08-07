@@ -106,7 +106,7 @@ function node:create_main_gui(unit_number)
         type = "frame",
         direction = "vertical",
         style = constants.style.main_frame,
-        caption = "MAIN FRAME "..unit_number
+        caption =  {"advanced-combinator.main-frame-title"}
     })
 
     local inner_mane_frame = root:add_child({
@@ -123,7 +123,7 @@ function node:create_main_gui(unit_number)
     local combinators_tab = tabbed_pane:add_child({
         type = "tab",
         direction = "vertical",
-        caption = "Combinators"
+        caption = {"advanced-combinator.combinators-tab"}
     })
 
     local combinators_tasks_area = tabbed_pane:add_child({
@@ -144,7 +144,12 @@ function node:create_main_gui(unit_number)
         type = "drop-down",
         direction = "horizontal",
         style = constants.style.task_dropdown_frame,
-        items = {"Decider Combinator", "Arithmetic Combinator", "Conditional Timer Combinator"},
+        items =
+        {
+            {"advanced-combinator.decider-combinator"},
+            {"advanced-combinator.arithmetic-combinator"},
+            {"advanced-combinator.conditional-timer-combinator"}
+        },
     })
     combinators_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_combinators_dropdown"
 
@@ -153,13 +158,13 @@ function node:create_main_gui(unit_number)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Combinator"
+        caption = {"advanced-combinator.add-combinator-button"}
     })
 
     local timer_tab = tabbed_pane:add_child({
         type = "tab",
         direction = "vertical",
-        caption = "Timers"
+        caption = {"advanced-combinator.timers-tab"}
     })
 
     local timers_tasks_area = tabbed_pane:add_child({
@@ -180,7 +185,12 @@ function node:create_main_gui(unit_number)
         type = "drop-down",
         direction = "horizontal",
         style = constants.style.task_dropdown_frame,
-        items = {"Repeatable Timer", "Conditional Tick Timer", "Conditional Timer"}
+        items =
+        {
+            {"advanced-combinator.repeatable-timer"},
+            {"advanced-combinator.conditional-tick-timer"},
+            {"advanced-combinator.conditional-timer"}
+        }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
 
@@ -189,7 +199,7 @@ function node:create_main_gui(unit_number)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Timer"
+        caption = {"advanced-combinator.add-timer-button"}
     })
 
     root:recursive_setup_events()
@@ -486,7 +496,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_begining_label_frame,
-        caption = "Repeat every"
+        caption = {"advanced-combinator.combinator-repeat-timer-prefix"}
     })
 
     local time_selection_node = repeatable_time_flow_node:add_child({
@@ -506,8 +516,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        --caption = "seconds"
-        caption = repeatable_time_node.id
+        caption = {"advanced-combinator.combinator-timer-suffix"}
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -533,9 +542,9 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            "Decider Combinator",
-            "Arithmetic Combinator",
-            "Conditional Timer Combinator"
+            {"advanced-combinator.decider-combinator"},
+            {"advanced-combinator.arithmetic-combinator"},
+            {"advanced-combinator.conditional-timer-combinator"}
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -550,7 +559,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Combinator"
+        caption = {"advanced-combinator.add-combinator-button"}
     })
     play_button_node.events_params =
     {
@@ -568,14 +577,26 @@ function node.on_selection_repeatable_timer(event, node_param)
 end
 
 function node.on_selection_callable_tick_timer(event, node_param)
-    node.callable_timer(event, node_param, "Tick Timer ", "tick timer", true)
+    node.callable_timer(
+        event,
+        node_param,
+        "advanced-combinator.tick-timer",
+        "tick timer",
+        true
+    )
 end
 
 function node.on_selection_callable_timer(event, node_param)
-    node.callable_timer(event, node_param, "Timer ", "timer", false)
+    node.callable_timer(
+        event,
+        node_param,
+        "advanced-combinator.timer",
+        "timer",
+        false
+    )
 end
 
-function node.callable_timer(event, node_param, timer_prefix, timer_type, every_tick)
+function node.callable_timer(event, node_param, timer_caption, timer_type, every_tick)
 
     -- Setup Persistent Nodes --
     local scroll_pane_node = node_param.parent
@@ -607,7 +628,7 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         type = "label",
         direction = "vertical",
         style = constants.style.callable_timer_label,
-        caption = scroll_pane_node:find_next_available_name(timer_prefix, timer_type)
+        caption = scroll_pane_node:find_next_available_name(timer_caption, timer_type)
     })
     callable_time_node.events_params = {timer_name = timer_id_node.gui.caption, timer_type = timer_type}
 
@@ -615,7 +636,7 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         type = "label",
         direction = "vertical",
         style = constants.style.callable_begining_label_frame,
-        caption = "Run for"
+        caption = {"advanced-combinator.combinator-callable-timer-prefix"}
     })
 
     local time_selection_node = repeatable_time_flow_node:add_child({
@@ -634,8 +655,7 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        --caption = "seconds"
-        caption = callable_time_node.id
+        caption = {"advanced-combinator.combinator-timer-suffix"}
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -663,9 +683,9 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            "Decider Combinator",
-            "Arithmetic Combinator",
-            "Conditional Timer Combinator"
+            {"advanced-combinator.decider-combinator"},
+            {"advanced-combinator.arithmetic-combinator"},
+            {"advanced-combinator.conditional-timer-combinator"}
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -680,7 +700,7 @@ function node.callable_timer(event, node_param, timer_prefix, timer_type, every_
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = "+ Add Combinator"
+        caption = {"advanced-combinator.add-combinator-button"}
     })
     ------------------------------------------------------------------------------
 
@@ -790,7 +810,7 @@ function node.decider_combinator(root_node, update_node)
     local radio_button_1 = radio_group_node:add_child({
         type = "radiobutton",
         style = constants.style.radiobutton_frame,
-        caption = "1",
+        caption = {"advanced-combinator.decider-combinator-output-one"},
         state = true
     })
     radio_button_1.events_id.on_click = "on_click_radiobutton_decider_combinator_one"
@@ -798,7 +818,7 @@ function node.decider_combinator(root_node, update_node)
     local radio_button_2 = radio_group_node:add_child({
         type = "radiobutton",
         style = constants.style.radiobutton_frame,
-        caption = "Input count",
+        caption = {"advanced-combinator.decider-combinator-output-all"},
         state = false
     })
     radio_button_2.events_id.on_click = "on_click_radiobutton_decider_combinator_all"
@@ -1090,7 +1110,7 @@ function node.create_signal_constant(parent_node, create_constant, types)
             type = "button",
             direction = "vertical",        
             style = constants.style.dark_button_frame,
-            tooltip = "Constant number",
+            tooltip = {"advanced-combinator.constant-signal-tooltip"},
             visible = false
         })
         constant_node.events_id.on_click = "on_click_open_signal"
@@ -1120,7 +1140,7 @@ function node:find_callable_timers(timers)
     end
 end
 
-function node:find_next_available_name(timer_prefix, timer_type)
+function node:find_next_available_name(timer_caption, timer_type)
     local timers = {}
     self:find_callable_timers(timers)
 
@@ -1128,7 +1148,7 @@ function node:find_next_available_name(timer_prefix, timer_type)
     for _, progressbar in pairs(timers) do
         if progressbar.events_params.timer_name and progressbar.events_params.timer_type == timer_type then
             if progressbar.events_params.timer_name then
-                local number = tonumber(string.sub(progressbar.events_params.timer_name, #timer_prefix, #progressbar.events_params.timer_name))
+                local number = tonumber(progressbar.events_params.timer_name[2])
                 table.insert(existing_timers, number) 
             end
         end
@@ -1152,7 +1172,7 @@ function node:find_next_available_name(timer_prefix, timer_type)
     end
 
     local index = recursive_find_index(1)
-    local timer_name = timer_prefix..tostring(index)
+    local timer_name = {timer_caption, tostring(index)}
 
     return timer_name
 end
