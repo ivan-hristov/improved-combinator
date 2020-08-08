@@ -164,7 +164,7 @@ local function main_entity()
 		resistances = {{type = "fire", percent = 90}},
         collision_box = {{-0.8, -0.35}, {0.8, 0.35}},
         selection_box = {{-0.75, -0.5}, {0.95, 0.5}},
-    	inventory_size = 1,
+    	inventory_size = 0,
 		circuit_wire_max_distance = 0,
 		circuit_wire_connection_point = nil,
         picture =
