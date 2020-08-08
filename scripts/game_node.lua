@@ -119,6 +119,7 @@ function node:create_main_gui(unit_number)
         direction = "horizontal",
         style = constants.style.main_tabbed_pane
     })
+    tabbed_pane.events_params.selected_tab_index = 1
 
     local combinators_tab = tabbed_pane:add_child({
         type = "tab",
@@ -179,7 +180,7 @@ function node:create_main_gui(unit_number)
         style = constants.style.scroll_pane
     })
     timers_scroll_pane.events_params = {callable_timers = {}}
-    combinators_scroll_pane.events_params = { timers_scroll_pane_id = timers_scroll_pane.id }
+    combinators_scroll_pane.events_params = {timers_scroll_pane_id = timers_scroll_pane.id}
 
     local new_task_dropdown_node = timers_scroll_pane:add_child({
         type = "drop-down",
