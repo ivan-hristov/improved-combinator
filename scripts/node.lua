@@ -219,7 +219,6 @@ function node:debug_print(index)
     end
 
     index = index + 1
-    logger.print(debug_string.."node_id: "..self.id..", gui_type: "..self.gui.type)
 
     for _, chilren in pairs(self.children) do
         chilren:debug_print(index)
@@ -238,7 +237,6 @@ function node:debug_print_factorio_gui(element, index, max_level)
         return
     end
 
-    logger.print(str.."name: "..element.name.." type: "..element.type)
     for _, child in pairs(element.children) do
         node:debug_print_factorio_gui(child, index, max_level)
     end
