@@ -272,7 +272,7 @@ node.on_click = {
             node_param.parent.parent.gui.visible = false
             event.element.parent.parent.visible = false
         end
-    
+
         local update_root_node = node_param.parent.parent.parent:recursive_find(node_param.events_params.update_root_node_id)
         node_param.parent:update_list_child_remove(update_root_node)
         node_param.parent:remove()
@@ -837,7 +837,7 @@ function node.decider_combinator(root_node, update_node)
         clicked_sprite = "utility/close_black",
     })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { update_root_node_id = root_node.id }
+    close_button_node.events_params = { update_root_node_id = update_node.id }
     --------------------------------------------------------
 
     -- Setup Node Events --
@@ -946,7 +946,7 @@ function node.arithmetic_combinator(root_node, update_node)
         clicked_sprite = "utility/close_black",
     })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { update_root_node_id = root_node.id }
+    close_button_node.events_params = { update_root_node_id = update_node.id }
     --------------------------------------------------------
 
     -- Setup Node Events --

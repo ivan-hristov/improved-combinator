@@ -194,9 +194,9 @@ function node:update_list_remove()
         list_element.children:clear()
         global.entities[self.entity_id].update_list:remove(self.id)
         self.updatable = false
-        logger.print("update_list_remove: "..self.id.." parent: "..global.entities[self.entity_id].update_list.length.." length "..list_element.children.length)
-    else
-        logger.print("REMOVE NOT Updatable: "..(self and self.id or "nil"))
+        --logger.print("update_list_remove: "..self.id.." parent: "..global.entities[self.entity_id].update_list.length.." length "..list_element.children.length)
+    --else
+        --logger.print("REMOVE NOT Updatable: "..(self and self.id or "nil"))
     end
 end
 
@@ -204,9 +204,9 @@ function node:update_list_child_push(parent_node)
     if parent_node.updatable then
         local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
         list_element.children:push_back({ id = self.id, node_element = self })
-        logger.print("update_list_child_push: "..parent_node.id.." parent: "..global.entities[parent_node.entity_id].update_list.length.." length "..list_element.children.length)
-    else
-        logger.print("CHILD PUSH NOT Updatable: "..(parent_node and parent_node.id or "nil"))
+        --logger.print("update_list_child_push: "..parent_node.id.." parent: "..global.entities[parent_node.entity_id].update_list.length.." length "..list_element.children.length.." type: "..parent_node.gui.type)
+    --else
+        --logger.print("CHILD PUSH NOT Updatable: "..(parent_node and parent_node.id or "nil").." type: "..parent_node.gui.type)
     end
 end
 
@@ -214,9 +214,9 @@ function node:update_list_child_remove(parent_node)
     if parent_node.updatable then
         local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
         list_element.children:remove(self.id)
-        logger.print("update_list_child_remove: "..parent_node.id.." parent: "..global.entities[parent_node.entity_id].update_list.length.." length "..list_element.children.length)
-    else
-        logger.print("CHILD REMOVE NOT Updatable: "..(parent_node and parent_node.id or "nil"))
+        --logger.print("update_list_child_remove: "..parent_node.id.." parent: "..global.entities[parent_node.entity_id].update_list.length.." length "..list_element.children.length.." type: "..parent_node.gui.type)
+    --else
+        --logger.print("CHILD REMOVE NOT Updatable: "..(parent_node and parent_node.id or "nil").." type: "..parent_node.gui.type)
     end
 end
 
