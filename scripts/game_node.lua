@@ -516,8 +516,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        caption = repeatable_time_node.id
-        --caption = {"advanced-combinator.combinator-timer-suffix"}
+        caption = {"advanced-combinator.combinator-timer-suffix"}
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -656,8 +655,7 @@ function node.callable_timer(event, node_param, timer_caption, timer_type, every
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        caption = callable_time_node.id
-        --caption = {"advanced-combinator.combinator-timer-suffix"}
+        caption = {"advanced-combinator.combinator-timer-suffix"}
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
