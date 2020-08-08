@@ -125,7 +125,7 @@ script.on_event(defines.events.on_built_entity, on_built_entity)
 script.on_event(defines.events.on_robot_built_entity, on_built_entity)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_entity_died)
-script.on_event(defines.events.on_robot_mined_entity, on_entity_died)
+script.on_event(defines.events.on_robot_pre_mined, on_entity_died)
 script.on_event(defines.events.on_entity_died, on_entity_died)
 
 script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
