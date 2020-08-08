@@ -154,7 +154,7 @@ local function main_entity()
         scale_info_icons = true,
         scale_entity_info_icon = true,
         flags = {"placeable-neutral", "placeable-player", "player-creation"},
-        minable = {hardness = 0.2, mining_time = 1, result = constants.entity.name},
+        minable = {hardness = 0.2, mining_time = 2, result = constants.entity.name},
         max_health = 250,
         corpse = constants.entity.remnants,
         dying_explosion = "medium-explosion",

@@ -48,12 +48,20 @@ end
 
 local function on_built_entity(event)
     local entity = event.created_entity
+
+    local function setup_entity(main_entity)
+        global.entities[main_entity.unit_number] = {}
+        global.entities[main_entity.unit_number].entity_input = create_subentity(main_entity, constants.entity.input.name, -0.9, 0.0)
+        global.entities[main_entity.unit_number].entity_output = create_subentity(main_entity, constants.entity.output.name, 1.0, 0.0)
+        global.entities[main_entity.unit_number].update_list = list:new()
+        global.entities[main_entity.unit_number].node = game_node:create_main_gui(main_entity.unit_number)
+    end
+
     if entity.name == constants.entity.name then
-        global.entities[entity.unit_number] = {}
-        global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
-        global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
-        global.entities[entity.unit_number].update_list = list:new()
-        global.entities[entity.unit_number].node = game_node:create_main_gui(entity.unit_number)
+        setup_entity(entity)
+    elseif entity.name == "entity-ghost" and entity.ghost_name == constants.entity.name then
+        local _, revived_entity = entity.revive()
+        setup_entity(revived_entity)
     end
 end
 
@@ -125,7 +133,7 @@ script.on_event(defines.events.on_built_entity, on_built_entity)
 script.on_event(defines.events.on_robot_built_entity, on_built_entity)
 
 script.on_event(defines.events.on_pre_player_mined_item, on_entity_died)
-script.on_event(defines.events.on_robot_pre_mined, on_entity_died)
+script.on_event(defines.events.on_robot_mined_entity, on_entity_died)
 script.on_event(defines.events.on_entity_died, on_entity_died)
 
 script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
