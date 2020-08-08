@@ -235,21 +235,30 @@ local function process_events()
         if input_signal then
             for iter in entity.update_list:iterator() do
 
-                local check_combinators =
-                    iter.data.node_element.update_logic.combinators or 
-                    update_timer_and_progress_bar(
-                        iter.data.node_element.gui_element,
-                        iter.data.node_element.update_logic)
+                if iter.data.node_element.update_logic then
+                    local check_combinators =
+                        iter.data.node_element.update_logic.combinators or 
+                        update_timer_and_progress_bar(
+                            iter.data.node_element.gui_element,
+                            iter.data.node_element.update_logic)
 
-                if check_combinators then
-                    for child_iter in iter.data.children:iterator() do
-                        local update_logic = child_iter.data.node_element.update_logic
-                        if update_logic.decider_combinator or update_logic.callable_combinator then
-                            update_decider_combinator(input_signal, entity_id, update_logic)
-                        elseif update_logic.arithmetic_combinator then
-                            update_arithmetic_combinator(input_signal, entity_id, update_logic)
+                    if check_combinators then
+                        for child_iter in iter.data.children:iterator() do
+                            local update_logic = child_iter.data.node_element.update_logic
+
+                            if update_logic then
+                                if update_logic.decider_combinator or update_logic.callable_combinator then
+                                    update_decider_combinator(input_signal, entity_id, update_logic)
+                                elseif update_logic.arithmetic_combinator then
+                                    update_arithmetic_combinator(input_signal, entity_id, update_logic)
+                                end
+                            else
+                                logger.print("Update Logic Child NULL - ID: "..child_iter.data.node_element.id)
+                            end
                         end
                     end
+                else
+                    logger.print("Update Logic Parent NULL - ID: "..child_iter.data.node_element.id)
                 end
             end
         end
