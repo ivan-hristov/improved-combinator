@@ -164,7 +164,7 @@ local function main_entity()
 		resistances = {{type = "fire", percent = 90}},
         collision_box = {{-0.8, -0.35}, {0.8, 0.35}},
         selection_box = {{-0.75, -0.5}, {0.95, 0.5}},
-    	inventory_size = 0,
+    	inventory_size = 1,
 		circuit_wire_max_distance = 0,
 		circuit_wire_connection_point = nil,
         picture =
@@ -365,11 +365,41 @@ local function recipe()
         icon = constants.entity.graphics.icon,
         icon_size = 64,
         icon_mipmaps = 4,
-        enabled = true,
+        enabled = false,
         ingredients = {{"constant-combinator", 2}, {"electronic-circuit", 5}},
         result = constants.entity.name
     }
     return recipe
 end
 
-data:extend({main_item(), input_item(), output_item(), main_remnants(), main_entity(), input_entity(), output_entity(), recipe()})
+local function technology()
+    local technology =
+    {
+        type = "technology",
+        name = constants.entity.name,
+        icon = constants.entity.graphics.technology_icon,
+        icon_size = 140,
+        order = "a-d-e",
+        unit =
+        {
+            time = 20,
+            count = 200,
+            ingredients =
+            {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1}
+            }
+        },
+        prerequisites = {"circuit-network"},
+        effects =
+        {
+            {
+                type = "unlock-recipe",
+                recipe = constants.entity.name
+            }
+        }
+    }
+    return technology
+end
+
+data:extend({main_item(), input_item(), output_item(), main_remnants(), main_entity(), input_entity(), output_entity(), recipe(), technology()})
