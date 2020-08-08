@@ -273,7 +273,7 @@ node.on_click = {
             node_param.parent.parent.gui.visible = false
             event.element.parent.parent.visible = false
         end
-    
+
         local update_root_node = node_param.parent.parent.parent:recursive_find(node_param.events_params.update_root_node_id)
         node_param.parent:update_list_child_remove(update_root_node)
         node_param.parent:remove()
@@ -747,7 +747,7 @@ function node.decider_combinator(root_node, update_node)
     })
     decider_frame_node:setup_decider_combinator()
     decider_frame_node:update_list_child_push(update_node)
-
+ 
     --------------------------------------------------------
     local left_signal_flow_node = node.create_signal_constant(
         decider_frame_node,
@@ -836,7 +836,7 @@ function node.decider_combinator(root_node, update_node)
         clicked_sprite = "utility/close_black",
     })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { update_root_node_id = root_node.id }
+    close_button_node.events_params = { update_root_node_id = update_node.id }
     --------------------------------------------------------
 
     -- Setup Node Events --
@@ -945,7 +945,7 @@ function node.arithmetic_combinator(root_node, update_node)
         clicked_sprite = "utility/close_black",
     })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { update_root_node_id = root_node.id }
+    close_button_node.events_params = { update_root_node_id = update_node.id }
     --------------------------------------------------------
 
     -- Setup Node Events --
@@ -1192,6 +1192,8 @@ function node:add_dropdown_item(root, item_name, timer_id)
     local dropdown_nodes = {}
     root:find_callable_dropdown_nodes(dropdown_nodes)
 
+    local added_callable_timer = false
+
     for _, dropdown_node in pairs(dropdown_nodes) do
         if dropdown_node.gui.type == "drop-down" then
 
@@ -1203,7 +1205,11 @@ function node:add_dropdown_item(root, item_name, timer_id)
             dropdown_node.gui_element.add_item(item_name)
             dropdown_node.gui.items = dropdown_node.gui_element.items
 
-            table.insert(self.events_params.callable_timers, timer_id)
+            -- Ensure the timer is added into the shared list only once 
+            if not added_callable_timer then
+                table.insert(self.events_params.callable_timers, timer_id)
+                added_callable_timer = true
+            end
         end
     end    
 end
@@ -1212,13 +1218,23 @@ function node:remove_dropdown_item(root, item_name)
     local dropdown_nodes = {}
     root:find_callable_dropdown_nodes(dropdown_nodes)
 
+    function compare_localized_strings(left, right)
+        return left[1] == right[1] and left[2] == right[2]
+    end
+
+    local removed_callable_timer = false
+
     for _, dropdown_node in pairs(dropdown_nodes) do
         if dropdown_node.gui.type == "drop-down" then
-
             for index, item in pairs(dropdown_node.gui_element.items) do
-                if item == item_name then
+                if compare_localized_strings(item, item_name) then
                     dropdown_node.gui_element.remove_item(index)
-                    table.remove(self.events_params.callable_timers, index)
+
+                    -- Ensure the timer is removed from the shared list only once 
+                    if not removed_callable_timer then
+                        table.remove(self.events_params.callable_timers, index)
+                        removed_callable_timer = true
+                    end
                 end
             end
 
@@ -1243,11 +1259,7 @@ function node:find_all_timers()
     for _, timer in pairs(callable_timers) do
         if timer.events_params.timer_name then
             items[array_index] = timer.events_params.timer_name
-
-            if not self.events_params.callable_timers[array_index] then
-                self.events_params.callable_timers[array_index] = timer.id
-            end
-
+            self.events_params.callable_timers[array_index] = timer.id
             array_index = array_index + 1
         end
     end

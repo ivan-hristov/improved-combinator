@@ -234,7 +234,6 @@ local function process_events()
         local input_signal = input_signals[entity_id]
         if input_signal then
             for iter in entity.update_list:iterator() do
-
                 local check_combinators =
                     iter.data.node_element.update_logic.combinators or 
                     update_timer_and_progress_bar(
@@ -244,6 +243,7 @@ local function process_events()
                 if check_combinators then
                     for child_iter in iter.data.children:iterator() do
                         local update_logic = child_iter.data.node_element.update_logic
+
                         if update_logic.decider_combinator or update_logic.callable_combinator then
                             update_decider_combinator(input_signal, entity_id, update_logic)
                         elseif update_logic.arithmetic_combinator then
