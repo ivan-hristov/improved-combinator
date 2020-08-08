@@ -589,7 +589,7 @@ end
 function node.on_selection_callable_timer(event, node_param)
     node.callable_timer(
         event,
-       node_param,
+        node_param,
         "advanced-combinator.timer",
         "timer",
         false
