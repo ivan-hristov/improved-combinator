@@ -106,7 +106,7 @@ function node:create_main_gui(unit_number)
         type = "frame",
         direction = "vertical",
         style = constants.style.main_frame,
-        caption =  {"advanced-combinator.main-frame-title"}
+        caption =  {"improved-combinator.main-frame-title"}
     })
 
     local inner_mane_frame = root:add_child({
@@ -124,7 +124,7 @@ function node:create_main_gui(unit_number)
     local combinators_tab = tabbed_pane:add_child({
         type = "tab",
         direction = "vertical",
-        caption = {"advanced-combinator.combinators-tab"}
+        caption = {"improved-combinator.combinators-tab"}
     })
 
     local combinators_tasks_area = tabbed_pane:add_child({
@@ -147,9 +147,9 @@ function node:create_main_gui(unit_number)
         style = constants.style.task_dropdown_frame,
         items =
         {
-            {"advanced-combinator.decider-combinator"},
-            {"advanced-combinator.arithmetic-combinator"},
-            {"advanced-combinator.conditional-timer-combinator"}
+            {"improved-combinator.decider-combinator"},
+            {"improved-combinator.arithmetic-combinator"},
+            {"improved-combinator.conditional-timer-combinator"}
         },
     })
     combinators_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_combinators_dropdown"
@@ -159,13 +159,13 @@ function node:create_main_gui(unit_number)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = {"advanced-combinator.add-combinator-button"}
+        caption = {"improved-combinator.add-combinator-button"}
     })
 
     local timer_tab = tabbed_pane:add_child({
         type = "tab",
         direction = "vertical",
-        caption = {"advanced-combinator.timers-tab"}
+        caption = {"improved-combinator.timers-tab"}
     })
 
     local timers_tasks_area = tabbed_pane:add_child({
@@ -188,9 +188,9 @@ function node:create_main_gui(unit_number)
         style = constants.style.task_dropdown_frame,
         items =
         {
-            {"advanced-combinator.repeatable-timer"},
-            {"advanced-combinator.conditional-tick-timer"},
-            {"advanced-combinator.conditional-timer"}
+            {"improved-combinator.repeatable-timer"},
+            {"improved-combinator.conditional-tick-timer"},
+            {"improved-combinator.conditional-timer"}
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_task_dropdown"
@@ -200,7 +200,7 @@ function node:create_main_gui(unit_number)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = {"advanced-combinator.add-timer-button"}
+        caption = {"improved-combinator.add-timer-button"}
     })
 
     root:recursive_setup_events()
@@ -497,7 +497,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_begining_label_frame,
-        caption = {"advanced-combinator.combinator-repeat-timer-prefix"}
+        caption = {"improved-combinator.combinator-repeat-timer-prefix"}
     })
 
     local time_selection_node = repeatable_time_flow_node:add_child({
@@ -517,7 +517,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        caption = {"advanced-combinator.combinator-timer-suffix"}
+        caption = {"improved-combinator.combinator-timer-suffix"}
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -543,9 +543,9 @@ function node.on_selection_repeatable_timer(event, node_param)
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            {"advanced-combinator.decider-combinator"},
-            {"advanced-combinator.arithmetic-combinator"},
-            {"advanced-combinator.conditional-timer-combinator"}
+            {"improved-combinator.decider-combinator"},
+            {"improved-combinator.arithmetic-combinator"},
+            {"improved-combinator.conditional-timer-combinator"}
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -560,7 +560,7 @@ function node.on_selection_repeatable_timer(event, node_param)
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = {"advanced-combinator.add-combinator-button"}
+        caption = {"improved-combinator.add-combinator-button"}
     })
     play_button_node.events_params =
     {
@@ -581,7 +581,7 @@ function node.on_selection_callable_tick_timer(event, node_param)
     node.callable_timer(
         event,
         node_param,
-        "advanced-combinator.tick-timer",
+        "improved-combinator.tick-timer",
         "tick timer",
         true
     )
@@ -591,7 +591,7 @@ function node.on_selection_callable_timer(event, node_param)
     node.callable_timer(
         event,
         node_param,
-        "advanced-combinator.timer",
+        "improved-combinator.timer",
         "timer",
         false
     )
@@ -637,7 +637,7 @@ function node.callable_timer(event, node_param, timer_caption, timer_type, every
         type = "label",
         direction = "vertical",
         style = constants.style.callable_begining_label_frame,
-        caption = {"advanced-combinator.combinator-callable-timer-prefix"}
+        caption = {"improved-combinator.combinator-callable-timer-prefix"}
     })
 
     local time_selection_node = repeatable_time_flow_node:add_child({
@@ -656,7 +656,7 @@ function node.callable_timer(event, node_param, timer_caption, timer_type, every
         type = "label",
         direction = "vertical",
         style = constants.style.repeatable_end_label_frame,
-        caption = {"advanced-combinator.combinator-timer-suffix"}
+        caption = {"improved-combinator.combinator-timer-suffix"}
     })
 
     local close_button_node = repeatable_time_flow_node:add_child({
@@ -684,9 +684,9 @@ function node.callable_timer(event, node_param, timer_caption, timer_type, every
         style = constants.style.subtask_dropdown_frame,
         items =
         {
-            {"advanced-combinator.decider-combinator"},
-            {"advanced-combinator.arithmetic-combinator"},
-            {"advanced-combinator.conditional-timer-combinator"}
+            {"improved-combinator.decider-combinator"},
+            {"improved-combinator.arithmetic-combinator"},
+            {"improved-combinator.conditional-timer-combinator"}
         }
     })
     new_task_dropdown_node.events_id.on_selection_state_changed = "on_selection_changed_subtask_dropdown"
@@ -701,7 +701,7 @@ function node.callable_timer(event, node_param, timer_caption, timer_type, every
         direction = "vertical",
         style = constants.style.dropdown_overlay_label_frame,
         ignored_by_interaction = true,
-        caption = {"advanced-combinator.add-combinator-button"}
+        caption = {"improved-combinator.add-combinator-button"}
     })
     ------------------------------------------------------------------------------
 
@@ -785,9 +785,9 @@ function node.decider_combinator(root_node, update_node)
     local equals_sprite_node = decider_frame_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        sprite = "advanced-combinator-sprites-equals-white",
-        hovered_sprite = "advanced-combinator-sprites-equals-white",
-        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        sprite = "improved-combinator-sprites-equals-white",
+        hovered_sprite = "improved-combinator-sprites-equals-white",
+        clicked_sprite = "improved-combinator-sprites-equals-white",
         style = constants.style.invisible_frame,
         ignored_by_interaction = true
     })
@@ -811,7 +811,7 @@ function node.decider_combinator(root_node, update_node)
     local radio_button_1 = radio_group_node:add_child({
         type = "radiobutton",
         style = constants.style.radiobutton_frame,
-        caption = {"advanced-combinator.decider-combinator-output-one"},
+        caption = {"improved-combinator.decider-combinator-output-one"},
         state = true
     })
     radio_button_1.events_id.on_click = "on_click_radiobutton_decider_combinator_one"
@@ -819,7 +819,7 @@ function node.decider_combinator(root_node, update_node)
     local radio_button_2 = radio_group_node:add_child({
         type = "radiobutton",
         style = constants.style.radiobutton_frame,
-        caption = {"advanced-combinator.decider-combinator-output-all"},
+        caption = {"improved-combinator.decider-combinator-output-all"},
         state = false
     })
     radio_button_2.events_id.on_click = "on_click_radiobutton_decider_combinator_all"
@@ -914,9 +914,9 @@ function node.arithmetic_combinator(root_node, update_node)
     local equals_sprite_node = arithmetic_frame_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        sprite = "advanced-combinator-sprites-equals-white",
-        hovered_sprite = "advanced-combinator-sprites-equals-white",
-        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        sprite = "improved-combinator-sprites-equals-white",
+        hovered_sprite = "improved-combinator-sprites-equals-white",
+        clicked_sprite = "improved-combinator-sprites-equals-white",
         style = constants.style.invisible_frame,
         ignored_by_interaction = true
     })
@@ -1031,9 +1031,9 @@ function node.callable_combinator(root_node, update_node, scroll_pane_node)
     local equals_sprite_node = callable_frame_node:add_child({
         type = "sprite-button",
         direction = "vertical",
-        sprite = "advanced-combinator-sprites-equals-white",
-        hovered_sprite = "advanced-combinator-sprites-equals-white",
-        clicked_sprite = "advanced-combinator-sprites-equals-white",
+        sprite = "improved-combinator-sprites-equals-white",
+        hovered_sprite = "improved-combinator-sprites-equals-white",
+        clicked_sprite = "improved-combinator-sprites-equals-white",
         style = constants.style.invisible_frame,
         ignored_by_interaction = true
     })
@@ -1111,7 +1111,7 @@ function node.create_signal_constant(parent_node, create_constant, types)
             type = "button",
             direction = "vertical",        
             style = constants.style.dark_button_frame,
-            tooltip = {"advanced-combinator.constant-signal-tooltip"},
+            tooltip = {"improved-combinator.constant-signal-tooltip"},
             visible = false
         })
         constant_node.events_id.on_click = "on_click_open_signal"

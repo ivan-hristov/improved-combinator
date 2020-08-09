@@ -34,7 +34,7 @@ function cache.functions.on_game_load()
     if not loaded then
         for _, item_group in pairs(game.item_group_prototypes) do
             local cached_groups = {
-                sprite = "advanced-combinator-item-group-"..item_group.name,
+                sprite = "improved-combinator-item-group-"..item_group.name,
                 name = item_group.name,
                 subgroups = {}
             }

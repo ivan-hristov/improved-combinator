@@ -4,16 +4,16 @@ local overlay_gui = require("overlay_gui")
 local list = require("list")
 local logger = require("logger")
 
-local function create_subentity(mainEntity, subEntityType, xOffset, yOffset)
-    position = {x = mainEntity.position.x + xOffset,y = mainEntity.position.y + yOffset}
+local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset)
+    position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
     local area = {
         {position.x - 1.5, position.y - 1.5}, 
         {position.x + 1.5, position.y + 1.5}
     }
     local ghost = false
-    local ghosts = mainEntity.surface.find_entities_filtered { area = area, name = "entity-ghost", force = mainEntity.force }
+    local ghosts = main_entity.surface.find_entities_filtered { area = area, name = "entity-ghost", force = main_entity.force }
     for _, each_ghost in pairs(ghosts) do
-        if each_ghost.valid and each_ghost.ghost_name == subEntityType then
+        if each_ghost.valid and each_ghost.ghost_name == sub_entity_type then
             if ghost then
                 each_ghost.destroy()
             else
@@ -28,7 +28,7 @@ local function create_subentity(mainEntity, subEntityType, xOffset, yOffset)
     end
 
     if ghost then
-        local entity = mainEntity.surface.find_entities_filtered{area = area, name = subEntityType, force = mainEntity.force, limit = 1 }[1]
+        local entity = main_entity.surface.find_entities_filtered{area = area, name = sub_entity_type, force = main_entity.force, limit = 1 }[1]
         if entity then
             entity.direction = defines.direction.south
             entity.teleport(position)
@@ -37,7 +37,7 @@ local function create_subentity(mainEntity, subEntityType, xOffset, yOffset)
             return entity
         end
     else
-        return mainEntity.surface.create_entity{name = subEntityType, position = position, force = mainEntity.force, fast_replace = false, destructible = false, operable = false}
+        return main_entity.surface.create_entity{name = sub_entity_type, position = position, force = main_entity.force, fast_replace = false, destructible = false, operable = false}
     end
 end
 
