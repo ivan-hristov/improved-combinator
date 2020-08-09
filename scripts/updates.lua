@@ -328,9 +328,9 @@ end
 local function on_tick()
     -- Recreate all metatables once after a game is loaded
     if not game_loaded then
-        overlay_gui.on_load()
         cached_signals.functions.on_game_load()
         game_node.recreate_metatables()
+        overlay_gui.on_load()
         list.recreate_metatables()
         validate_sigals()
         game_loaded = true

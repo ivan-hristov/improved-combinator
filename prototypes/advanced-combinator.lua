@@ -153,8 +153,8 @@ local function main_entity()
         icon_mipmaps = 4,
         scale_info_icons = true,
         scale_entity_info_icon = true,
-        flags = {"placeable-neutral", "placeable-player", "player-creation"},
-        minable = {hardness = 0.2, mining_time = 1, result = constants.entity.name},
+        flags = {"not-blueprintable", "placeable-neutral", "placeable-player", "player-creation"},
+        minable = {hardness = 0.2, mining_time = 2, result = constants.entity.name},
         max_health = 250,
         corpse = constants.entity.remnants,
         dying_explosion = "medium-explosion",
@@ -224,7 +224,7 @@ local function input_entity()
         icon = constants.blank_image,
         icon_size = 1,
         fast_replaceable_group = constants.entity.input.name,
-        flags = {"placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
+        flags = {"not-blueprintable", "placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
         mineable = nil,
         order = "y",
         max_health = 10000,
@@ -297,7 +297,7 @@ local function output_entity()
         icon = constants.blank_image,
         icon_size = 1,
         fast_replaceable_group = constants.entity.output.name,
-        flags = {"placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
+        flags = {"not-blueprintable", "placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
         mineable = nil,
         order = "y",
         max_health = 10000,
@@ -365,11 +365,41 @@ local function recipe()
         icon = constants.entity.graphics.icon,
         icon_size = 64,
         icon_mipmaps = 4,
-        enabled = true,
+        enabled = false,
         ingredients = {{"constant-combinator", 2}, {"electronic-circuit", 5}},
         result = constants.entity.name
     }
     return recipe
 end
 
-data:extend({main_item(), input_item(), output_item(), main_remnants(), main_entity(), input_entity(), output_entity(), recipe()})
+local function technology()
+    local technology =
+    {
+        type = "technology",
+        name = constants.entity.name,
+        icon = constants.entity.graphics.technology_icon,
+        icon_size = 140,
+        order = "a-d-e",
+        unit =
+        {
+            time = 20,
+            count = 200,
+            ingredients =
+            {
+                {"automation-science-pack", 1},
+                {"logistic-science-pack", 1}
+            }
+        },
+        prerequisites = {"circuit-network"},
+        effects =
+        {
+            {
+                type = "unlock-recipe",
+                recipe = constants.entity.name
+            }
+        }
+    }
+    return technology
+end
+
+data:extend({main_item(), input_item(), output_item(), main_remnants(), main_entity(), input_entity(), output_entity(), recipe(), technology()})

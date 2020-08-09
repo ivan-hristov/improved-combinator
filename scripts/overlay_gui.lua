@@ -13,7 +13,6 @@ local constant_slider_name = "ac_overlay_slider"
 local constant_textfield_name = "ac_overlay_textfield"
 local constant_confirm_name = "ac_overlay_confirm"
 local loaded = false
-local ownder = nil
 local signal_frame_height = 521
 local signal_group_height = 71
 local signal_current_signal_height = 0
@@ -94,10 +93,10 @@ function overlay_gui.switch_nodes(old_node)
 end
 
 function overlay_gui.enable_owner(entity_id)
-    if ownder then
-        local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
+    if global.owner then
+        local node = global.entities[entity_id].node:recursive_find(global.owner.node_id)
         node.gui_element.style = constants.style.dark_button_frame
-        ownder = nil
+        global.owner = nil
     end
 end
 
@@ -119,6 +118,14 @@ end
 function overlay_gui.on_load()
     if not loaded then
         overlay_gui.destory_nodes()
+
+        -- Unselect the previous owner
+        if global.owner then
+            local node = global.entities[global.owner.unit_number].node:recursive_find(global.owner.node_id)
+            node.gui_element.style = constants.style.dark_button_frame
+            global.owner = nil
+        end
+
         loaded = true
     end
 end
@@ -150,7 +157,7 @@ function overlay_gui.on_gui_text_changed(event, entity_id)
 end
 
 function overlay_gui.safely_destory_top_nodes(unit_number)
-    if ownder and ownder.unit_number == unit_number then
+    if global.owner and global.owner.unit_number == unit_number then
         overlay_gui.destory_nodes()
     end
 end
@@ -196,8 +203,8 @@ function overlay_gui.on_click_select_signal(event, entity_id)
        event.element.type == "choose-elem-button" and
        event.element.elem_type and
        event.element.elem_value then
-        if global.entities[entity_id] and ownder then
-            local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
+        if global.entities[entity_id] and global.owner then
+            local node = global.entities[entity_id].node:recursive_find(global.owner.node_id)
 
             if node and node.gui.type == "button" then
                 node = overlay_gui.switch_nodes(node)
@@ -215,8 +222,8 @@ end
 
 function overlay_gui.on_click_set_constant(event, entity_id)
     if event.button == defines.mouse_button_type.left then
-        if global.entities[entity_id] and ownder then
-            local node = global.entities[entity_id].node:recursive_find(ownder.node_id)
+        if global.entities[entity_id] and global.owner then
+            local node = global.entities[entity_id].node:recursive_find(global.owner.node_id)
 
             if node and node.gui.type == "choose-elem-button" then
                 node = overlay_gui.switch_nodes(node)
@@ -293,7 +300,7 @@ end
 
 function overlay_gui.create_signal_gui(player, node_param, current_signal, exclude_signals)
 
-    ownder = {unit_number = node_param.entity_id, node_id = node_param.id}
+    global.owner = {unit_number = node_param.entity_id, node_id = node_param.id}
     
     local root = player.gui.screen.add({
         type = "frame",
