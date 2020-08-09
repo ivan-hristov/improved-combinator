@@ -1,1 +1,1 @@
-# Factorio - Advanced Combinator
+# Factorio - Improved Combinator

@@ -7,7 +7,7 @@ local function load_sprites(data)
             table.insert(sprites,
                 {
                     type = "sprite",
-                    name = "advanced-combinator-"..item.type.."-"..item.name,
+                    name = "improved-combinator-"..item.type.."-"..item.name,
                     filename = item.icon,
                     priority = "extra-high-no-scale",
                     width = item.icon_size,

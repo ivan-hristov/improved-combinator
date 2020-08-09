@@ -7,34 +7,34 @@ local constants = {
     style = {}
 }
 
-constants.base_path = "__AdvancedCombinator__"
+constants.base_path = "__ImprovedCombinator__"
 constants.blank_image = constants.base_path.."/graphics/blank.png"
 constants.gui_image = constants.base_path.."/graphics/gui.png"
 
-constants.entity.name = "advanced-combinator"
-constants.entity.remnants = "advanced-combinbator-remnants"
-constants.entity.graphics.icon = constants.base_path.."/graphics/icons/advanced-combinator.png"
-constants.entity.graphics.technology_icon = constants.base_path.."/graphics/technology/advanced-combinator.png"
-constants.entity.graphics.image = constants.base_path.."/graphics/entity/advanced-combinator.png"
-constants.entity.graphics.hr_image = constants.base_path.."/graphics/entity/hr-advanced-combinator.png"
-constants.entity.graphics.image_shadow = constants.base_path.."/graphics/entity/advanced-combinator-shadow.png"
-constants.entity.graphics.hr_image_shadow = constants.base_path.."/graphics/entity/hr-advanced-combinator-shadow.png"
-constants.entity.graphics.remnants = constants.base_path.."/graphics/entity/remnants/constant-combinator-remnants.png"
-constants.entity.graphics.hr_remnants = constants.base_path.."/graphics/entity/remnants/hr-constant-combinator-remnants.png"
+constants.entity.name = "improved-combinator"
+constants.entity.remnants = "improved-combinbator-remnants"
+constants.entity.graphics.icon = constants.base_path.."/graphics/icons/improved-combinator.png"
+constants.entity.graphics.technology_icon = constants.base_path.."/graphics/technology/improved-combinator.png"
+constants.entity.graphics.image = constants.base_path.."/graphics/entity/improved-combinator.png"
+constants.entity.graphics.hr_image = constants.base_path.."/graphics/entity/hr-improved-combinator.png"
+constants.entity.graphics.image_shadow = constants.base_path.."/graphics/entity/improved-combinator-shadow.png"
+constants.entity.graphics.hr_image_shadow = constants.base_path.."/graphics/entity/hr-improved-combinator-shadow.png"
+constants.entity.graphics.remnants = constants.base_path.."/graphics/entity/remnants/improved-combinator-remnants.png"
+constants.entity.graphics.hr_remnants = constants.base_path.."/graphics/entity/remnants/hr-improved-combinator-remnants.png"
 
 
-constants.entity.input.name = "advanced-combinator-input"
+constants.entity.input.name = "improved-combinator-input"
 constants.entity.input.icon = constants.base_path.."/graphics/blank.png"
 constants.entity.input.image = constants.base_path.."/graphics/blank.png"
 constants.entity.input.circuit_wire_max_distance = 15
 
-constants.entity.output.name = "advanced-combinator-output"
+constants.entity.output.name = "improved-combinator-output"
 constants.entity.output.icon = constants.base_path.."/graphics/blank.png"
 constants.entity.output.image = constants.base_path.."/graphics/blank.png"
 constants.entity.output.circuit_wire_max_distance = 15
 
 -- Style Names --
-constants.style.prefix_uuid = "ac_"
+constants.style.prefix_uuid = "ic_"
 constants.style.dialogue_frame = constants.style.prefix_uuid.."dialogue_frame"
 constants.style.main_frame = constants.style.prefix_uuid.."main_frame"
 constants.style.main_tabbed_pane = constants.style.prefix_uuid.."main_tabbed_pane"

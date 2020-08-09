@@ -307,7 +307,7 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
         direction = "vertical",
         style = constants.style.signal_frame,
         name = signal_parent_name,
-        caption = {"advanced-combinator.signals-title"}
+        caption = {"improved-combinator.signals-title"}
     })
 
     local tasks_area = root.add({
@@ -419,7 +419,7 @@ function overlay_gui.create_constant_gui(player, node_param)
         direction = "vertical",
         style = constants.style.signal_constants_frame,
         name = constant_parent_name,
-        caption = {"advanced-combinator.constant-title"}
+        caption = {"improved-combinator.constant-title"}
     })
 
     local horizontal_flow = root.add({
@@ -460,7 +460,7 @@ function overlay_gui.create_constant_gui(player, node_param)
         direction = "vertical",
         style = constants.style.constant_button_frame,
         name = constant_set_name,
-        caption = {"advanced-combinator.constant-set-button"}
+        caption = {"improved-combinator.constant-set-button"}
     })    
 
     return root

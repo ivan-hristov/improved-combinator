@@ -2,8 +2,8 @@ data:extend(
 {
     {
         type = "sprite",
-        name = "advanced-combinator-sprites-equals-black",
-        filename = "__AdvancedCombinator__/graphics/icons/mip/equals-black.png",
+        name = "improved-combinator-sprites-equals-black",
+        filename = "__ImprovedCombinator__/graphics/icons/mip/equals-black.png",
         priority = "extra-high-no-scale",
         width = 32,
         height = 32,
@@ -13,8 +13,8 @@ data:extend(
     },
     {
         type = "sprite",
-        name = "advanced-combinator-sprites-equals-white",
-        filename = "__AdvancedCombinator__/graphics/icons/mip/equals-white.png",
+        name = "improved-combinator-sprites-equals-white",
+        filename = "__ImprovedCombinator__/graphics/icons/mip/equals-white.png",
         priority = "extra-high-no-scale",
         width = 32,
         height = 32,
