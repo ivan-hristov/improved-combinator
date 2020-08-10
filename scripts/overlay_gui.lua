@@ -337,7 +337,7 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
 
         local sprite_path = group.sprite
         if not game.is_valid_sprite_path(sprite_path) then
-            sprite_path = "improved-combinator-item-group-other"
+            sprite_path = nil
         end
 
         local group_button = scroll_pane.add({
@@ -350,6 +350,15 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
             hovered_sprite = sprite_path,
             clicked_sprite = sprite_path
         })
+
+        if not sprite_path then
+            local image_label = group_button.add({
+                type = "label",
+                caption = group.icon,
+                style = constants.style.signal_group_label,
+                ignored_by_interaction = true
+            })
+        end
 
         local signals_table = signals_scroll_pane.add({
             type = "table",

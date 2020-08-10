@@ -299,8 +299,20 @@ add_styles({
     {
         type = "button_style",
         parent = "button_with_shadow",
+        vertical_align = "top",
         horizontal_align = "left",
         padding  = 6,
+        width = 70,
+        height = 70
+    },
+    [constants.style.signal_group_label] =
+    {
+        type = "label_style",
+        vertical_align = "top",
+        horizontal_align = "left",
+        padding  = 0,
+        left_padding = -1,
+        top_padding = -1,
         width = 70,
         height = 70
     },
