@@ -3,5 +3,5 @@ Version: 1.0.1
 Date: 10-Aug-2020
   Changes:
     - Fixed incompatibility issue with the "LTN Manger" mod
-    - Fixed a crash caused by custom signal mods being loaded after this mod. While this issue is being investigated some signal groups may be displayed by question mark.
+    - Fixed a crash caused by custom signal mods being loaded after this mod. While this issue is being investigated some signal groups may be displayed as question mark.
 ---------------------------------------------------------------------------------------------------
