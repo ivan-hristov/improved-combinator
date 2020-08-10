@@ -237,9 +237,22 @@ function node:debug_print_factorio_gui(element, index, max_level)
         return
     end
 
-    for _, child in pairs(element.children) do
-        node:debug_print_factorio_gui(child, index, max_level)
+    str = str.."name: "..element.name..", type: "..element.type
+    if element.type == "label" and element.caption then
+        str = str..", caption: "
+
+        for i = 1, #element.caption do
+            str = str.." "..element.caption:sub(i,i)
+        end
     end
+    
+    str = str.."\n"
+
+    for _, child in pairs(element.children) do
+        str = str..node:debug_print_factorio_gui(child, index, max_level)
+    end
+
+    return str
 end
 
 return node
