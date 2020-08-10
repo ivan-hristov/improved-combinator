@@ -24,13 +24,17 @@ end
 
 local function on_gui_closed(event)
     if event.element and global.opened_entity then
-        if overlay_gui.has_opened_signals_node() then
-            overlay_gui.destory_top_nodes_and_unselect(event.player_index, global.opened_entity[event.player_index])
-        else
-            event.element.destroy()
-            event.element = nil
-            game.players[event.player_index].opened = nil
-            global.opened_entity[event.player_index] = nil
+        local closing_entity_number = global.opened_entity[event.player_index]
+        -- Check if the entity is owned by this mod
+        if global.entities[closing_entity_number] then
+            if overlay_gui.has_opened_signals_node() then
+                overlay_gui.destory_top_nodes_and_unselect(event.player_index, global.opened_entity[event.player_index])
+            else
+                event.element.destroy()
+                event.element = nil
+                game.players[event.player_index].opened = nil
+                global.opened_entity[event.player_index] = nil
+            end
         end
     end
 end

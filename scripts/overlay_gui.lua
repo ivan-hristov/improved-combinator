@@ -335,16 +335,20 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
     -------------------------------------------------------------------------------
     for _, group in pairs(cached_signals.groups) do
 
-        local current_group = false
+        local sprite_path = group.sprite
+        if not game.is_valid_sprite_path(sprite_path) then
+            sprite_path = "improved-combinator-item-group-other"
+        end
+
         local group_button = scroll_pane.add({
             type = "sprite-button",
             name = group_name.."_"..group.name,
             direction = "vertical",
             style = constants.style.signal_group_button_frame,
             group_name = group.name,
-            sprite = group.sprite,
-            hovered_sprite = group.sprite,
-            clicked_sprite = group.sprite
+            sprite = sprite_path,
+            hovered_sprite = sprite_path,
+            clicked_sprite = sprite_path
         })
 
         local signals_table = signals_scroll_pane.add({
