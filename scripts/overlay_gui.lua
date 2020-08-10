@@ -94,9 +94,12 @@ end
 
 function overlay_gui.enable_owner(entity_id)
     if global.owner then
-        local node = global.entities[entity_id].node:recursive_find(global.owner.node_id)
-        node.gui_element.style = constants.style.dark_button_frame
-        global.owner = nil
+        -- Bug-fix. Check if the recursive_find has been created 
+        if global.entities[entity_id].node["recursive_find"] then
+            local node = global.entities[entity_id].node:recursive_find(global.owner.node_id)
+            node.gui_element.style = constants.style.dark_button_frame
+            global.owner = nil
+        end
     end
 end
 
