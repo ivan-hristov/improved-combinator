@@ -335,6 +335,7 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
     -------------------------------------------------------------------------------
     for _, group in pairs(cached_signals.groups) do
 
+        local current_group = false
         local sprite_path = group.sprite
         if not game.is_valid_sprite_path(sprite_path) then
             sprite_path = nil
