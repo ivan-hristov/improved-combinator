@@ -2,12 +2,12 @@
 Version: 1.0.2
 Date: 10-Aug-2020
   Changes:
-    - Fixed missing custom signals group sprites
+    - Fixed missing sprites in custom signal groups
     - Fixed the inability to select a signal group (accidentally added in 1.0.1)
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 10-Aug-2020
   Changes:
     - Fixed incompatibility issue with the "LTN Manger" mod
-    - Fixed a crash caused by custom signal mods being loaded after this mod. While this issue is being investigated some signal groups may be displayed as question mark.
+    - Fixed a crash caused by custom signal mods being loaded after this mod. While this issue is being investigated some signal groups may be displayed as a question mark.
 ---------------------------------------------------------------------------------------------------
