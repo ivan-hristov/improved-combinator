@@ -35,6 +35,7 @@ function cache.functions.on_game_load()
         for _, item_group in pairs(game.item_group_prototypes) do
             local cached_groups = {
                 sprite = "improved-combinator-item-group-"..item_group.name,
+                icon="[font=large-group-36][img=item-group/"..item_group.name.."][/font]",
                 name = item_group.name,
                 subgroups = {}
             }

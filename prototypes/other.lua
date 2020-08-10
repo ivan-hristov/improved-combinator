@@ -28,4 +28,10 @@ data:extend(
         from = "default-semibold",
         size = 10
     },
+    {
+        type = "font",
+        name = "large-group-36",
+        from = "default-semibold",
+        size = 36
+    },
 })
