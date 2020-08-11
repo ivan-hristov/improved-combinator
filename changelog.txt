@@ -2,7 +2,7 @@
 Version: ----
 Date: ----
   Changes:
-      - Added missing singal group tooltips
+      - Added missing signal group tooltips
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 10-Aug-2020
