@@ -352,7 +352,8 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
             group_name = group.name,
             sprite = sprite_path,
             hovered_sprite = sprite_path,
-            clicked_sprite = sprite_path
+            clicked_sprite = sprite_path,
+            tooltip = {"item-group-name."..group.name}
         })
 
         if not sprite_path then
