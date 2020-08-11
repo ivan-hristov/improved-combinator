@@ -1110,7 +1110,7 @@ function node.create_signal_constant(parent_node, create_constant, types)
         local constant_node = flow_node:add_child({
             type = "button",
             direction = "vertical",        
-            style = constants.style.dark_button_frame,
+            style = constants.style.dark_button_numbers_frame,
             tooltip = {"improved-combinator.constant-signal-tooltip"},
             visible = false
         })

@@ -97,7 +97,13 @@ function overlay_gui.enable_owner(entity_id)
         -- Bug-fix. Check if the recursive_find has been created 
         if global.entities[entity_id].node["recursive_find"] then
             local node = global.entities[entity_id].node:recursive_find(global.owner.node_id)
-            node.gui_element.style = constants.style.dark_button_frame
+
+            if node.gui_element.type == "button" then
+                node.gui_element.style = constants.style.dark_button_numbers_frame
+            else
+                node.gui_element.style = constants.style.dark_button_frame
+            end
+            
             global.owner = nil
         end
     end
@@ -125,7 +131,13 @@ function overlay_gui.on_load()
         -- Unselect the previous owner
         if global.owner then
             local node = global.entities[global.owner.unit_number].node:recursive_find(global.owner.node_id)
-            node.gui_element.style = constants.style.dark_button_frame
+
+            if node.gui_element.type == "button" then
+                node.gui_element.style = constants.style.dark_button_numbers_frame
+            else
+                node.gui_element.style = constants.style.dark_button_frame
+            end
+
             global.owner = nil
         end
 
@@ -233,18 +245,28 @@ function overlay_gui.on_click_set_constant(event, entity_id)
             end
 
             if node and node.gui.type == "button" then
-                -- Get the constant text and remove leading zeros
-                local text = event.element.parent.children[2].text:match("0*(%d+)")
-                local number = tonumber(text)
+                -- Convert the input text to a number an back to text to remove leading zeroes
+                local number = tonumber(event.element.parent.children[2].text)
+                local text = tostring(number)
+
+                -- Remove negative zero
+                if number == -0 then
+                    number = 0
+                    text = "0"
+                end
 
                 -- Cap values --
                 if number > 2000000000 then
                     number = 2000000000
                     text = "2000000000"
+                elseif number < -2000000000 then
+                    number = -2000000000
+                    text = "-2000000000"
                 end
 
                 node.gui.raw_value = text
 
+                -- Positive values
                 if number >= 10^9 then
                     text = string.format("%.1fG", number / 10^9)
                 elseif number >= 10^6 then
@@ -260,7 +282,24 @@ function overlay_gui.on_click_set_constant(event, entity_id)
                         text = string.format("%.0fk", floating_number)
                     else
                         text = string.format("%.1fk", floating_number)
-                    end                    
+                    end
+                -- Negative values
+                elseif number <= (-10^9) then
+                    text = string.format("-%.1fG", number / (-10^9))
+                elseif number <= (-10^6) then
+                    local floating_number = math.floor(number / (-10^6))
+                    if number <= (-10000000) then
+                        text = string.format("-%.0fM", floating_number)
+                    else
+                        text = string.format("-%.1fM", floating_number)
+                    end
+                elseif number <= (-10^3) then
+                    local floating_number = math.floor(number / (-10^3))
+                    if number <= (-10000) then
+                        text = string.format("-%.0fk", floating_number)
+                    else
+                        text = string.format("-%.1fk", floating_number)
+                    end
                 end
 
                 node.gui.caption = text
@@ -468,7 +507,7 @@ function overlay_gui.create_constant_gui(player, node_param)
         name = constant_textfield_name,
         numeric = true,
         allow_decimal = false,
-        allow_negative = false,
+        allow_negative = true,
         lose_focus_on_confirm = true,
         text = raw_value
     })
@@ -539,7 +578,11 @@ function overlay_gui.create_gui(player_index, node_param, elem_value, exclude_si
     end
     
     -- Disable the GUI element without persisting the change
-    node_param.gui_element.style = constants.style.dark_button_selected_frame
+    if node_param.gui_element.type == "button" then
+        node_param.gui_element.style = constants.style.dark_button_selected_numbers_frame
+    else
+        node_param.gui_element.style = constants.style.dark_button_selected_frame
+    end
 end
 
 return overlay_gui
