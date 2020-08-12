@@ -54,7 +54,7 @@ end
 
 --- AND ---
 combinator.arithmetic[9] = function(left_count, right_count)
-    return bit32.band(math.abs(left_count), math.abs(right_count))
+    return bit32.band(left_count, right_count)
 end
 
 --- OR ---
