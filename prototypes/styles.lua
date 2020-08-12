@@ -844,6 +844,8 @@ add_styles({
         type = "button_style",
         parent = constants.style.dark_button_frame,
         font = "very-small-semibold",
+        vertical_align = "center",
+        horizontal_align = "center",
         default_font_color = {225, 225, 225},
         padding = -5,
         width = 28,
@@ -875,6 +877,8 @@ add_styles({
     {
         type = "button_style",
         parent = constants.style.dark_button_selected_frame,
+        vertical_align = "center",
+        horizontal_align = "center",
         padding = -5,
     },
     [constants.style.invisible_frame] =
