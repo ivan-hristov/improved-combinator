@@ -79,7 +79,7 @@ end
 --- "<" ---
 combinator.decider[2] = function(left_count, right_count)
     if left_count < right_count then
-        combinator_result = left_count
+        return left_count
     else
         return nil
     end
@@ -88,7 +88,7 @@ end
 --- "=" ---
 combinator.decider[3] = function(left_count, right_count)
     if left_count == right_count then
-        combinator_result = left_count
+        return left_count
     else
         return nil
     end
@@ -97,7 +97,7 @@ end
 --- "≥" ---
 combinator.decider[4] = function(left_count, right_count)
     if left_count >= right_count then
-        combinator_result = left_count
+        return left_count
     else
         return nil
     end
@@ -106,7 +106,7 @@ end
 --- "≤" ---
 combinator.decider[5] = function(left_count, right_count)
     if left_count <= right_count then
-        combinator_result = left_count
+        return left_count
     else
         return nil
     end
@@ -115,7 +115,7 @@ end
 --- "≠" ---
 combinator.decider[6] = function(left_count, right_count)
     if left_count ~= right_count then
-        combinator_result = left_count
+        return left_count
     else
         return nil
     end
