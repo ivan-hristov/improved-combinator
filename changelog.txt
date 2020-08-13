@@ -3,6 +3,8 @@ Version: ----
 Date: ----
   Changes:
       - Added missing signal group tooltips
+      - Updated the placement of the signals frame y position to be relative to the main frame
+      - Enabled the usage of negative combinator value
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 10-Aug-2020
