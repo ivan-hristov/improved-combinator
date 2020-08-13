@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
-Version: ----
-Date: ----
+Version: 1.0.3
+Date: 13-Aug-2020
   Changes:
       - Added missing signal group tooltips
       - Updated the placement of the signals frame y position to be relative to the main frame
