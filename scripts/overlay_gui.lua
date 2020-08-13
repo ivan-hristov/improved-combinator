@@ -17,6 +17,11 @@ local signal_frame_height = 521
 local signal_group_height = 71
 local signal_current_signal_height = 0
 
+local function get_y_offset(constant_frame)
+    --- ((mainframe height) - (constant frame hight) - (current signal frame height)) / 2
+    return (608 - (constant_frame and 105 or 0) - signal_current_signal_height) / 2
+end
+
 local function text_to_slider(text)
     local value = tonumber(text)
 
@@ -527,7 +532,7 @@ function overlay_gui.configure_location(main_gui_location)
     global.signal_node.location =
     {
         x = main_gui_location.x + 406,
-        y = main_gui_location.y
+        y = main_gui_location.y + get_y_offset(global.constant_node)
     }
 
     if global.constant_node then
