@@ -2,7 +2,7 @@ local constants = require("constants")
 local game_node = require("game_node")
 local list = require("list")
 local logger = require("logger")
-local bitwise_math = require("bitwise_math")
+local combinator = require("combinator")
 local cached_signals = require("cached_signals")
 local overlay_gui = require("overlay_gui")
 
@@ -120,39 +120,7 @@ local function update_decider_combinator(input_signal, entity_id, update_logic)
     local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
     local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
 
-    local combinator_result = nil
-
-    if update_logic.sign_index == 1 then
-        --- ">" ---
-        if left_count > right_count then
-            combinator_result = left_count
-        end
-    elseif update_logic.sign_index == 2 then
-        --- "<" ---
-        if left_count < right_count then
-            combinator_result = left_count
-        end
-    elseif update_logic.sign_index == 3 then
-        --- "=" ---
-        if left_count == right_count then
-            combinator_result = left_count
-        end
-    elseif update_logic.sign_index == 4 then
-        --- "≥" ---
-        if left_count >= right_count then
-            combinator_result = left_count
-        end
-    elseif update_logic.sign_index == 5 then
-        --- "≤" ---
-        if left_count <= right_count then
-            combinator_result = left_count
-        end
-    elseif update_logic.sign_index == 6 then
-        --- "≠" ---
-        if left_count ~= right_count then
-            combinator_result = left_count
-        end
-    end
+    local combinator_result = combinator.decider[update_logic.sign_index](left_count, right_count)
 
     if combinator_result ~= nil then
         if update_logic.callable_combinator then
@@ -174,54 +142,7 @@ local function update_arithmetic_combinator(input_signal, entity_id, update_logi
     local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
     local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
 
-    local arithmetic_result = nil
-
-    if update_logic.sign_index == 1 then
-        --- * ---
-        arithmetic_result = left_count * right_count
-
-    elseif update_logic.sign_index == 2 then
-        --- / ---
-        if right_count ~= 0 then
-            arithmetic_result = left_count / right_count
-        end
-
-    elseif update_logic.sign_index == 3 then
-        --- + ---
-        arithmetic_result = left_count + right_count
-
-    elseif update_logic.sign_index == 4 then
-        --- - ---
-        arithmetic_result = left_count - right_count
-
-    elseif update_logic.sign_index == 5 then
-        --- % ---
-        arithmetic_result = left_count % right_count
-
-    elseif update_logic.sign_index == 6 then
-        --- ^ ---
-        arithmetic_result = left_count ^ right_count
-
-    elseif update_logic.sign_index == 7 then
-        --- << ---
-        arithmetic_result = bitwise_math.left_shift(left_count, right_count)
-        
-    elseif update_logic.sign_index == 8 then
-        --- >> ---
-        arithmetic_result = bitwise_math.right_shift(left_count, right_count)
-
-    elseif update_logic.sign_index == 9 then
-        --- AND ---
-        arithmetic_result = bitwise_math.bitwise_and(left_count, right_count)
-
-    elseif update_logic.sign_index == 10 then
-        --- OR ---
-        arithmetic_result = bitwise_math.bitwise_or(left_count, right_count)
-
-    elseif update_logic.sign_index == 11 then
-        --- XOR ---
-        arithmetic_result = bitwise_math.bitwise_xor(left_count, right_count)
-    end
+    local arithmetic_result = combinator.arithmetic[update_logic.sign_index](left_count, right_count)
 
     if arithmetic_result ~= nil then
         set_output_signal(update_logic.signal_result, entity_id, arithmetic_result)

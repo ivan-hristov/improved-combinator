@@ -839,6 +839,18 @@ add_styles({
         width = 28,
         height = 28,
     },
+    [constants.style.dark_button_numbers_frame] =
+    {
+        type = "button_style",
+        parent = constants.style.dark_button_frame,
+        font = "very-small-semibold",
+        vertical_align = "center",
+        horizontal_align = "center",
+        default_font_color = {225, 225, 225},
+        padding = -5,
+        width = 28,
+        height = 28,
+    },
     [constants.style.dark_button_selected_frame] =
     {
         type = "button_style",
@@ -860,6 +872,14 @@ add_styles({
                 draw_type = "outer"
             }
         }
+    },
+    [constants.style.dark_button_selected_numbers_frame] =
+    {
+        type = "button_style",
+        parent = constants.style.dark_button_selected_frame,
+        vertical_align = "center",
+        horizontal_align = "center",
+        padding = -5,
     },
     [constants.style.invisible_frame] =
     {
