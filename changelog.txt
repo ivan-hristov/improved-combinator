@@ -3,6 +3,8 @@ Version: 1.0.4
 Date: 
   Changes:
     - Upgraded the Factorio version to 1.0.0
+  Features:
+    - Implemented combinator special signals 
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.3
 Date: 13-Aug-2020
