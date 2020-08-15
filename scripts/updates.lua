@@ -112,26 +112,188 @@ local function schedule_callable_timer(entity_id, node_id)
     end
 end
 
+local function everything_is_true(input_signal, update_logic, right_count)
+    local everything_is_true = false
+
+    for _, signal in pairs(input_signal) do
+        local combinator_result = combinator.decider[update_logic.sign_index](signal.count, right_count)
+        if combinator_result == nil then
+            return false
+        else
+            everything_is_true = true
+        end
+    end
+
+    return everything_is_true
+end
+
+local function anything_is_true(input_signal, update_logic, right_count)
+    for _, signal in pairs(input_signal) do
+        local combinator_result = combinator.decider[update_logic.sign_index](signal.count, right_count)
+        if combinator_result ~= nil then
+            return true
+        end
+    end
+
+    return false
+end
+
+local decider_methods = {}
+
+decider_methods[1] = function(input_signal, entity_id, update_logic, right_count)
+    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+    local combinator_result = combinator.decider[update_logic.sign_index](left_count, right_count)
+
+    if combinator_result ~= nil then
+        if not update_logic.output_value then
+            combinator_result =  1
+        end
+        set_output_signal(update_logic.signal_result, entity_id, combinator_result)
+    end
+end
+
+decider_methods[2] = function(input_signal, entity_id, update_logic, right_count)
+    local combined_result = nil
+    for _, signal in pairs(input_signal) do
+        local combinator_result = combinator.decider[update_logic.sign_index](signal.count, right_count)
+
+        if combinator_result ~= nil then
+            if not update_logic.output_value then
+                combinator_result =  1
+            end
+
+            if combined_result == nil then
+                combined_result = combinator_result
+            else
+                combined_result = combined_result + combinator_result
+            end
+        end
+    end
+
+    if combined_result ~= nil then
+        set_output_signal(update_logic.signal_result, entity_id, combined_result)
+    end
+end
+
+decider_methods[3] = function(input_signal, entity_id, update_logic, right_count)
+    if anything_is_true(input_signal, update_logic, right_count) then
+
+        if not update_logic.output_value then
+            set_output_signal(update_logic.signal_result, entity_id, 1)
+        else
+            local output_signal = input_signal[update_logic.signal_result.name]
+            if output_signal then
+                if not update_logic.output_value then
+                    set_output_signal(output_signal.signal, entity_id, 1)
+                else
+                    set_output_signal(output_signal.signal, entity_id, output_signal.count)
+                end
+            end
+        end
+    end
+end
+
+decider_methods[4] = function(input_signal, entity_id, update_logic, right_count)
+    if everything_is_true(input_signal, update_logic, right_count) then
+
+        if not update_logic.output_value then
+            set_output_signal(update_logic.signal_result, entity_id, 1)
+        else
+            local output_signal = input_signal[update_logic.signal_result.name]
+            if output_signal then
+                if not update_logic.output_value then
+                    set_output_signal(output_signal.signal, entity_id, 1)
+                else
+                    set_output_signal(output_signal.signal, entity_id, output_signal.count)
+                end
+            end
+        end
+
+    end
+end
+
+decider_methods[5] = function(input_signal, entity_id, update_logic, right_count)
+    if anything_is_true(input_signal, update_logic, right_count) then
+        for _, signal in pairs(input_signal) do
+            local combinator_result = signal.count
+            if not update_logic.output_value then
+                combinator_result =  1
+            end
+            set_output_signal(signal.signal, entity_id, combinator_result) 
+        end
+    end
+end
+
+decider_methods[6] = function(input_signal, entity_id, update_logic, right_count)
+    if everything_is_true(input_signal, update_logic, right_count) then
+        for _, signal in pairs(input_signal) do
+            local combinator_result = signal.count
+            if not update_logic.output_value then
+                combinator_result =  1
+            end
+            set_output_signal(signal.signal, entity_id, combinator_result) 
+        end
+    end
+end
+
+decider_methods[7] = function(input_signal, entity_id, update_logic, right_count)
+    for _, signal in pairs(input_signal) do
+        local combinator_result = combinator.decider[update_logic.sign_index](signal.count, right_count)
+
+        if combinator_result ~= nil then
+            if not update_logic.output_value then
+                combinator_result =  1
+            end
+            set_output_signal(signal.signal, entity_id, combinator_result)
+        end
+    end
+end
+
 local function update_decider_combinator(input_signal, entity_id, update_logic)
     if is_invalid(update_logic) then
         return
     end
 
-    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
     local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
+    decider_methods[update_logic.decider_method or 1](input_signal, entity_id, update_logic, right_count)    
+end
 
-    local combinator_result = combinator.decider[update_logic.sign_index](left_count, right_count)
+local arithmetic_methods = {}
 
-    if combinator_result ~= nil then
-        if update_logic.callable_combinator then
-            schedule_callable_timer(entity_id, update_logic.callable_node_id)
-        else
-            if not update_logic.output_value then
-                combinator_result =  1
+arithmetic_methods[1] = function(input_signal, entity_id, update_logic, right_count)
+    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+    local arithmetic_result = combinator.arithmetic[update_logic.sign_index](left_count, right_count)
+
+    if arithmetic_result ~= nil then
+        set_output_signal(update_logic.signal_result, entity_id, arithmetic_result)
+    end
+end
+
+arithmetic_methods[2] = function(input_signal, entity_id, update_logic, right_count)
+    local combined_result = nil
+    for _, signal in pairs(input_signal) do
+        local arithmetic_result = combinator.arithmetic[update_logic.sign_index](signal.count, right_count)
+        if arithmetic_result ~= nil then
+            if combined_result == nil then
+                combined_result = arithmetic_result
+            else
+                combined_result = combined_result + arithmetic_result
             end
-            set_output_signal(update_logic.signal_result, entity_id, combinator_result)
         end
-     end
+    end
+
+    if combined_result ~= nil then
+        set_output_signal(update_logic.signal_result, entity_id, combined_result)
+    end
+end
+
+arithmetic_methods[3] = function(input_signal, entity_id, update_logic, right_count)
+    for _, signal in pairs(input_signal) do
+        local arithmetic_result = combinator.arithmetic[update_logic.sign_index](signal.count, right_count)
+        if arithmetic_result ~= nil then
+            set_output_signal(signal.signal, entity_id, arithmetic_result)
+        end
+    end
 end
 
 local function update_arithmetic_combinator(input_signal, entity_id, update_logic)
@@ -140,37 +302,34 @@ local function update_arithmetic_combinator(input_signal, entity_id, update_logi
     end
 
     local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
+    arithmetic_methods[update_logic.arithmetic_method or 1](input_signal, entity_id, update_logic, right_count)
+end
 
-    if update_logic.signal_slot_1 and update_logic.signal_slot_1.name == "signal-each" and update_logic.signal_result.name == "signal-each" then
-        for _, signal in pairs(input_signal) do
-            local arithmetic_result = combinator.arithmetic[update_logic.sign_index](signal.count, right_count)
-            if arithmetic_result ~= nil then
-                set_output_signal(signal.signal, entity_id, arithmetic_result)
-            end
-        end
-    elseif update_logic.signal_slot_1 and update_logic.signal_slot_1.name == "signal-each" then
-        local combined_result = nil
-        for _, signal in pairs(input_signal) do
-            local arithmetic_result = combinator.arithmetic[update_logic.sign_index](signal.count, right_count)
-            if arithmetic_result ~= nil then
-                if combined_result == nil then
-                    combined_result = arithmetic_result
-                else
-                    combined_result = combined_result + arithmetic_result
-                end
-            end
-        end
+local callable_methods = {}
 
-        if combined_result ~= nil then
-            set_output_signal(update_logic.signal_result, entity_id, combined_result)
-        end
-    else
-        local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
-        local arithmetic_result = combinator.arithmetic[update_logic.sign_index](left_count, right_count)
-    
-        if arithmetic_result ~= nil then
-            set_output_signal(update_logic.signal_result, entity_id, arithmetic_result)
-        end
+callable_methods[1] = function(input_signal, entity_id, update_logic, right_count)
+    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+    return (combinator.decider[update_logic.sign_index](left_count, right_count) ~= nil)
+end
+
+callable_methods[2] = function(input_signal, entity_id, update_logic, right_count)
+    return anything_is_true(input_signal, update_logic, right_count)
+end
+
+callable_methods[3] = function(input_signal, entity_id, update_logic, right_count)
+    return everything_is_true(input_signal, update_logic, right_count)
+end
+
+local function update_callable_combinator(input_signal, entity_id, update_logic)
+    if is_invalid(update_logic) then
+        return
+    end
+
+    local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
+    local schedule_timer = callable_methods[update_logic.callable_method or 1](input_signal, entity_id, update_logic, right_count)
+
+    if schedule_timer then
+        schedule_callable_timer(entity_id, update_logic.callable_node_id)
     end
 end
 
@@ -189,10 +348,12 @@ local function process_events()
                     for child_iter in iter.data.children:iterator() do
                         local update_logic = child_iter.data.node_element.update_logic
 
-                        if update_logic.decider_combinator or update_logic.callable_combinator then
+                        if update_logic.decider_combinator then
                             update_decider_combinator(input_signal, entity_id, update_logic)
                         elseif update_logic.arithmetic_combinator then
                             update_arithmetic_combinator(input_signal, entity_id, update_logic)
+                        elseif update_logic.callable_combinator then
+                            update_callable_combinator(input_signal, entity_id, update_logic)
                         end
                     end
                 end
