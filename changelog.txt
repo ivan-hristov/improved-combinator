@@ -1,20 +1,27 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+Date: 
+  Changes:
+    - Upgraded the Factorio version to 1.0.0
+  Features:
+    - Implemented combinator special signals 
+---------------------------------------------------------------------------------------------------
 Version: 1.0.3
 Date: 13-Aug-2020
+  Bugfixes:
+    - Added missing signal group tooltips
   Changes:
-      - Added missing signal group tooltips
-      - Updated the placement of the signals frame y position to be relative to the main frame
-      - Enabled the usage of negative combinator value
+    - Updated the placement of the signals frame y position to be relative to the main frame
+    - Enabled the usage of negative combinator value
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
 Date: 10-Aug-2020
-  Changes:
+  Bugfixes:
     - Fixed missing sprites in custom signal groups
     - Fixed the inability to select a signal group (accidentally added in 1.0.1)
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 10-Aug-2020
-  Changes:
+  Bugfixes:
     - Fixed incompatibility issue with the "LTN Manger" mod
     - Fixed a crash caused by custom signal mods being loaded after this mod. While this issue is being investigated some signal groups may be displayed as a question mark.
----------------------------------------------------------------------------------------------------
