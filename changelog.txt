@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.4
-Date: 
+Date: 15-Aug-2020
   Changes:
     - Upgraded the Factorio version to 1.0.0
   Features:
