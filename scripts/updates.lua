@@ -102,7 +102,7 @@ local function set_output_signal(signal, entity_id, result)
         result = output_signals[entity_id][signal.name].count + result
     end
 
-    output_signals[entity_id][signal.name] = { signal = signal, count = result }
+    output_signals[entity_id][signal.name] = {signal = signal, count = result}
 end
 
 local function schedule_callable_timer(entity_id, node_id)
@@ -139,15 +139,39 @@ local function update_arithmetic_combinator(input_signal, entity_id, update_logi
         return
     end
 
-    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
     local right_count = get_value(input_signal, update_logic.signal_slot_2, update_logic.value_slot_2)
 
-    local arithmetic_result = combinator.arithmetic[update_logic.sign_index](left_count, right_count)
+    if update_logic.signal_slot_1 and update_logic.signal_slot_1.name == "signal-each" and update_logic.signal_result.name == "signal-each" then
+        for _, signal in pairs(input_signal) do
+            local arithmetic_result = combinator.arithmetic[update_logic.sign_index](signal.count, right_count)
+            if arithmetic_result ~= nil then
+                set_output_signal(signal.signal, entity_id, arithmetic_result)
+            end
+        end
+    elseif update_logic.signal_slot_1 and update_logic.signal_slot_1.name == "signal-each" then
+        local combined_result = nil
+        for _, signal in pairs(input_signal) do
+            local arithmetic_result = combinator.arithmetic[update_logic.sign_index](signal.count, right_count)
+            if arithmetic_result ~= nil then
+                if combined_result == nil then
+                    combined_result = arithmetic_result
+                else
+                    combined_result = combined_result + arithmetic_result
+                end
+            end
+        end
 
-    if arithmetic_result ~= nil then
-        set_output_signal(update_logic.signal_result, entity_id, arithmetic_result)
+        if combined_result ~= nil then
+            set_output_signal(update_logic.signal_result, entity_id, combined_result)
+        end
+    else
+        local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+        local arithmetic_result = combinator.arithmetic[update_logic.sign_index](left_count, right_count)
+    
+        if arithmetic_result ~= nil then
+            set_output_signal(update_logic.signal_result, entity_id, arithmetic_result)
+        end
     end
-
 end
 
 local function process_events()

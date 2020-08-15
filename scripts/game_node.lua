@@ -312,11 +312,7 @@ node.on_click = {
                     event.player_index,
                     node_param,
                     (event.element.type == "choose-elem-button") and event.element.elem_value or nil,
-                    {
-                        {type="virtual", name="signal-everything"},
-                        {type="virtual", name="signal-anything"},
-                        {type="virtual", name="signal-each"}
-                    }
+                    node:exclude_signals(node_param)
                 )
 
                 local root_node = global.entities[node_param.entity_id].node
@@ -325,13 +321,7 @@ node.on_click = {
                 end
             end
         elseif event.button == defines.mouse_button_type.right then
-            if event.element.type == "choose-elem-button" then     
-                node_param.gui.elem_value = nil
-                event.element.elem_value = nil
-            else
-                node_param.gui.caption = ""
-                event.element.caption = ""
-            end
+            node:handle_right_input(event, node_param)
         end
     end,
 }
@@ -415,6 +405,57 @@ node.on_selection_state_changed = {
 }
 ---------------------------------------------------------------------------------
 
+function node:exclude_signals(node_param)
+    local excluded_signals = {}
+
+    if node_param.events_params.signal_type == "left_arithmetic_signal" or
+       node_param.events_params.signal_type == "left_arithmetic_constant" then
+        table.insert(excluded_signals, {type="virtual", name="signal-everything"})
+        table.insert(excluded_signals, {type="virtual", name="signal-anything"})
+    elseif node_param.events_params.signal_type == "result_arithmetic_signal" then
+        table.insert(excluded_signals, {type="virtual", name="signal-everything"})
+        table.insert(excluded_signals, {type="virtual", name="signal-anything"})
+        
+        local left_signal_node = node_param.parent:recursive_find(node_param.events_params.signals_node_id)
+        if not (left_signal_node and left_signal_node.gui.elem_value and left_signal_node.gui.elem_value.name == "signal-each") then
+            table.insert(excluded_signals, {type="virtual", name="signal-each"})
+        end
+    else
+        table.insert(excluded_signals, {type="virtual", name="signal-everything"})
+        table.insert(excluded_signals, {type="virtual", name="signal-anything"})
+        table.insert(excluded_signals, {type="virtual", name="signal-each"})
+    end
+
+    return excluded_signals
+end
+
+function node:handle_right_input(event, node_param)
+
+    local is_choose_elem = node_param.gui.type == "choose-elem-button"
+
+    if node_param.events_params.signal_type == "left_arithmetic_signal" then
+        if is_choose_elem and node_param.gui.elem_value and node_param.gui.elem_value.name == "signal-each" then
+            local results_node = node_param.parent.parent:recursive_find(node_param.events_params.results_node_id)
+            if results_node and results_node.gui.elem_value and results_node.gui.elem_value.name == "signal-each" then
+                results_node.gui.elem_value = nil
+                results_node.gui_element.elem_value = nil
+                results_node:on_signal_confirm_change()
+            end
+        end
+    end
+
+    if is_choose_elem then     
+        node_param.gui.elem_value = nil
+        event.element.elem_value = nil
+    else
+        node_param.gui.caption = ""
+        node_param.gui.number = nil
+        event.element.caption = ""
+    end
+
+    node_param:on_signal_confirm_change()
+end
+
 function node:on_text_changed_constant_slot_1()
     self.parent.parent.update_logic.signal_slot_1 = nil
     self.parent.parent.update_logic.value_slot_1 = self.gui.number
@@ -442,16 +483,26 @@ function node:on_signal_changed_result()
 end
 
 function node:on_signal_confirm_change()
-    if self.events_params.signal_type == "left_signal" then
+    if self.events_params.signal_type == "left_arithmetic_signal" or
+       self.events_params.signal_type == "left_decider_signal" then
         self:on_signal_changed_1()
-    elseif self.events_params.signal_type == "left_constant" then
+        logger.print("Left "..self.events_params.signal_type)
+    elseif self.events_params.signal_type == "left_arithmetic_constant" or
+           self.events_params.signal_type == "left_decider_constant" then
         self:on_text_changed_constant_slot_1()
-    elseif self.events_params.signal_type == "right_signal" then
+        logger.print("Left "..self.events_params.signal_type)
+    elseif self.events_params.signal_type == "right_arithmetic_signal" or
+           self.events_params.signal_type == "right_decider_signal" then
         self:on_signal_changed_2()
-    elseif self.events_params.signal_type == "right_constant" then
+        logger.print("Right "..self.events_params.signal_type)
+    elseif self.events_params.signal_type == "right_arithmetic_constant" or
+           self.events_params.signal_type == "right_decider_constant" then
         self:on_text_changed_constant_slot_2()
-    elseif self.events_params.signal_type == "result_signal" then 
+        logger.print("Right "..self.events_params.signal_type)
+    elseif self.events_params.signal_type == "result_arithmetic_signal" or
+           self.events_params.signal_type == "result_decider_signal" then 
         self:on_signal_changed_result()
+        logger.print("Results "..self.events_params.signal_type)
     end
 end
 
@@ -753,8 +804,8 @@ function node.decider_combinator(root_node, update_node)
         decider_frame_node,
         true,
         {
-            signal_type = "left_signal",
-            constant_type = "left_constant"
+            signal_type = "left_decider_signal",
+            constant_type = "left_decider_constant",
         }
     )
 
@@ -775,8 +826,8 @@ function node.decider_combinator(root_node, update_node)
         decider_frame_node,
         true,
         {
-            signal_type = "right_signal",
-            constant_type = "right_constant"
+            signal_type = "right_decider_signal",
+            constant_type = "right_decider_constant"
         }
     )
 
@@ -797,7 +848,7 @@ function node.decider_combinator(root_node, update_node)
         decider_frame_node,
         false,
         {
-            signal_type = "result_signal",
+            signal_type = "result_decider_signal",
         }
     )
 
@@ -878,12 +929,12 @@ function node.arithmetic_combinator(root_node, update_node)
     arithmetic_frame_node:update_list_child_push(update_node)
     --------------------------------------------------------
 
-    local left_signal_flow_node = node.create_signal_constant(
+    local left_signal_flow_node, signals_node = node.create_signal_constant(
         arithmetic_frame_node,
         true,
         {
-            signal_type = "left_signal",
-            constant_type = "left_constant"
+            signal_type = "left_arithmetic_signal",
+            constant_type = "left_arithmetic_constant",
         }
     )
 
@@ -904,8 +955,8 @@ function node.arithmetic_combinator(root_node, update_node)
         arithmetic_frame_node,
         true,
         {
-            signal_type = "right_signal",
-            constant_type = "right_constant"
+            signal_type = "right_arithmetic_signal",
+            constant_type = "right_arithmetic_constant"
         }
     )
 
@@ -921,13 +972,15 @@ function node.arithmetic_combinator(root_node, update_node)
         ignored_by_interaction = true
     })
 
-    local result_signal_flow_node = node.create_signal_constant(
+    local result_signal_node = node.create_signal_constant(
         arithmetic_frame_node,
         false,
         {
-            signal_type = "result_signal",
+            signal_type = "result_arithmetic_signal",
         }
     )
+    signals_node.events_params.results_node_id = result_signal_node.id
+    result_signal_node.events_params.signals_node_id = signals_node.id
 
     --------------------------------------------------------
     local close_padding_node = arithmetic_frame_node:add_child({
@@ -945,7 +998,7 @@ function node.arithmetic_combinator(root_node, update_node)
         clicked_sprite = "utility/close_black",
     })
     close_button_node.events_id.on_click = "on_click_close_sub_button"
-    close_button_node.events_params = { update_root_node_id = update_node.id }
+    close_button_node.events_params = {update_root_node_id = update_node.id}
     --------------------------------------------------------
 
     -- Setup Node Events --
@@ -999,8 +1052,8 @@ function node.callable_combinator(root_node, update_node, scroll_pane_node)
         callable_frame_node,
         true,
         {
-            signal_type = "left_signal",
-            constant_type = "left_constant"
+            signal_type = "left_decider_signal",
+            constant_type = "left_decider_constant"
         }
     )
 
@@ -1021,8 +1074,8 @@ function node.callable_combinator(root_node, update_node, scroll_pane_node)
         callable_frame_node,
         true,
         {
-            signal_type = "right_signal",
-            constant_type = "right_constant"
+            signal_type = "right_decider_signal",
+            constant_type = "right_decider_constant"
         }
     )
 
@@ -1127,7 +1180,7 @@ function node.create_signal_constant(parent_node, create_constant, types)
             constant_pane = true,
             signal_type = types.signal_type
         }
-        return flow_node
+        return flow_node, signal_node, constant_node
     end
 end
 
