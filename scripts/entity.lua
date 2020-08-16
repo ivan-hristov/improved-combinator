@@ -46,15 +46,34 @@ local function on_init()
     global.entities = global.entities or {}
 end
 
-local function on_built_entity(event)
-    local entity = event.created_entity
-    if entity.name == constants.entity.name then
+local function build_entity(entity, tags)
+    if entity.name == constants.entity.name and tags and tags["improved-combinator-blueprint"] then
+        logger.print("  CREATE FROM GHOST ENTITY ID "..entity.unit_number)
+
+        global.entities[entity.unit_number] = {}
+        global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
+        global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
+        global.entities[entity.unit_number].update_list = list:new()
+        global.entities[entity.unit_number].node = game_node.node_from_json(tags["improved-combinator-blueprint"], entity.unit_number)
+
+    elseif entity.name == constants.entity.name then
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
         global.entities[entity.unit_number].update_list = list:new()
         global.entities[entity.unit_number].node = game_node:create_main_gui(entity.unit_number)
     end
+end
+
+local function on_built_entity(event)
+    local entity = event.created_entity
+    logger.print("on_built_entity: "..(entity and entity.name or "nil"))
+    build_entity(entity, event.tags)
+end
+
+local function on_script_raised_built(event)
+    logger.print("on_script_raised_built: "..(event.entity and event.entity.name or "nil"))
+    build_entity(event.entity, event.tags)
 end
 
 local function on_entity_died(event)   
@@ -65,28 +84,30 @@ local function on_entity_died(event)
         
         local main_entity = global.entities[entity.unit_number]
 
-        if main_entity.entity_input then
-            main_entity.entity_input.destroy()
-            main_entity.entity_input = nil
-        end
-        if main_entity.entity_output then
-            main_entity.entity_output.destroy()
-            main_entity.entity_output = nil
-        end
+        if main_entity then
+            if main_entity.entity_input then
+                main_entity.entity_input.destroy()
+                main_entity.entity_input = nil
+            end
+            if main_entity.entity_output then
+                main_entity.entity_output.destroy()
+                main_entity.entity_output = nil
+            end
 
-        if main_entity.node.gui_element then
-            main_entity.node.gui_element.destroy()
-        end
-        main_entity.node:remove()
-        main_entity.node = nil
+            if main_entity.node.gui_element then
+                main_entity.node.gui_element.destroy()
+            end
+            main_entity.node:remove()
+            main_entity.node = nil
 
-        for element in main_entity.update_list:iterator() do
-            element.data.children:clear()
+            for element in main_entity.update_list:iterator() do
+                element.data.children:clear()
+            end
+            main_entity.update_list:clear()
+            main_entity.update_list = nil
+            
+            global.entities[entity.unit_number] = nil
         end
-        main_entity.update_list:clear()
-        main_entity.update_list = nil
-        
-        global.entities[entity.unit_number] = nil
     end
 end
 
@@ -120,6 +141,43 @@ local function on_entity_settings_pasted(event)
 
 end
 
+local function on_player_setup_blueprint(event)
+
+    logger.print(string.format("on_player_setup_blueprint Area {%d,%d} {%d,%d}",
+        event.area.left_top.x,
+        event.area.left_top.y,
+        event.area.right_bottom .x,
+        event.area.right_bottom .y))
+
+    local player = game.get_player(event.player_index)
+    local blueprint = player.blueprint_to_setup
+    local blueprint_entities = blueprint.get_blueprint_entities()
+    local mapping = event.mapping.get()
+
+
+    local tags = {}
+
+    for _, blueprint_entity in pairs(blueprint_entities) do
+        blueprint_entity.tags = blueprint_entity.tags or {}
+
+        local unit_number = mapping[blueprint_entity.entity_number].unit_number
+
+        if global.entities[unit_number] then
+            blueprint_entity.tags["improved-combinator-blueprint"] = game_node.node_to_json(global.entities[unit_number].node)
+        end
+    end
+
+    for _, blueprint_entity in pairs(blueprint_entities) do
+        for key, tag in pairs(blueprint_entity.tags) do
+            if key == "improved-combinator-blueprint" then
+                --logger.print("  tag: "..tag)
+            end
+        end
+    end
+
+    blueprint.set_blueprint_entities(blueprint_entities)
+end
+
 script.on_init(on_init)
 script.on_event(defines.events.on_built_entity, on_built_entity)
 script.on_event(defines.events.on_robot_built_entity, on_built_entity)
@@ -129,3 +187,10 @@ script.on_event(defines.events.on_robot_pre_mined, on_entity_died)
 script.on_event(defines.events.on_entity_died, on_entity_died)
 
 script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
+
+
+script.on_event(defines.events.on_player_setup_blueprint, on_player_setup_blueprint)
+
+
+script.on_event(defines.events.script_raised_built, on_script_raised_built)
+script.on_event(defines.events.script_raised_revive, on_script_raised_built)
