@@ -27,6 +27,7 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         existing_entity.teleport(position)
         existing_entity.destructible = false
         existing_entity.operable = false
+        existing_entity.minable = false
         return existing_entity
     else
         local new_entity = main_entity.surface.create_entity{name = sub_entity_type, position = position, force = main_entity.force, fast_replace = false, destructible = false, operable = false}
@@ -35,6 +36,7 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         new_entity.teleport(position)
         new_entity.destructible = false
         new_entity.operable = false
+        new_entity.minable = false
         return new_entity
     end
 end
