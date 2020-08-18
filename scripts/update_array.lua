@@ -59,21 +59,14 @@ function update_array.json_to_table(root_node, json)
     for _, update_element in pairs(json_list) do
         local update_node = root_node:recursive_find(update_element.id)
         if update_node then
-            logger.print(string.format("Found id: %s", update_element.id))
-
             local children = {}
             for _, child_element in pairs(update_element.children) do
                 local child_node = root_node:recursive_find(child_element)
                 if child_node then
-                    logger.print(string.format("Child Found id: %s", child_element))
                     array.add(children, child_node.id, child_node)
-                else
-                    logger.print(string.format("NOT Child id: %s", child_element))
                 end
             end
             array.add(update_list, update_node.id, {node = update_node, children = children})
-        else
-            logger.print(string.format("NOT Found id: %s", update_element.id))
         end
     end
 

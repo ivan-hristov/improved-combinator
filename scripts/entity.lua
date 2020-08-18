@@ -10,34 +10,32 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         {position.x - 1.5, position.y - 1.5}, 
         {position.x + 1.5, position.y + 1.5}
     }
-    local ghost = false
+
     local ghosts = main_entity.surface.find_entities_filtered { area = area, name = "entity-ghost", force = main_entity.force }
-    for _, each_ghost in pairs(ghosts) do
-        if each_ghost.valid and each_ghost.ghost_name == sub_entity_type then
-            if ghost then
-                each_ghost.destroy()
-            else
-                each_ghost.revive()
-                if not each_ghost.valid then 
-                    ghost = true
-                else 
-                    each_ghost.destroy()
-                end
-            end
+    for _, ghost in pairs(ghosts) do
+        --logger.print("    LOOKING IN GHOST: "..ghost.ghost_name)
+        if ghost.valid and ghost.ghost_name == sub_entity_type then
+            --logger.print("    REVIVE GHOST: "..ghost.ghost_name)
+            ghost.revive()
         end
     end
 
-    if ghost then
-        local entity = main_entity.surface.find_entities_filtered{area = area, name = sub_entity_type, force = main_entity.force, limit = 1 }[1]
-        if entity then
-            entity.direction = defines.direction.south
-            entity.teleport(position)
-            entity.destructible = false
-            entity.operable = false
-            return entity
-        end
+    local existing_entity = main_entity.surface.find_entities_filtered{area = area, name = sub_entity_type, force = main_entity.force, limit = 1 }[1]
+    if existing_entity then
+        --logger.print("    FOUND SUB-ENTITY "..existing_entity.name)
+        existing_entity.direction = defines.direction.south
+        existing_entity.teleport(position)
+        existing_entity.destructible = false
+        existing_entity.operable = false
+        return existing_entity
     else
-        return main_entity.surface.create_entity{name = sub_entity_type, position = position, force = main_entity.force, fast_replace = false, destructible = false, operable = false}
+        local new_entity = main_entity.surface.create_entity{name = sub_entity_type, position = position, force = main_entity.force, fast_replace = false, destructible = false, operable = false}
+        --logger.print("    CREATE SUB-ENTITY "..new_entity.name)
+        new_entity.direction = defines.direction.south
+        new_entity.teleport(position)
+        new_entity.destructible = false
+        new_entity.operable = false
+        return new_entity
     end
 end
 
@@ -47,18 +45,21 @@ local function on_init()
 end
 
 local function build_entity(entity, tags)
+
+    --logger.print("BUILD ENTITY: "..entity.name)
+
     if entity.name == constants.entity.name and tags and tags["improved-combinator-nodes"] and tags["improved-combinator-updates"] then
-        logger.print("  CREATE FROM GHOST ENTITY ID "..entity.unit_number)
+        --logger.print("CREATE FROM GHOST ENTITY ID "..entity.unit_number)
 
         global.entities[entity.unit_number] = {}
-        --global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
-        --global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
+        global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
+        global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
         global.entities[entity.unit_number].node = game_node.node_from_json(tags["improved-combinator-nodes"], entity.unit_number)
         global.entities[entity.unit_number].update_list = update_array.json_to_table(global.entities[entity.unit_number].node, tags["improved-combinator-updates"])
 
     elseif entity.name == constants.entity.name then
 
-        logger.print("  CREATE ENTITY "..entity.unit_number)
+        --logger.print("CREATE ENTITY "..entity.unit_number)
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
@@ -69,12 +70,12 @@ end
 
 local function on_built_entity(event)
     local entity = event.created_entity
-    logger.print("on_built_entity: "..(entity and entity.name or "nil"))
+    --logger.print("on_built_entity: "..(entity and entity.name or "nil"))
     build_entity(entity, event.tags)
 end
 
 local function on_script_raised_built(event)
-    logger.print("on_script_raised_built: "..(event.entity and event.entity.name or "nil"))
+    --logger.print("on_script_raised_built: "..(event.entity and event.entity.name or "nil"))
     build_entity(event.entity, event.tags)
 end
 
@@ -139,11 +140,11 @@ end
 
 local function on_player_setup_blueprint(event)
 
-    logger.print(string.format("on_player_setup_blueprint Area {%d,%d} {%d,%d}",
+    --[[logger.print(string.format("on_player_setup_blueprint Area {%d,%d} {%d,%d}",
         event.area.left_top.x,
         event.area.left_top.y,
         event.area.right_bottom .x,
-        event.area.right_bottom .y))
+        event.area.right_bottom .y))]]--
 
     local player = game.get_player(event.player_index)
     local blueprint = player.blueprint_to_setup
@@ -167,7 +168,7 @@ local function on_player_setup_blueprint(event)
     for _, blueprint_entity in pairs(blueprint_entities) do
         for key, tag in pairs(blueprint_entity.tags) do
             if key == "improved-combinator-updates" then
-                logger.print("  tag: "..tag)
+                --logger.print("  tag: "..tag)
             end
         end
     end
@@ -185,9 +186,9 @@ script.on_event(defines.events.on_entity_died, on_entity_died)
 
 script.on_event(defines.events.on_entity_settings_pasted, on_entity_settings_pasted)
 
+script.on_event(defines.events.script_raised_built, on_script_raised_built)
+script.on_event(defines.events.script_raised_revive, on_script_raised_built)
+
 
 script.on_event(defines.events.on_player_setup_blueprint, on_player_setup_blueprint)
 
-
-script.on_event(defines.events.script_raised_built, on_script_raised_built)
-script.on_event(defines.events.script_raised_revive, on_script_raised_built)

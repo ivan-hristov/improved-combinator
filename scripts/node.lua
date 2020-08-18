@@ -86,14 +86,14 @@ function node.node_from_json(json, entity_id)
         if not json_node.parent_id then
             root_node = node:create_from_json(id, json_node, entity_id)
             json_node.processed = true
-            logger.print("CREATED ROOT NODE")
+            --logger.print("CREATED ROOT NODE")
             break
         end
     end
 
     -- Failed to create the root node
     if not root_node then
-        logger.print("NO ROOT NODE")
+        --logger.print("NO ROOT NODE")
         return nil
     end
 
@@ -102,7 +102,7 @@ function node.node_from_json(json, entity_id)
     local has_elements = true
     local nodes_count = table_size(nodes_list)
 
-    logger.print("PROCESSING "..table_size(nodes_list))
+    --logger.print("PROCESSING "..table_size(nodes_list))
 
     while has_elements do
         for id, json_node in pairs(nodes_list) do
@@ -120,7 +120,7 @@ function node.node_from_json(json, entity_id)
         end
 
         if processed <= nodes_count then
-            logger.print("SUCCESS "..processed)
+            --logger.print("SUCCESS "..processed)
             has_elements = false
         end
 
@@ -128,7 +128,7 @@ function node.node_from_json(json, entity_id)
 
         if loop_counter >= nodes_count then
             has_elements = false
-            logger.print("LOOP FAILURE "..processed)
+            --logger.print("LOOP FAILURE "..processed)
         end
     end
 
