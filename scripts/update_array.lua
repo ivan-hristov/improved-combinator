@@ -38,9 +38,7 @@ function update_array.deep_copy(original_list, new_root_node)
     return update_list
 end
 
-function update_array.table_to_json(entity_id)
-
-    local update_list = global.entities[entity_id].update_list
+function update_array.table_to_json(update_list)
     local json_list = {}
 
     for _, update_element in pairs(update_list) do
@@ -48,7 +46,7 @@ function update_array.table_to_json(entity_id)
         for _, child_element in pairs(update_element.data.children) do
             table.insert(children, child_element.id)
         end
-        table.insert(json_list, {id = id, children = children})
+        table.insert(json_list, {id = update_element.id, children = children})
     end
 
     return game.table_to_json(json_list)
@@ -61,18 +59,27 @@ function update_array.json_to_table(root_node, json)
     for _, update_element in pairs(json_list) do
         local update_node = root_node:recursive_find(update_element.id)
         if update_node then
+            logger.print(string.format("Found id: %s", update_element.id))
+
             local children = {}
-            for _, child_element in pairs(update_element) do
-                local child_node = root_node:recursive_find(child_element.id)
+            for _, child_element in pairs(update_element.children) do
+                local child_node = root_node:recursive_find(child_element)
                 if child_node then
+                    logger.print(string.format("Child Found id: %s", child_element))
                     array.add(children, child_node.id, child_node)
+                else
+                    logger.print(string.format("NOT Child id: %s", child_element))
                 end
             end
-            array.add(update_list, node.id, children)
+            array.add(update_list, update_node.id, {node = update_node, children = children})
+        else
+            logger.print(string.format("NOT Found id: %s", update_element.id))
         end
     end
 
-    global.entities[node.entity_id].update_list = update_list
+
+
+    return update_list
 end
 
 return update_array

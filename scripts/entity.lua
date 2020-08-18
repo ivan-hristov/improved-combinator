@@ -47,14 +47,14 @@ local function on_init()
 end
 
 local function build_entity(entity, tags)
-    if entity.name == constants.entity.name and tags and tags["improved-combinator-blueprint"] then
+    if entity.name == constants.entity.name and tags and tags["improved-combinator-nodes"] and tags["improved-combinator-updates"] then
         logger.print("  CREATE FROM GHOST ENTITY ID "..entity.unit_number)
 
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
-        global.entities[entity.unit_number].update_list = {}
-        global.entities[entity.unit_number].node = game_node.node_from_json(tags["improved-combinator-blueprint"], entity.unit_number)
+        global.entities[entity.unit_number].node = game_node.node_from_json(tags["improved-combinator-nodes"], entity.unit_number)
+        global.entities[entity.unit_number].update_list = update_array.json_to_table(global.entities[entity.unit_number].node, tags["improved-combinator-updates"])
 
     elseif entity.name == constants.entity.name then
 
@@ -159,14 +159,15 @@ local function on_player_setup_blueprint(event)
         local unit_number = mapping[blueprint_entity.entity_number].unit_number
 
         if global.entities[unit_number] then
-            blueprint_entity.tags["improved-combinator-blueprint"] = game_node.node_to_json(global.entities[unit_number].node)
+            blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
+            blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
         end
     end
 
     for _, blueprint_entity in pairs(blueprint_entities) do
         for key, tag in pairs(blueprint_entity.tags) do
-            if key == "improved-combinator-blueprint" then
-                --logger.print("  tag: "..tag)
+            if key == "improved-combinator-updates" then
+                logger.print("  tag: "..tag)
             end
         end
     end

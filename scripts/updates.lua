@@ -405,7 +405,7 @@ local function validate_sigals()
         recursive_signal_search(entity.node)
 
         for _, elem in pairs(entity.update_list) do
-            for child_elem in pairs(elem.data.children) do
+            for _, child_elem in pairs(elem.data.children) do
                 local update_logic = child_elem.data.update_logic
 
                 if update_logic.signal_slot_1 then
