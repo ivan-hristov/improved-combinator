@@ -15,6 +15,7 @@ function array.remove(array_table, id)
     for index, element in pairs(array_table) do
         if element.id == id then
             element_id = index
+            break
         end
     end
 

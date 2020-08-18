@@ -51,8 +51,8 @@ local function build_entity(entity, tags)
         logger.print("  CREATE FROM GHOST ENTITY ID "..entity.unit_number)
 
         global.entities[entity.unit_number] = {}
-        global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
-        global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
+        --global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
+        --global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
         global.entities[entity.unit_number].node = game_node.node_from_json(tags["improved-combinator-nodes"], entity.unit_number)
         global.entities[entity.unit_number].update_list = update_array.json_to_table(global.entities[entity.unit_number].node, tags["improved-combinator-updates"])
 
