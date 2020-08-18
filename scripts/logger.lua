@@ -1,5 +1,5 @@
 
-local debugMode = false
+local debugMode = true
 logger = {}
 
 function logger.print(message)

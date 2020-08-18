@@ -1,6 +1,5 @@
 local constants = require("constants")
 local game_node = require("game_node")
-local list = require("list")
 local logger = require("logger")
 local combinator = require("combinator")
 local cached_signals = require("cached_signals")
@@ -337,16 +336,16 @@ local function process_events()
     for entity_id, entity in pairs(global.entities) do
         local input_signal = input_signals[entity_id]
         if input_signal then
-            for iter in entity.update_list:iterator() do
+            for _, elem in pairs(entity.update_list) do
                 local check_combinators =
-                    iter.data.node_element.update_logic.combinators or 
+                    elem.data.node.update_logic.combinators or 
                     update_timer_and_progress_bar(
-                        iter.data.node_element.gui_element,
-                        iter.data.node_element.update_logic)
+                        elem.data.node.gui_element,
+                        elem.data.node.update_logic)
 
                 if check_combinators then
-                    for child_iter in iter.data.children:iterator() do
-                        local update_logic = child_iter.data.node_element.update_logic
+                    for _, child_elem in pairs(elem.data.children) do
+                        local update_logic = child_elem.data.update_logic
 
                         if update_logic.decider_combinator then
                             update_decider_combinator(input_signal, entity_id, update_logic)
@@ -405,9 +404,9 @@ local function validate_sigals()
 
         recursive_signal_search(entity.node)
 
-        for iter in entity.update_list:iterator() do
-            for child_iter in iter.data.children:iterator() do
-                local update_logic = child_iter.data.node_element.update_logic
+        for _, elem in pairs(entity.update_list) do
+            for child_elem in pairs(elem.data.children) do
+                local update_logic = child_elem.data.update_logic
 
                 if update_logic.signal_slot_1 then
                     if cached_signals.functions.on_contains_element(update_logic.signal_slot_1) == false then
@@ -437,7 +436,6 @@ local function on_tick()
         cached_signals.functions.on_game_load()
         game_node.recreate_metatables()
         overlay_gui.on_load()
-        list.recreate_metatables()
         validate_sigals()
         game_loaded = true
     end

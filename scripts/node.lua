@@ -1,6 +1,6 @@
 local constants = require("constants")
 local uid = require("uid")
-local list = require("list")
+local update_array = require("update_array")
 local logger = require("logger")
 
 local node = {}
@@ -279,13 +279,6 @@ function node:valid()
     return true
 end
 
-function node:update_list_push()
-    if not self.updatable then
-        global.entities[self.entity_id].update_list:push_back({ id = self.id, node_element = self, children = list:new() })
-        self.updatable = true
-    end
-end
-
 function node:root_parent()
     if self.parent then
         return self.parent:root_parent()
@@ -294,26 +287,29 @@ function node:root_parent()
     end
 end
 
+function node:update_list_push()
+    if not self.updatable then
+        update_array.add(self)
+        self.updatable = true
+    end
+end
+
 function node:update_list_remove()
     if self.updatable then
-        local list_element = global.entities[self.entity_id].update_list:get_element(self.id)
-        list_element.children:clear()
-        global.entities[self.entity_id].update_list:remove(self.id)
+        update_array.remove(self)
         self.updatable = false
     end
 end
 
 function node:update_list_child_push(parent_node)
     if parent_node.updatable then
-        local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
-        list_element.children:push_back({ id = self.id, node_element = self })
+        update_array.add_child(parent_node, self)
     end
 end
 
 function node:update_list_child_remove(parent_node)
     if parent_node.updatable then
-        local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
-        list_element.children:remove(self.id)
+        update_array.remove_child(parent_node, self)
     end
 end
 

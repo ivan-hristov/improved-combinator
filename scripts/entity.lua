@@ -1,7 +1,7 @@
 local constants = require("constants")
 local game_node = require("game_node")
 local overlay_gui = require("overlay_gui")
-local list = require("list")
+local update_array = require("update_array")
 local logger = require("logger")
 
 local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset)
@@ -53,14 +53,16 @@ local function build_entity(entity, tags)
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
-        global.entities[entity.unit_number].update_list = list:new()
+        global.entities[entity.unit_number].update_list = {}
         global.entities[entity.unit_number].node = game_node.node_from_json(tags["improved-combinator-blueprint"], entity.unit_number)
 
     elseif entity.name == constants.entity.name then
+
+        logger.print("  CREATE ENTITY "..entity.unit_number)
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
-        global.entities[entity.unit_number].update_list = list:new()
+        global.entities[entity.unit_number].update_list = {}
         global.entities[entity.unit_number].node = game_node:create_main_gui(entity.unit_number)
     end
 end
@@ -100,10 +102,7 @@ local function on_entity_died(event)
             main_entity.node:remove()
             main_entity.node = nil
 
-            for element in main_entity.update_list:iterator() do
-                element.data.children:clear()
-            end
-            main_entity.update_list:clear()
+            main_entity.update_list = {}
             main_entity.update_list = nil
             
             global.entities[entity.unit_number] = nil
@@ -127,15 +126,12 @@ local function on_entity_settings_pasted(event)
     dest_entity.node:remove()
     dest_entity.node = nil
 
-    for element in dest_entity.update_list:iterator() do
-        element.data.children:clear()
-    end
-    dest_entity.update_list:clear()
+    dest_entity.update_list = {}
     dest_entity.update_list = nil
 
     -- Copy new settings --
     dest_entity.node = game_node.deep_copy(event.destination.unit_number, nil, src_entity.node)
-    dest_entity.update_list = list.deep_copy(dest_entity.node, src_entity.update_list)
+    dest_entity.update_list = update_array.deep_copy(src_entity.update_list, dest_entity.node)
 
     global.entities[event.destination.unit_number] = dest_entity
 
