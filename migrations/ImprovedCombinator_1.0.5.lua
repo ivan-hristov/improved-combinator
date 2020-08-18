@@ -21,7 +21,7 @@ for entity_id, entity in pairs(global.entities) do
     old_entity_update_list[entity_id] = update_list
 end
 
--- Clear old global update list
+-- Clear the old global update list
 for _, entity in pairs(global.entities) do
     local iter = entity.update_list.front
     while iter do
@@ -38,7 +38,7 @@ for _, entity in pairs(global.entities) do
     entity.update_list = nil
 end
 
--- Copy new array update list into the global data
+-- Copy the new array update list into the global entity data
 for entity_id, entity in pairs(global.entities) do
     global.entities[entity_id].update_list = old_entity_update_list[entity_id]
 end
