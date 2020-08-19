@@ -1,5 +1,21 @@
 local old_entity_update_list = {}
 
+-- Make all input and output entities indestructible
+for entity_id, entity in pairs(global.entities) do
+    if entity.entity_input then
+        entity.entity_input.direction = defines.direction.east
+        entity.entity_input.destructible = false
+        entity.entity_input.operable = false
+        entity.entity_input.minable = false
+    end
+    if entity.entity_output then
+        entity.entity_output.direction = defines.direction.east
+        entity.entity_output.destructible = false
+        entity.entity_output.operable = false
+        entity.entity_output.minable = false
+    end
+end
+
 -- Copy the old update_list data and store it in a table
 for entity_id, entity in pairs(global.entities) do
     local update_list = {}
