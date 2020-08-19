@@ -1,3 +1,4 @@
+local util = require("__core__.lualib.util")
 local constants = require("constants")
 
 -- Core Factorio Function --
@@ -71,7 +72,7 @@ local function input_item()
         name = constants.entity.input.name,
         icon = constants.entity.input.icon,
         place_result = constants.entity.input.name,
-        icon_size = 1,
+        icon_size = 64,
         flags = {"hidden"},
         subgroup = "circuit-network",
         order = "c[combinators]-z["..constants.entity.input.name.."]",
@@ -84,10 +85,10 @@ local function output_item()
     local combinator_output =
     {
         type = "item",
-        name =constants.entity.output.name,
+        name = constants.entity.output.name,
         icon = constants.entity.output.icon,
         place_result = constants.entity.output.name,
-        icon_size = 1,
+        icon_size = 64,
         flags = {"hidden"},
         subgroup = "circuit-network",
         order = "c[combinators]-z["..constants.entity.output.name.."]",
@@ -153,7 +154,7 @@ local function main_entity()
         icon_mipmaps = 4,
         scale_info_icons = true,
         scale_entity_info_icon = true,
-        flags = {"not-blueprintable", "placeable-neutral", "placeable-player", "player-creation"},
+        flags = {"not-rotatable", "placeable-neutral", "placeable-player", "player-creation"},
         minable = {hardness = 0.2, mining_time = 2, result = constants.entity.name},
         max_health = 250,
         corpse = constants.entity.remnants,
@@ -221,14 +222,13 @@ local function input_entity()
     {
         type = "constant-combinator",
         name = constants.entity.input.name,
-        icon = constants.blank_image,
+        icon = constants.entity.graphics.icon,
         icon_size = 1,
         fast_replaceable_group = constants.entity.input.name,
-        flags = {"not-blueprintable", "placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
+        flags = {"not-rotatable", "placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable"},
         mineable = nil,
         order = "y",
-        max_health = 10000,
-        healing_per_tick = 10000,
+        max_health = 100,
         corpse = "small-remnants",
         collision_mask = {"not-colliding-with-itself"},
         collision_box = {{-0.0, -0.0}, {0.0, 0.0}},
@@ -294,14 +294,13 @@ local function output_entity()
     {
         type = "constant-combinator",
         name = constants.entity.output.name,
-        icon = constants.blank_image,
+        icon = constants.entity.graphics.icon,
         icon_size = 1,
         fast_replaceable_group = constants.entity.output.name,
-        flags = {"not-blueprintable", "placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable", "not-repairable"},
+        flags = {"not-rotatable", "placeable-player", "player-creation", "placeable-off-grid", "not-deconstructable"},
         mineable = nil,
         order = "y",
-        max_health = 10000,
-        healing_per_tick = 10000,
+        max_health = 100,
         corpse = "small-remnants",
         collision_mask = {"not-colliding-with-itself"},
         collision_box = {{-0.0, -0.0}, {0.0, 0.0}},

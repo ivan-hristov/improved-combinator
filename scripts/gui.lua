@@ -14,8 +14,11 @@ local function on_gui_opened(event)
     if player.selected then        
         if player.selected.name == constants.entity.name then
             global.opened_entity[event.player_index] = event.entity.unit_number
-            player.opened = game_node:build_gui_nodes(player.gui.screen, global.entities[event.entity.unit_number].node)
-            player.opened.force_auto_center()
+            if global.entities[event.entity.unit_number] then
+                player.opened = game_node:build_gui_nodes(player.gui.screen, global.entities[event.entity.unit_number].node)
+                player.opened.force_auto_center()
+            end
+
         elseif player.selected.name == constants.entity.input.name or player.selected.name == constants.entity.output.name then
             player.opened = nil
         end
