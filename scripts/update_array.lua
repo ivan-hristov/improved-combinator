@@ -70,8 +70,6 @@ function update_array.json_to_table(root_node, json)
         end
     end
 
-
-
     return update_list
 end
 
