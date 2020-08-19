@@ -1,6 +1,6 @@
 local constants = require("constants")
 local uid = require("uid")
-local list = require("list")
+local update_array = require("update_array")
 local logger = require("logger")
 
 local node = {}
@@ -30,6 +30,106 @@ function node:new(entity_id, gui)
 
     return new_node
 end
+
+function node:create_from_json(id, json_node, entity_id)
+    new_node = {}
+    setmetatable(new_node, self)
+    self.__index = self
+
+    new_node.id = id
+    new_node.entity_id = entity_id
+    new_node.parent = nil
+    new_node.events_id = json_node.events_id
+    new_node.events_params = json_node.events_params
+    new_node.events = {}
+    new_node.gui_element = nil  -- Non-persistent Factorio element
+    new_node.children = {}
+    new_node.update_logic = json_node.update_logic
+    new_node.updatable = json_node.updatable
+    new_node.gui = json_node.gui
+
+    return new_node
+end
+
+function node.node_to_json(node_param)
+
+    local nodes_list = {}
+
+    local function recursive_add(param)
+        nodes_list[param.id] = {
+            parent_id = param.parent and param.parent.id or nil,
+            events_id = param.events_id,
+            events_params = param.events_params,
+            update_logic = param.update_logic,
+            updatable = param.updatable,
+            gui = param.gui
+        }
+
+        for _, child in pairs(param.children) do
+            recursive_add(child)
+        end
+    end
+
+    recursive_add(node_param)
+
+    return game.table_to_json(nodes_list)
+end
+
+function node.node_from_json(json, entity_id)
+    local nodes_list = game.json_to_table(json)
+
+    local new_nodes = {}
+    local root_node = nil
+
+    -- Find and create the root node
+    for id, json_node in pairs(nodes_list) do
+        if not json_node.parent_id then
+            root_node = node:create_from_json(id, json_node, entity_id)
+            json_node.processed = true
+            break
+        end
+    end
+
+    -- Failed to create the root node
+    if not root_node then
+        return nil
+    end
+
+    local loop_counter = 1
+    local processed = 1
+    local has_elements = true
+    local nodes_count = table_size(nodes_list)
+
+    while has_elements do
+        for id, json_node in pairs(nodes_list) do
+            if not json_node.processed and json_node.parent_id then
+                local parent_node = root_node:recursive_find(json_node.parent_id)
+
+                if parent_node then
+                    local new_node = node:create_from_json(id, json_node, entity_id)
+                    new_node.parent = parent_node
+                    parent_node.children[id] = new_node
+                    processed = processed + 1
+                    json_node.processed = true
+                end
+            end
+        end
+
+        if processed <= nodes_count then
+            has_elements = false
+        end
+
+        loop_counter = loop_counter + 1
+
+        if loop_counter >= nodes_count then
+            has_elements = false
+        end
+    end
+
+    root_node:recursive_setup_events()
+    return root_node
+end
+
 
 local function simple_deep_copy(object)
     if type(object) ~= 'table' then
@@ -173,13 +273,6 @@ function node:valid()
     return true
 end
 
-function node:update_list_push()
-    if not self.updatable then
-        global.entities[self.entity_id].update_list:push_back({ id = self.id, node_element = self, children = list:new() })
-        self.updatable = true
-    end
-end
-
 function node:root_parent()
     if self.parent then
         return self.parent:root_parent()
@@ -188,26 +281,29 @@ function node:root_parent()
     end
 end
 
+function node:update_list_push()
+    if not self.updatable then
+        update_array.add(self)
+        self.updatable = true
+    end
+end
+
 function node:update_list_remove()
     if self.updatable then
-        local list_element = global.entities[self.entity_id].update_list:get_element(self.id)
-        list_element.children:clear()
-        global.entities[self.entity_id].update_list:remove(self.id)
+        update_array.remove(self)
         self.updatable = false
     end
 end
 
 function node:update_list_child_push(parent_node)
     if parent_node.updatable then
-        local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
-        list_element.children:push_back({ id = self.id, node_element = self })
+        update_array.add_child(parent_node, self)
     end
 end
 
 function node:update_list_child_remove(parent_node)
     if parent_node.updatable then
-        local list_element = global.entities[parent_node.entity_id].update_list:get_element(parent_node.id)
-        list_element.children:remove(self.id)
+        update_array.remove_child(parent_node, self)
     end
 end
 
