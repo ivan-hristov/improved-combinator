@@ -72,7 +72,7 @@ local function input_item()
         name = constants.entity.input.name,
         icon = constants.entity.input.icon,
         place_result = constants.entity.input.name,
-        icon_size = 1,
+        icon_size = 64,
         flags = {"hidden"},
         subgroup = "circuit-network",
         order = "c[combinators]-z["..constants.entity.input.name.."]",
@@ -85,10 +85,10 @@ local function output_item()
     local combinator_output =
     {
         type = "item",
-        name =constants.entity.output.name,
+        name = constants.entity.output.name,
         icon = constants.entity.output.icon,
         place_result = constants.entity.output.name,
-        icon_size = 1,
+        icon_size = 64,
         flags = {"hidden"},
         subgroup = "circuit-network",
         order = "c[combinators]-z["..constants.entity.output.name.."]",

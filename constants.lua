@@ -24,12 +24,12 @@ constants.entity.graphics.hr_remnants = constants.base_path.."/graphics/entity/r
 
 
 constants.entity.input.name = "improved-combinator-input"
-constants.entity.input.icon = constants.base_path.."/graphics/blank.png"
+constants.entity.input.icon = constants.entity.graphics.icon
 constants.entity.input.image = constants.base_path.."/graphics/blank.png"
 constants.entity.input.circuit_wire_max_distance = 15
 
 constants.entity.output.name = "improved-combinator-output"
-constants.entity.output.icon = constants.base_path.."/graphics/blank.png"
+constants.entity.output.icon = constants.entity.graphics.icon
 constants.entity.output.image = constants.base_path.."/graphics/blank.png"
 constants.entity.output.circuit_wire_max_distance = 15
 
