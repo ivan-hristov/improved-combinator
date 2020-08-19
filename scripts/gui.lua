@@ -14,9 +14,6 @@ local function on_gui_opened(event)
     if player.selected then        
         if player.selected.name == constants.entity.name then
             global.opened_entity[event.player_index] = event.entity.unit_number
-
-            --logger.print("GUI: ENTITY ID "..event.entity.unit_number)
-
             if global.entities[event.entity.unit_number] then
                 player.opened = game_node:build_gui_nodes(player.gui.screen, global.entities[event.entity.unit_number].node)
                 player.opened.force_auto_center()
@@ -49,8 +46,6 @@ end
 local function on_gui_click(event)
     local name = event.element.name
     local unit_number = global.opened_entity[event.player_index]
-
-    --logger.print(string.format("on_gui_click[%d]: %s", unit_number, name))
 
     -- Process overlay on-click events
     overlay_gui.on_click(event, unit_number)
