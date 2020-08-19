@@ -7,11 +7,10 @@ for entity_id, entity in pairs(global.entities) do
 
     while iter do
         local children = {}
-
         local child_iter = iter.data.children.front
         while child_iter do
             table.insert(children, {id = child_iter.data.node_element.id, data = child_iter.data.node_element})
-            child_iter = iter.data.children.next
+            child_iter = child_iter.next
         end
         table.insert(update_list, {id = iter.data.node_element.id, data = {node = iter.data.node_element, children = children}})
 
