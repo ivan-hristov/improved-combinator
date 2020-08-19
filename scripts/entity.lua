@@ -37,6 +37,21 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
     end
 end
 
+local function remove_subentity_ghosts(ghost_entity, sub_entity_type, x_offset, y_offset)
+    position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
+    local area = {
+        {position.x - 1.5, position.y - 1.5}, 
+        {position.x + 1.5, position.y + 1.5}
+    }
+
+    local ghosts = ghost_entity.surface.find_entities_filtered {area = area, name = "entity-ghost", force = ghost_entity.force}
+    for _, ghost in pairs(ghosts) do
+        if ghost.valid and ghost.ghost_name == sub_entity_type then
+            ghost.destroy()
+        end
+    end
+end
+
 local function on_init()
     global.opened_entity = global.opened_entity or {}
     global.entities = global.entities or {}
@@ -76,6 +91,13 @@ end
 
 local function on_entity_died(event)
     local entity = event.entity
+
+    -- If the main ghost entity is destroyed then remove the sub-entity ghosts
+    if entity.name == "entity-ghost" and entity.ghost_name == constants.entity.name then
+        remove_subentity_ghosts(entity, constants.entity.input.name, -0.9, 0.0)
+        remove_subentity_ghosts(entity, constants.entity.output.name, 1.0, 0.0)
+    end
+
     if entity.name == constants.entity.name then
         -- Delete overlay signals if the entity was destroyed
         overlay_gui.safely_destory_top_nodes(entity.unit_number)
@@ -137,19 +159,28 @@ local function on_player_setup_blueprint(event)
 
     local player = game.get_player(event.player_index)
     local blueprint = player.blueprint_to_setup
-    local blueprint_entities = blueprint.get_blueprint_entities()
-    local mapping = event.mapping.get()
 
-    for _, blueprint_entity in pairs(blueprint_entities) do
-        local unit_number = mapping[blueprint_entity.entity_number].unit_number
-        if global.entities[unit_number] then
-            blueprint_entity.tags = blueprint_entity.tags or {}
-            blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
-            blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
-        end
+    -- Check if this is a blueprint or a copy
+    if not blueprint or not blueprint.valid_for_read then
+        blueprint = player.cursor_stack
     end
 
-    blueprint.set_blueprint_entities(blueprint_entities)
+    if blueprint and blueprint.valid then
+        local blueprint_entities = blueprint.get_blueprint_entities()
+        local mapping = event.mapping.get()
+
+        for _, blueprint_entity in pairs(blueprint_entities) do
+            local entity = mapping[blueprint_entity.entity_number]
+            local unit_number = entity.unit_number
+            if global.entities[unit_number] and entity.name == constants.entity.name then
+                blueprint_entity.tags = blueprint_entity.tags or {}
+                blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
+                blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
+            end
+        end
+
+        blueprint.set_blueprint_entities(blueprint_entities)
+    end
 end
 
 script.on_init(on_init)
