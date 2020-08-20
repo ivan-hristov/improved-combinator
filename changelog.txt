@@ -2,7 +2,7 @@
 Version: 1.0.8
 Date: 20-Aug-2020
   Bugfixes:
-    - Fixed a crashed caused when trying modify and existing blueprint
+    - Fixed a crash caused when trying modify an existing blueprint
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.7
 Date: 19-Aug-2020
