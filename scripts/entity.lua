@@ -167,19 +167,34 @@ local function on_player_setup_blueprint(event)
 
     if blueprint and blueprint.valid then
         local blueprint_entities = blueprint.get_blueprint_entities()
-        local mapping = event.mapping.get()
 
-        for _, blueprint_entity in pairs(blueprint_entities) do
-            local entity = mapping[blueprint_entity.entity_number]
-            local unit_number = entity.unit_number
-            if global.entities[unit_number] and entity.name == constants.entity.name then
-                blueprint_entity.tags = blueprint_entity.tags or {}
-                blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
-                blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
+        if blueprint_entities then
+            local mapping = event.mapping.get()
+            for _, blueprint_entity in pairs(blueprint_entities) do
+                local entity = mapping[blueprint_entity.entity_number]
+                local unit_number = entity.unit_number
+                if global.entities[unit_number] and entity.name == constants.entity.name then
+                    blueprint_entity.tags = blueprint_entity.tags or {}
+                    blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
+                    blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
+                end
+            end
+            blueprint.set_blueprint_entities(blueprint_entities)
+        else
+            local selection_contains_improved_combinator = false
+            local mapping = event.mapping.get()
+            for _, entity in pairs(mapping) do
+                if entity.name == constants.entity.name then
+                    selection_contains_improved_combinator = true
+                    break
+                end
+            end
+
+            -- Unfortunately cannot be added to an existing blueprint. Display a warning. --
+            if selection_contains_improved_combinator then
+                player.print({"improved-combinator.blueprint-warning"})
             end
         end
-
-        blueprint.set_blueprint_entities(blueprint_entities)
     end
 end
 
