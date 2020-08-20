@@ -38,7 +38,7 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
 end
 
 local function remove_subentity_ghosts(ghost_entity, sub_entity_type, x_offset, y_offset)
-    position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
+    position = {x = ghost_entity.position.x + x_offset,y = ghost_entity.position.y + y_offset}
     local area = {
         {position.x - 1.5, position.y - 1.5}, 
         {position.x + 1.5, position.y + 1.5}
