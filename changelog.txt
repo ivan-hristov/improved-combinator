@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 22-Aug-2020
+  Changes:
+    - Added checks to ensure the mod doesn't try and use invalid entities when creating a blueprint
+---------------------------------------------------------------------------------------------------
 Version: 1.0.8
 Date: 20-Aug-2020
   Bugfixes:
