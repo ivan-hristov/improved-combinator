@@ -5,6 +5,9 @@ local combinator = require("combinator")
 local cached_signals = require("cached_signals")
 local overlay_gui = require("overlay_gui")
 
+local raised_warning = false
+local time_since_last_warning = 0
+local warning_delay = 60 * 60 -- ticks * seconds
 local game_loaded = false
 local input_signals = {}
 local output_signals = {}
@@ -361,6 +364,24 @@ local function process_events()
     end
 end
 
+local function raise_warning()
+    if time_since_last_warning == 0 and not raised_warning then
+        raised_warning = true
+    end
+end
+
+local function print_warning()
+    if raised_warning then
+        raised_warning = false
+        time_since_last_warning = warning_delay
+        game.print({"improved-combinator.maximum-output-warning"})
+    end
+
+    if time_since_last_warning ~= 0 then
+        time_since_last_warning = time_since_last_warning - 1
+    end
+end
+
 local function write_output_signals()
     for entity_id, entity in pairs(global.entities) do
         local entity_output = entity.entity_output
@@ -374,7 +395,11 @@ local function write_output_signals()
                 for _, signal in pairs(signals) do
                     if signal and signal.signal and signal.count then
                         index = index + 1
-                        parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
+                        if index <= 50 then
+                            parameters[index] = { index = index, signal = signal.signal, count = math.min(math.floor(signal.count), 2100000000) }
+                        else
+                            raise_warning()
+                        end
                     end
                 end
                 entity_output.get_control_behavior().parameters = {parameters = parameters}
@@ -446,6 +471,7 @@ local function on_tick()
     read_input_signals()
     process_events()
     write_output_signals()
+    print_warning()
 end
 
 
