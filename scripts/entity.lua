@@ -58,6 +58,10 @@ local function on_init()
 end
 
 local function build_entity(entity, tags)
+    if not entity then
+        return
+    end
+
     if entity.name == constants.entity.name and tags and tags["improved-combinator-nodes"] and tags["improved-combinator-updates"] then
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
@@ -91,6 +95,9 @@ end
 
 local function on_entity_died(event)
     local entity = event.entity
+    if not entity then
+        return
+    end
 
     -- If the main ghost entity is destroyed then remove the sub-entity ghosts
     if entity.name == "entity-ghost" and entity.ghost_name == constants.entity.name then
@@ -172,11 +179,13 @@ local function on_player_setup_blueprint(event)
             local mapping = event.mapping.get()
             for _, blueprint_entity in pairs(blueprint_entities) do
                 local entity = mapping[blueprint_entity.entity_number]
-                local unit_number = entity.unit_number
-                if global.entities[unit_number] and entity.name == constants.entity.name then
-                    blueprint_entity.tags = blueprint_entity.tags or {}
-                    blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
-                    blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
+                if entity then
+                    local unit_number = entity.unit_number
+                    if global.entities[unit_number] and entity.name == constants.entity.name then
+                        blueprint_entity.tags = blueprint_entity.tags or {}
+                        blueprint_entity.tags["improved-combinator-nodes"] = game_node.node_to_json(global.entities[unit_number].node)
+                        blueprint_entity.tags["improved-combinator-updates"] = update_array.table_to_json(global.entities[unit_number].update_list)
+                    end
                 end
             end
             blueprint.set_blueprint_entities(blueprint_entities)
@@ -184,7 +193,7 @@ local function on_player_setup_blueprint(event)
             local selection_contains_improved_combinator = false
             local mapping = event.mapping.get()
             for _, entity in pairs(mapping) do
-                if entity.name == constants.entity.name then
+                if entity and entity.name == constants.entity.name then
                     selection_contains_improved_combinator = true
                     break
                 end
