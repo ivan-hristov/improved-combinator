@@ -3,6 +3,8 @@ Version: 1.0.10
 Date: 
   Bugfixes:
     - Fixed a crash caused by outputting more than 50 signals at the same time
+    - Fixed a ghost removal issue caused by placing entities too close to each other
+    - Fixed an issue which prevented ghost entities from being removed if the entity was created using a blueprint
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.9
 Date: 22-Aug-2020

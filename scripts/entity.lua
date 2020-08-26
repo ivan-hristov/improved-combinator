@@ -5,20 +5,23 @@ local update_array = require("update_array")
 local logger = require("logger")
 
 local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset)
-    position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
+    local position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
     local area = {
-        {position.x - 1.5, position.y - 1.5}, 
-        {position.x + 1.5, position.y + 1.5}
+        {main_entity.position.x - 0.4, main_entity.position.y - 0.4}, 
+        {main_entity.position.x + 1.0, main_entity.position.y + 0.4}
     }
 
-    local ghosts = main_entity.surface.find_entities_filtered { area = area, name = "entity-ghost", force = main_entity.force }
+    local ghosts = main_entity.surface.find_entities_filtered{area = area, name = "entity-ghost", force = main_entity.force}
     for _, ghost in pairs(ghosts) do
         if ghost.valid and ghost.ghost_name == sub_entity_type then
             ghost.revive()
         end
     end
 
-    local existing_entity = main_entity.surface.find_entities_filtered{area = area, name = sub_entity_type, force = main_entity.force, limit = 1 }[1]
+    local existing_entity = main_entity.surface.find_entities_filtered{
+        area = area, name = sub_entity_type, force = main_entity.force, limit = 1
+    }[1]
+
     if existing_entity then
         existing_entity.direction = defines.direction.east
         existing_entity.teleport(position)
@@ -27,7 +30,10 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         existing_entity.minable = false
         return existing_entity
     else
-        local new_entity = main_entity.surface.create_entity{name = sub_entity_type, position = position, force = main_entity.force, fast_replace = false, destructible = false, operable = false}
+        local new_entity = main_entity.surface.create_entity{
+            name = sub_entity_type, position = position, force = main_entity.force,
+            fast_replace = false, destructible = false, operable = false
+        }
         new_entity.direction = defines.direction.east
         new_entity.teleport(position)
         new_entity.destructible = false
@@ -38,16 +44,44 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
 end
 
 local function remove_subentity_ghosts(ghost_entity, sub_entity_type, x_offset, y_offset)
-    position = {x = ghost_entity.position.x + x_offset,y = ghost_entity.position.y + y_offset}
+    local position = {x = ghost_entity.position.x + x_offset,y = ghost_entity.position.y + y_offset}
     local area = {
-        {position.x - 1.5, position.y - 1.5}, 
-        {position.x + 1.5, position.y + 1.5}
+        {main_entity.position.x - 0.4, main_entity.position.y - 0.4}, 
+        {main_entity.position.x + 0.9, main_entity.position.y + 0.4}
     }
 
     local ghosts = ghost_entity.surface.find_entities_filtered {area = area, name = "entity-ghost", force = ghost_entity.force}
     for _, ghost in pairs(ghosts) do
         if ghost.valid and ghost.ghost_name == sub_entity_type then
             ghost.destroy()
+        end
+    end
+end
+
+local function find_and_replace_subentity(sub_entity, x_offset, y_offset)
+    local position = {x = sub_entity.position.x + x_offset,y = sub_entity.position.y + y_offset}
+    local area = {
+        {position.x, position.y}, 
+        {position.x, position.y}
+    }
+
+    -- Check if the sub-entity has already been created and replace it with the blueprint entity
+    local existing_entity = sub_entity.surface.find_entities_filtered{
+        area = area, name = constants.entity.name, force = sub_entity.force, limit = 1
+    }[1]
+    
+    if existing_entity then
+        local entity = global.entities[existing_entity.unit_number]
+        if entity then
+            if entity.entity_input and entity.entity_input.position.x == sub_entity.position.x and
+                entity.entity_input.position.y == sub_entity.position.y then
+                entity.entity_input.destroy()
+                entity.entity_input = sub_entity       
+            elseif entity.entity_output and entity.entity_output.position.x == sub_entity.position.x and 
+                entity.entity_output.position.y == sub_entity.position.y then
+                entity.entity_output.destroy()
+                entity.entity_output = sub_entity
+            end
         end
     end
 end
@@ -76,6 +110,10 @@ local function build_entity(entity, tags)
         global.entities[entity.unit_number].node = node
         global.entities[entity.unit_number].update_list = update_array.json_to_table(node, tags["improved-combinator-updates"])
 
+    elseif entity.name == constants.entity.input.name then
+        find_and_replace_subentity(entity, 0.9, 0.0)
+    elseif entity.name == constants.entity.output.name then
+        find_and_replace_subentity(entity, -1.0, 0.0)
     elseif entity.name == constants.entity.name then
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
