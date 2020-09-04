@@ -215,6 +215,21 @@ decider_methods[4] = function(input_signal, entity_id, update_logic, right_count
 end
 
 decider_methods[5] = function(input_signal, entity_id, update_logic, right_count)
+    local left_count = get_value(input_signal, update_logic.signal_slot_1, update_logic.value_slot_1)
+    local combinator_result = combinator.decider[update_logic.sign_index](left_count, right_count)
+
+    if combinator_result ~= nil then
+        for _, signal in pairs(input_signal) do
+            local signal_count = signal.count
+            if not update_logic.output_value then
+                signal_count =  1
+            end
+            set_output_signal(signal.signal, entity_id, signal_count) 
+        end
+    end
+end
+
+decider_methods[6] = function(input_signal, entity_id, update_logic, right_count)
     if anything_is_true(input_signal, update_logic, right_count) then
         for _, signal in pairs(input_signal) do
             local combinator_result = signal.count
@@ -226,7 +241,7 @@ decider_methods[5] = function(input_signal, entity_id, update_logic, right_count
     end
 end
 
-decider_methods[6] = function(input_signal, entity_id, update_logic, right_count)
+decider_methods[7] = function(input_signal, entity_id, update_logic, right_count)
     if everything_is_true(input_signal, update_logic, right_count) then
         for _, signal in pairs(input_signal) do
             local combinator_result = signal.count
@@ -238,7 +253,7 @@ decider_methods[6] = function(input_signal, entity_id, update_logic, right_count
     end
 end
 
-decider_methods[7] = function(input_signal, entity_id, update_logic, right_count)
+decider_methods[8] = function(input_signal, entity_id, update_logic, right_count)
     for _, signal in pairs(input_signal) do
         local combinator_result = combinator.decider[update_logic.sign_index](signal.count, right_count)
 
