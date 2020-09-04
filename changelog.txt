@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.11
+Date: 
+  Bugfixes:
+    - Fixed a bug in the decider combinator, which was casing the game to crash if the output signal was set to "Everything"
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 28-Aug-2020
   Bugfixes:
