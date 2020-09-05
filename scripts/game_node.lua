@@ -533,12 +533,14 @@ end
 function node:update_decider_logic()
     if self.update_logic.signal_slot_1 and self.update_logic.signal_slot_1.name == "signal-each" and
        self.update_logic.signal_result and self.update_logic.signal_result.name == "signal-each" then
-        self.update_logic.decider_method = 7
+        self.update_logic.decider_method = 8
     elseif self.update_logic.signal_slot_1 and self.update_logic.signal_slot_1.name == "signal-everything" and
            self.update_logic.signal_result and self.update_logic.signal_result.name == "signal-everything" then
-        self.update_logic.decider_method = 6
+        self.update_logic.decider_method = 7
     elseif self.update_logic.signal_slot_1 and self.update_logic.signal_slot_1.name == "signal-anything" and
            self.update_logic.signal_result and self.update_logic.signal_result.name == "signal-everything" then
+        self.update_logic.decider_method = 6
+    elseif self.update_logic.signal_result and self.update_logic.signal_result.name == "signal-everything" then
         self.update_logic.decider_method = 5
     elseif self.update_logic.signal_slot_1 and self.update_logic.signal_slot_1.name == "signal-everything" then
         self.update_logic.decider_method = 4

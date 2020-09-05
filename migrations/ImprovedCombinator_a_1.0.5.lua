@@ -1,3 +1,18 @@
+
+-- Check if this save has already been migrated
+local already_migrated = false
+for entity_id, entity in pairs(global.entities) do
+    local iter = entity.update_list.front
+    if iter == nil then
+        already_migrated = true
+        break
+    end
+end
+
+if already_migrated then
+    return
+end
+
 local old_entity_update_list = {}
 
 -- Make all input and output entities indestructible
