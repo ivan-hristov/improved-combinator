@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.12
+Date: 12-Sep-2020
+  Bugfixes:
+    - Fixed a bug, showing that the output ghost missing if the entity was placed using robots
+  Changes:
+    - Slightly increased the entity collision size to prevent the ghosts from overlapping with other entities. This could affect older blueprints that have placed entities next to the Improved Combinator.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.11
 Date: 05-Sep-2020
   Bugfixes:
