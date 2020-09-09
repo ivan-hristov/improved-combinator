@@ -99,8 +99,6 @@ local function build_entity(entity, tags)
     end
 
     if entity.name == constants.entity.name and tags and tags["improved-combinator-nodes"] and tags["improved-combinator-updates"] then
-
-        game.print("blueprint: "..entity.name)
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
