@@ -7,8 +7,8 @@ local logger = require("logger")
 local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset)
     local position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
     local area = {
-        {main_entity.position.x - 0.4, main_entity.position.y - 0.4}, 
-        {main_entity.position.x + 1.0, main_entity.position.y + 0.4}
+        {main_entity.position.x - 0.8, main_entity.position.y - 0.4}, 
+        {main_entity.position.x + 0.8, main_entity.position.y + 0.4}
     }
 
     local ghosts = main_entity.surface.find_entities_filtered{area = area, name = "entity-ghost", force = main_entity.force}
