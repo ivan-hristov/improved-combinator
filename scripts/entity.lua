@@ -4,12 +4,16 @@ local overlay_gui = require("overlay_gui")
 local update_array = require("update_array")
 local logger = require("logger")
 
+local function get_entity_area(position)
+    return {
+        {position.x - 0.9, position.y - 0.4}, 
+        {position.x + 1.1, position.y + 0.4}
+    }
+end
+
 local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset)
     local position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
-    local area = {
-        {main_entity.position.x - 0.4, main_entity.position.y - 0.4}, 
-        {main_entity.position.x + 1.0, main_entity.position.y + 0.4}
-    }
+    local area = get_entity_area(main_entity.position)
 
     local ghosts = main_entity.surface.find_entities_filtered{area = area, name = "entity-ghost", force = main_entity.force}
     for _, ghost in pairs(ghosts) do
@@ -45,10 +49,7 @@ end
 
 local function remove_subentity_ghosts(ghost_entity, sub_entity_type, x_offset, y_offset)
     local position = {x = ghost_entity.position.x + x_offset,y = ghost_entity.position.y + y_offset}
-    local area = {
-        {main_entity.position.x - 0.4, main_entity.position.y - 0.4}, 
-        {main_entity.position.x + 0.9, main_entity.position.y + 0.4}
-    }
+    local area = get_entity_area(main_entity.position)
 
     local ghosts = ghost_entity.surface.find_entities_filtered {area = area, name = "entity-ghost", force = ghost_entity.force}
     for _, ghost in pairs(ghosts) do
