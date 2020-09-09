@@ -15,12 +15,9 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
     local position = {x = main_entity.position.x + x_offset,y = main_entity.position.y + y_offset}
     local area = get_entity_area(main_entity.position)
 
-    logger.print("Search area: "..logger.area_to_string(area)) 
-
     local ghosts = main_entity.surface.find_entities_filtered{area = area, name = "entity-ghost", force = main_entity.force}
     for _, ghost in pairs(ghosts) do
         if ghost.valid and ghost.ghost_name == sub_entity_type then
-            game.print("GHOST REVIVE "..ghost.ghost_name)
             ghost.revive()
         end
     end
@@ -35,7 +32,6 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         existing_entity.destructible = false
         existing_entity.operable = false
         existing_entity.minable = false
-        game.print("EXISTING ENTITY "..existing_entity.name)
         return existing_entity
     else
         local new_entity = main_entity.surface.create_entity{
@@ -48,7 +44,6 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         new_entity.operable = false
         new_entity.minable = false
 
-        game.print("NEW ENTITY "..new_entity.name)
         return new_entity
     end
 end
@@ -60,7 +55,6 @@ local function remove_subentity_ghosts(ghost_entity, sub_entity_type, x_offset, 
     local ghosts = ghost_entity.surface.find_entities_filtered {area = area, name = "entity-ghost", force = ghost_entity.force}
     for _, ghost in pairs(ghosts) do
         if ghost.valid and ghost.ghost_name == sub_entity_type then
-            game.print("remove_subentity_ghosts "..ghost.ghost_name)
             ghost.destroy()
         end
     end
@@ -79,7 +73,6 @@ local function find_and_replace_subentity(sub_entity, x_offset, y_offset)
     }[1]
     
     if existing_entity then
-        game.print("EXISTING ENTITY "..existing_entity.name)
         local entity = global.entities[existing_entity.unit_number]
         if entity then
             if entity.entity_input and entity.entity_input.position.x == sub_entity.position.x and
@@ -92,8 +85,6 @@ local function find_and_replace_subentity(sub_entity, x_offset, y_offset)
                 entity.entity_output = sub_entity
             end
         end
-    else
-        game.print("NOT EXISTING")
     end
 end
 
@@ -107,18 +98,12 @@ local function build_entity(entity, tags)
         return
     end
 
-    game.print("build_entity: "..entity.name)
-
     if entity.name == constants.entity.name and tags and tags["improved-combinator-nodes"] and tags["improved-combinator-updates"] then
 
         game.print("blueprint: "..entity.name)
         global.entities[entity.unit_number] = {}
         global.entities[entity.unit_number].entity_input = create_subentity(entity, constants.entity.input.name, -0.9, 0.0)
-        logger.print("Input postion "..logger.position_to_string(global.entities[entity.unit_number].entity_input.position))
-
         global.entities[entity.unit_number].entity_output = create_subentity(entity, constants.entity.output.name, 1.0, 0.0)
-        logger.print("Output postion "..logger.position_to_string(global.entities[entity.unit_number].entity_output.position))
-
         local node = game_node.node_from_json(tags["improved-combinator-nodes"], entity.unit_number)
 
         -- Something has gone wrong. Create a default node
@@ -130,10 +115,8 @@ local function build_entity(entity, tags)
         global.entities[entity.unit_number].update_list = update_array.json_to_table(node, tags["improved-combinator-updates"])
 
     elseif entity.name == constants.entity.input.name then
-        game.print("find_and_replace_subentity: "..entity.name)
         find_and_replace_subentity(entity, 0.9, 0.0)
     elseif entity.name == constants.entity.output.name then
-        game.print("find_and_replace_subentity: "..entity.name)
         find_and_replace_subentity(entity, -1.0, 0.0)
     elseif entity.name == constants.entity.name then
         global.entities[entity.unit_number] = {}
