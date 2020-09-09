@@ -43,7 +43,6 @@ local function create_subentity(main_entity, sub_entity_type, x_offset, y_offset
         new_entity.destructible = false
         new_entity.operable = false
         new_entity.minable = false
-
         return new_entity
     end
 end
