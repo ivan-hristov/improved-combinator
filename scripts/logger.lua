@@ -1,6 +1,14 @@
 
-local debugMode = false
+local debugMode = true
 logger = {}
+
+function logger.area_to_string(area)
+    return string.format("{{%s, %s}, {%s, %s}}", area[1][1], area[2][1], area[1][2], area[2][2])
+end
+
+function logger.position_to_string(position)
+    return string.format("{%s, %s}", position.x, position.y)
+end
 
 function logger.print(message)
     if debugMode then
