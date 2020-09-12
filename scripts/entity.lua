@@ -49,7 +49,7 @@ end
 
 local function remove_subentity_ghosts(ghost_entity, sub_entity_type, x_offset, y_offset)
     local position = {x = ghost_entity.position.x + x_offset,y = ghost_entity.position.y + y_offset}
-    local area = get_entity_area(main_entity.position)
+    local area = get_entity_area(ghost_entity.position)
 
     local ghosts = ghost_entity.surface.find_entities_filtered {area = area, name = "entity-ghost", force = ghost_entity.force}
     for _, ghost in pairs(ghosts) do
