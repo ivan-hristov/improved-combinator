@@ -16,6 +16,7 @@ local loaded = false
 local signal_frame_height = 521
 local signal_group_height = 71
 local signal_current_signal_height = 0
+local last_selected_group = nil
 
 local function get_y_offset(constant_frame)
     --- ((mainframe height) - (constant frame hight) - (current signal frame height)) / 2
@@ -216,6 +217,8 @@ function overlay_gui.on_click_change_subgroup(event, entity_id)
             table_group.visible = false
         end
     end
+
+    last_selected_group = group
 end
 
 function overlay_gui.on_click_select_signal(event, entity_id)
@@ -454,8 +457,16 @@ function overlay_gui.create_signal_gui(player, node_param, current_signal, exclu
         end
 
         if current_signal == nil then
-            group_button.enabled = (group.name ~= "logistics") or false
-            signals_table.visible = (group.name == "logistics") and true or false
+            if last_selected_group == nil then
+                group_button.enabled = (group.name ~= "logistics") or false
+                signals_table.visible = (group.name == "logistics") and true or false
+            elseif last_selected_group == group.name then
+                group_button.enabled = false
+                signals_table.visible = true
+             else
+                group_button.enabled = true
+                signals_table.visible = false
+            end
         else
             if current_group then
                 group_button.enabled = false
