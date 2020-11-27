@@ -188,7 +188,7 @@ function overlay_gui.destory_top_nodes_and_unselect(player_index, entity_id)
     overlay_gui.enable_owner(entity_id)
 
     local entity = global.entities[entity_id]
-    if entity then
+    if entity and game.players[player_index].opened then
         game.players[player_index].opened = entity.node.gui_element
     end
 end
