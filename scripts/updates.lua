@@ -417,9 +417,9 @@ local function write_output_signals()
                         end
                     end
                 end
-                entity_output.get_control_behavior().parameters = {parameters = parameters}
+                entity_output.get_control_behavior().parameters = parameters
             else
-                entity_output.get_control_behavior().parameters = {parameters = nil}
+                entity_output.get_control_behavior().parameters = nil
             end
         end
     end
