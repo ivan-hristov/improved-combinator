@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.13
+Date: 28-Nov-2020
+  Bugfixes:
+    - Fixed several multiplayer issues
+  Changes:
+    - The last selected signal group will now be remembered
+    - Upgraded the mod to support 1.1
+---------------------------------------------------------------------------------------------------
 Version: 1.0.12
 Date: 12-Sep-2020
   Bugfixes:

@@ -41,7 +41,6 @@ local function read_input_signals()
             read_signals(green_network, signals)
         end
     end
-
 end
 
 local function update_timer_and_progress_bar(gui_element, update_logic)
@@ -417,9 +416,9 @@ local function write_output_signals()
                         end
                     end
                 end
-                entity_output.get_control_behavior().parameters = {parameters = parameters}
+                entity_output.get_control_behavior().parameters = parameters
             else
-                entity_output.get_control_behavior().parameters = {parameters = nil}
+                entity_output.get_control_behavior().parameters = nil
             end
         end
     end
