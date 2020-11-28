@@ -41,7 +41,6 @@ local function read_input_signals()
             read_signals(green_network, signals)
         end
     end
-
 end
 
 local function update_timer_and_progress_bar(gui_element, update_logic)
