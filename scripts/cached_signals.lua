@@ -4,25 +4,51 @@ local cache = {
     functions = {}
 }
 
+local function has_visible_items(signals_group)
+    for _, signal in pairs(signals_group) do
+        if signal.has_flag("hidden") == false then
+            return true
+        end
+    end
+    return false
+end
+
+local function has_visible_fluids(signals_group)
+    for _, signal in pairs(signals_group) do
+        if signal.hidden == false then
+            return true
+        end
+    end
+    return false
+end
+
 local function filtered_signal_prototypes(subgroup_name)
     --- Check if the group contains items --
     local signals_group = game.get_filtered_item_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
     if #signals_group ~= 0 then
-        return "item", signals_group
+        if has_visible_items(signals_group) then
+            return "item", signals_group
+        else
+            signals_group = {}
+        end
     end
  
     --- Check if the group contains fluids --
     if #signals_group == 0 then
         signals_group = game.get_filtered_fluid_prototypes({{filter = "subgroup", subgroup = subgroup_name}})
         if #signals_group ~= 0 then
-            return "fluid", signals_group
+            if has_visible_fluids(signals_group) then
+                return "fluid", signals_group
+            else
+                signals_group = {}
+            end
         end
     end
 
     --- Check if the group contains signals --
     signals_group = {}
     for _, virtual_signal in pairs(game.virtual_signal_prototypes) do
-        if virtual_signal.subgroup.name == subgroup_name then
+        if virtual_signal.subgroup.name ~= "other" and virtual_signal.subgroup.name == subgroup_name then
             table.insert(signals_group, virtual_signal)
         end
     end

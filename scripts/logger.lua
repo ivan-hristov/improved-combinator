@@ -16,7 +16,13 @@ function logger.print(message)
         if (player ~= nil) then
             player.print(message)
         end
-	end
+    end
+end
+
+function logger.file_log(message)
+    if debugMode then
+        game.write_file("logfile.txt", message.."\n", true)
+    end
 end
 
 return logger

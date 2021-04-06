@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.14
+Date: 6-Apr-2021
+  Bugfixes:
+    - Fixed issues were virtual signals were missing when certain mods were being used
+---------------------------------------------------------------------------------------------------
 Version: 1.0.13
 Date: 28-Nov-2020
   Bugfixes:
